@@ -10,10 +10,8 @@ import {
   Clock,
   MapPin,
 } from "lucide-react";
-const heroImg =
-  "https://tona-orange-coffee-vibe.lovable.app/assets/hero-ceremony-Q7B59b3U.jpg";
-const beansImg =
-  "https://tona-orange-coffee-vibe.lovable.app/assets/beans-ukdxtdpC.jpg";
+import heroImg from "@/assets/hero-ceremony.jpg";
+import beansImg from "@/assets/beans.jpg";
 import { PRODUCTS, waLink } from "@/lib/tona";
 import { PRODUCT_IMAGES } from "@/lib/product-images";
 import { EventRegistrationForm } from "@/components/site/EventRegistrationForm";
