@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { MessageCircle, Minus, Plus } from "lucide-react";
 import { FORMATS, SIZES, waLink, type Product } from "@/lib/tona";
+import { PRODUCT_IMAGES } from "@/lib/product-images";
 
 export function ProductCard({ product }: { product: Product }) {
   const [size, setSize] = useState<string>(SIZES[0]!);
@@ -9,15 +10,18 @@ export function ProductCard({ product }: { product: Product }) {
 
   const message = `Hi Tona, I'd like to order:\n• ${product.name} (${product.process})\n• Size: ${size}\n• Grind: ${format}\n• Quantity: ${qty}\n\nPlease confirm availability and price.`;
 
-  const isTeal = product.accent === "teal";
-
   return (
-    <article className="flex flex-col overflow-hidden rounded-3xl border border-border bg-card">
-      <div
-        className={`leaf-field relative h-40 ${isTeal ? "bg-teal" : "bg-primary"}`}
-        aria-hidden="true"
-      >
-        <span className="label-mono absolute left-6 top-6 text-primary-foreground/75">
+    <article className="group flex flex-col overflow-hidden rounded-3xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg">
+      <div className="relative h-44 overflow-hidden bg-muted">
+        <img
+          src={PRODUCT_IMAGES[product.slug as keyof typeof PRODUCT_IMAGES]}
+          alt={`${product.name} black coffee with roasted coffee beans`}
+          width={720}
+          height={360}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/10 to-transparent" />
+        <span className="label-mono absolute left-6 top-5 rounded-full bg-background/90 px-3 py-1.5 text-foreground">
           {product.process}
         </span>
         <span className="absolute bottom-5 left-6 font-display text-3xl font-bold text-primary-foreground">
@@ -27,7 +31,9 @@ export function ProductCard({ product }: { product: Product }) {
 
       <div className="flex flex-1 flex-col p-6">
         <p className="label-mono text-muted-foreground">{product.region}</p>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{product.blurb}</p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          {product.blurb}
+        </p>
 
         <div className="mt-4 flex flex-wrap gap-2">
           {product.notes.map((n) => (
@@ -40,11 +46,23 @@ export function ProductCard({ product }: { product: Product }) {
           ))}
         </div>
 
-        <p className="mt-3 text-xs text-muted-foreground">Altitude {product.altitude}</p>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Altitude {product.altitude}
+        </p>
 
         <div className="mt-6 space-y-4">
-          <Choice label="Size" options={[...SIZES]} value={size} onChange={setSize} />
-          <Choice label="Grind" options={[...FORMATS]} value={format} onChange={setFormat} />
+          <Choice
+            label="Size"
+            options={[...SIZES]}
+            value={size}
+            onChange={setSize}
+          />
+          <Choice
+            label="Grind"
+            options={[...FORMATS]}
+            value={format}
+            onChange={setFormat}
+          />
         </div>
 
         <div className="mt-6 flex items-center gap-3">
