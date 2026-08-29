@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 import { adminAuth } from "@/lib/admin-auth";
 
-export const Route = createFileRoute("/admin/login")({
+export const Route = createFileRoute("/admin_/login")({
   component: AdminLoginPage,
   head: () => ({ meta: [{ title: "Admin sign in — Tona Coffee" }] }),
 });

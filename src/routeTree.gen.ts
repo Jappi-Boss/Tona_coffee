@@ -16,8 +16,8 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as ForBusinessRouteImport } from './routes/for-business'
 import { Route as ProductsRouteImport } from './routes/products'
-import { Route as AdminLoginRouteImport } from './routes/admin.login'
-import { Route as AdminResetPasswordRouteImport } from './routes/admin.reset-password'
+import { Route as AdminLoginRouteImport } from './routes/admin_.login'
+import { Route as AdminResetPasswordRouteImport } from './routes/admin_.reset-password'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -55,20 +55,20 @@ const ProductsRoute = ProductsRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => AdminRoute,
+  id: '/admin_/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminResetPasswordRoute = AdminResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => AdminRoute,
+  id: '/admin_/reset-password',
+  path: '/admin/reset-password',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRouteWithChildren
+  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/for-business': typeof ForBusinessRoute
@@ -79,7 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRouteWithChildren
+  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/for-business': typeof ForBusinessRoute
@@ -91,13 +91,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRouteWithChildren
+  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/for-business': typeof ForBusinessRoute
   '/products': typeof ProductsRoute
-  '/admin/login': typeof AdminLoginRoute
-  '/admin/reset-password': typeof AdminResetPasswordRoute
+  '/admin_/login': typeof AdminLoginRoute
+  '/admin_/reset-password': typeof AdminResetPasswordRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,18 +131,20 @@ export interface FileRouteTypes {
     | '/events'
     | '/for-business'
     | '/products'
-    | '/admin/login'
-    | '/admin/reset-password'
+    | '/admin_/login'
+    | '/admin_/reset-password'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  AdminRoute: typeof AdminRouteWithChildren
+  AdminRoute: typeof AdminRoute
   ContactRoute: typeof ContactRoute
   EventsRoute: typeof EventsRoute
   ForBusinessRoute: typeof ForBusinessRoute
   ProductsRoute: typeof ProductsRoute
+  AdminLoginRoute: typeof AdminLoginRoute
+  AdminResetPasswordRoute: typeof AdminResetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -196,43 +198,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/login': {
-      id: '/admin/login'
-      path: '/login'
+    '/admin_/login': {
+      id: '/admin_/login'
+      path: '/admin/login'
       fullPath: '/admin/login'
       preLoaderRoute: typeof AdminLoginRouteImport
-      parentRoute: typeof AdminRoute
+      parentRoute: typeof rootRouteImport
     }
-    '/admin/reset-password': {
-      id: '/admin/reset-password'
-      path: '/reset-password'
+    '/admin_/reset-password': {
+      id: '/admin_/reset-password'
+      path: '/admin/reset-password'
       fullPath: '/admin/reset-password'
       preLoaderRoute: typeof AdminResetPasswordRouteImport
-      parentRoute: typeof AdminRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface AdminRouteChildren {
-  AdminLoginRoute: typeof AdminLoginRoute
-  AdminResetPasswordRoute: typeof AdminResetPasswordRoute
-}
-
-const AdminRouteChildren: AdminRouteChildren = {
-  AdminLoginRoute: AdminLoginRoute,
-  AdminResetPasswordRoute: AdminResetPasswordRoute,
-}
-
-const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  AdminRoute: AdminRouteWithChildren,
+  AdminRoute: AdminRoute,
   ContactRoute: ContactRoute,
   EventsRoute: EventsRoute,
   ForBusinessRoute: ForBusinessRoute,
   ProductsRoute: ProductsRoute,
+  AdminLoginRoute: AdminLoginRoute,
+  AdminResetPasswordRoute: AdminResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

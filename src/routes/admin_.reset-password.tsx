@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 import { adminAuth } from "@/lib/admin-auth";
 
-export const Route = createFileRoute("/admin/reset-password")({
+export const Route = createFileRoute("/admin_/reset-password")({
   component: ResetPasswordPage,
   head: () => ({ meta: [{ title: "Reset password — Tona Coffee" }] }),
 });
