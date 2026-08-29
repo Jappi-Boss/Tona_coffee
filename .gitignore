@@ -1,0 +1,4 @@
+node_modules/
+.output/
+.wrangler/
+package-lock.json
