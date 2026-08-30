@@ -5,7 +5,7 @@ import {
   EVENT_OPTIONS,
   EventRegistrationDialog,
 } from "@/components/site/EventRegistrationForm";
-import eventImg from "@/assets/event.jpg";
+import { eventImage as eventImg } from "@/lib/site-images";
 import { waLink } from "@/lib/tona";
 
 export const Route = createFileRoute("/events")({
