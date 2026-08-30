@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
-import heroImg from "@/assets/hero-ceremony.jpg";
+import { heroCeremonyImage as heroImg } from "@/lib/site-images";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
