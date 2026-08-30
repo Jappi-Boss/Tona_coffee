@@ -13,14 +13,13 @@ import {
   beansImage as beansImg,
   heroCeremonyImage as heroImg,
 } from "@/lib/site-images";
-import { PRODUCTS, waLink } from "@/lib/tona";
+import { waLink } from "@/lib/tona";
 import { PRODUCT_IMAGES } from "@/lib/product-images";
-import {
-  EVENT_OPTIONS,
-  EventRegistrationDialog,
-} from "@/components/site/EventRegistrationForm";
+import { EventRegistrationDialog } from "@/components/site/EventRegistrationForm";
+import { getPublicCatalog } from "@/lib/public-api";
 
 export const Route = createFileRoute("/")({
+  loader: () => getPublicCatalog(),
   head: () => ({
     meta: [
       { title: "Tona Coffee — Stay for Tona, Stay for the Moment" },
@@ -67,6 +66,8 @@ const PILLARS = [
 ];
 
 function Home() {
+  const { products, events } = Route.useLoaderData();
+  const upcomingEvent = events[0];
   return (
     <>
       {/* HERO */}
@@ -153,36 +154,68 @@ function Home() {
             </Link>
           </div>
 
-          <article className="grid overflow-hidden rounded-3xl border border-border bg-card md:grid-cols-[220px_1fr]">
-            <div className="leaf-field flex min-h-56 flex-col justify-between bg-teal p-6 text-teal-foreground">
-              <div>
-                <p className="label-mono text-teal-foreground/60">September</p>
-                <p className="font-display text-6xl font-bold">14</p>
+          {upcomingEvent ? (
+            <article className="grid overflow-hidden rounded-3xl border border-border bg-card md:grid-cols-[220px_1fr]">
+              <div className="leaf-field flex min-h-56 flex-col justify-between bg-teal p-6 text-teal-foreground">
+                <div>
+                  <p className="label-mono text-teal-foreground/60">
+                    {new Date(upcomingEvent.eventDate).toLocaleDateString(
+                      "en-ET",
+                      {
+                        month: "long",
+                      },
+                    )}
+                  </p>
+                  <p className="font-display text-6xl font-bold">
+                    {new Date(upcomingEvent.eventDate).toLocaleDateString(
+                      "en-ET",
+                      {
+                        day: "2-digit",
+                      },
+                    )}
+                  </p>
+                </div>
+                <p className="flex items-center gap-2 text-sm text-teal-foreground/80">
+                  <MapPin className="h-4 w-4 text-primary" />{" "}
+                  {upcomingEvent.location}
+                </p>
               </div>
-              <p className="flex items-center gap-2 text-sm text-teal-foreground/80">
-                <MapPin className="h-4 w-4 text-primary" /> Bole, Addis Ababa
-              </p>
-            </div>
 
-            <div className="p-6 sm:p-8">
-              <h3 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
-                Tona Coffee Ceremony Tasting
-              </h3>
-              <p className="mt-3 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                  <Clock className="h-4 w-4 text-primary" /> 10:00 AM
-                </span>
-                <span>Open to the public</span>
-              </p>
-              <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
-                A traditional Ethiopian coffee ceremony pairing Yirgacheffe and
-                Sidama, with guided tasting notes and origin stories.
-              </p>
-              <div className="mt-6">
-                <EventRegistrationDialog event={EVENT_OPTIONS[0]} />
+              <div className="p-6 sm:p-8">
+                <h3 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
+                  {upcomingEvent.title}
+                </h3>
+                <p className="mt-3 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="h-4 w-4 text-primary" />{" "}
+                    {new Date(upcomingEvent.eventDate).toLocaleTimeString(
+                      "en-ET",
+                      {
+                        hour: "numeric",
+                        minute: "2-digit",
+                      },
+                    )}
+                  </span>
+                  <span>Open to the public</span>
+                </p>
+                <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">
+                  {upcomingEvent.summary || upcomingEvent.description}
+                </p>
+                {upcomingEvent.registrationOpen && (
+                  <div className="mt-6">
+                    <EventRegistrationDialog
+                      event={upcomingEvent}
+                      events={events.filter((event) => event.registrationOpen)}
+                    />
+                  </div>
+                )}
               </div>
+            </article>
+          ) : (
+            <div className="rounded-3xl border border-dashed border-border bg-card p-10 text-center text-muted-foreground">
+              New events will appear here as soon as Tona publishes them.
             </div>
-          </article>
+          )}
         </div>
       </section>
 
@@ -237,7 +270,7 @@ function Home() {
           </div>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {PRODUCTS.map((p) => (
+            {products.slice(0, 4).map((p) => (
               <Link
                 key={p.slug}
                 to="/products"
@@ -245,7 +278,10 @@ function Home() {
               >
                 <div className="overflow-hidden rounded-xl bg-muted">
                   <img
-                    src={PRODUCT_IMAGES[p.slug as keyof typeof PRODUCT_IMAGES]}
+                    src={
+                      p.imageUrl ??
+                      PRODUCT_IMAGES[p.slug as keyof typeof PRODUCT_IMAGES]
+                    }
                     alt={`${p.name} black coffee with roasted coffee beans`}
                     width={720}
                     height={360}
@@ -261,7 +297,7 @@ function Home() {
                     {p.process}
                   </p>
                   <p className="mt-3 text-sm text-muted-foreground">
-                    {p.notes.join(" · ")}
+                    {p.tastingNotes.join(" · ")}
                   </p>
                 </div>
               </Link>
