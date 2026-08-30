@@ -9,8 +9,10 @@ import {
   Clock,
   MapPin,
 } from "lucide-react";
-import heroImg from "@/assets/hero-ceremony.jpg";
-import beansImg from "@/assets/beans.jpg";
+import {
+  beansImage as beansImg,
+  heroCeremonyImage as heroImg,
+} from "@/lib/site-images";
 import { PRODUCTS, waLink } from "@/lib/tona";
 import { PRODUCT_IMAGES } from "@/lib/product-images";
 import {
