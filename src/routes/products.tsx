@@ -2,9 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { MessageCircle } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
 import { ProductCard } from "@/components/site/ProductCard";
-import { PRODUCTS, waLink } from "@/lib/tona";
+import { waLink } from "@/lib/tona";
+import { getPublicCatalog } from "@/lib/public-api";
 
 export const Route = createFileRoute("/products")({
+  loader: () => getPublicCatalog(),
   head: () => ({
     meta: [
       { title: "Tona Coffee Products — Yirgacheffe, Sidama, Guji & Gesha" },
@@ -13,10 +15,14 @@ export const Route = createFileRoute("/products")({
         content:
           "Single-origin Ethiopian coffee from Yirgacheffe, Sidama, Guji and Gesha. Choose size and grind, then order instantly on WhatsApp.",
       },
-      { property: "og:title", content: "Tona Coffee Products — Yirgacheffe, Sidama, Guji & Gesha" },
+      {
+        property: "og:title",
+        content: "Tona Coffee Products — Yirgacheffe, Sidama, Guji & Gesha",
+      },
       {
         property: "og:description",
-        content: "Single-origin Ethiopian coffee. Choose size and grind, order on WhatsApp.",
+        content:
+          "Single-origin Ethiopian coffee. Choose size and grind, order on WhatsApp.",
       },
     ],
   }),
@@ -24,6 +30,7 @@ export const Route = createFileRoute("/products")({
 });
 
 function Products() {
+  const { products } = Route.useLoaderData();
   return (
     <>
       <PageHero
@@ -35,13 +42,13 @@ function Products() {
             from <span className="text-primary">the message.</span>
           </>
         }
-        intro="Choose a size, grind and quantity — your WhatsApp order arrives pre-filled and ready to send. Every lot is roasted to order for freshness."
+        intro="Choose a size, grind and quantity, then send your order directly to Tona's team. Every published coffee and availability update comes from the admin dashboard."
       />
 
       <section className="py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-            {PRODUCTS.map((p) => (
+            {products.map((p) => (
               <ProductCard key={p.slug} product={p} />
             ))}
           </div>
@@ -64,17 +71,29 @@ function Products() {
                 Whole bean, espresso or filter.
               </h2>
               <p className="mt-4 text-teal-foreground/75">
-                Every origin is available in 250g, 500g and 1kg bags, ground to your brew method or
-                left whole for maximum freshness.
+                Every origin is available in 250g, 500g and 1kg bags, ground to
+                your brew method or left whole for maximum freshness.
               </p>
             </div>
             <div className="lg:col-span-2 grid gap-4 sm:grid-cols-3">
               {[
-                { t: "Whole Bean", d: "Best for home grinders and cafés dialling in daily." },
-                { t: "Espresso Grind", d: "Fine and consistent for pressurised extraction." },
-                { t: "Filter Grind", d: "Medium grind for pour-over, batch brew and jebena." },
+                {
+                  t: "Whole Bean",
+                  d: "Best for home grinders and cafés dialling in daily.",
+                },
+                {
+                  t: "Espresso Grind",
+                  d: "Fine and consistent for pressurised extraction.",
+                },
+                {
+                  t: "Filter Grind",
+                  d: "Medium grind for pour-over, batch brew and jebena.",
+                },
               ].map((f) => (
-                <div key={f.t} className="rounded-2xl border border-teal-foreground/15 p-6">
+                <div
+                  key={f.t}
+                  className="rounded-2xl border border-teal-foreground/15 p-6"
+                >
                   <h3 className="text-lg font-bold">{f.t}</h3>
                   <p className="mt-2 text-sm text-teal-foreground/70">{f.d}</p>
                 </div>
@@ -83,7 +102,9 @@ function Products() {
           </div>
 
           <a
-            href={waLink("Hi Tona, I'd like help choosing the right coffee and grind.")}
+            href={waLink(
+              "Hi Tona, I'd like help choosing the right coffee and grind.",
+            )}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-10 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground"
