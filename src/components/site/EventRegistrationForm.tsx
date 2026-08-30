@@ -1,39 +1,48 @@
 import { type FormEvent, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { ArrowUpRight, MessageCircle, Users, X } from "lucide-react";
-import { waLink } from "@/lib/tona";
-
-export const EVENT_OPTIONS = [
-  "Tona Coffee Ceremony Tasting — September 14",
-  "Guji & Gesha Cupping Table — October 5",
-  "Second Round Pop-Up — November 22",
-] as const;
+import { CalendarCheck, Users, X } from "lucide-react";
+import { toast } from "sonner";
+import { submitEventRegistration, type PublicEvent } from "@/lib/public-api";
 
 type EventRegistrationFormProps = {
-  defaultEvent?: (typeof EVENT_OPTIONS)[number];
+  events: PublicEvent[];
+  defaultEvent: PublicEvent;
   onSubmitted?: () => void;
 };
 
 export function EventRegistrationForm({
-  defaultEvent = EVENT_OPTIONS[0],
+  events,
+  defaultEvent,
   onSubmitted,
 }: EventRegistrationFormProps) {
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const [busy, setBusy] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     const form = new FormData(event.currentTarget);
-    const message = [
-      "Hi Tona, I'd like to register for an upcoming event.",
-      `Event: ${form.get("event")}`,
-      `Name: ${form.get("name")}`,
-      `Phone: ${form.get("phone")}`,
-      `Email: ${form.get("email") || "Not provided"}`,
-      `Guests: ${form.get("guests")}`,
-      `Note: ${form.get("note") || "None"}`,
-    ].join("\n");
-
-    window.open(waLink(message), "_blank", "noopener,noreferrer");
-    onSubmitted?.();
+    setBusy(true);
+    try {
+      await submitEventRegistration({
+        data: {
+          eventId: String(form.get("event")),
+          fullName: String(form.get("name")),
+          phone: String(form.get("phone")),
+          email: nullable(form.get("email")),
+          guestCount: Number(form.get("guests")),
+          notes: nullable(form.get("note")),
+        },
+      });
+      toast.success("Registration received. Tona will confirm your place.");
+      onSubmitted?.();
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Unable to register right now.",
+      );
+    } finally {
+      setBusy(false);
+    }
   }
 
   const inputClass =
@@ -48,10 +57,12 @@ export function EventRegistrationForm({
             name="event"
             required
             className={inputClass}
-            defaultValue={defaultEvent}
+            defaultValue={defaultEvent.id}
           >
-            {EVENT_OPTIONS.map((option) => (
-              <option key={option}>{option}</option>
+            {events.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.title} — {formatEventDate(option.eventDate)}
+              </option>
             ))}
           </select>
         </label>
@@ -113,9 +124,11 @@ export function EventRegistrationForm({
 
       <button
         type="submit"
+        disabled={busy}
         className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.01]"
       >
-        Continue registration on WhatsApp <ArrowUpRight className="h-4 w-4" />
+        {busy ? "Submitting…" : "Register to attend"}
+        <CalendarCheck className="h-4 w-4" />
       </button>
       <p className="mt-3 text-center text-xs text-muted-foreground">
         Registration is confirmed by the Tona team.
@@ -126,9 +139,11 @@ export function EventRegistrationForm({
 
 export function EventRegistrationDialog({
   event,
+  events,
   className,
 }: {
-  event: (typeof EVENT_OPTIONS)[number];
+  event: PublicEvent;
+  events: PublicEvent[];
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -143,7 +158,7 @@ export function EventRegistrationDialog({
             "inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
           }
         >
-          <MessageCircle className="h-4 w-4" /> Register to attend
+          <CalendarCheck className="h-4 w-4" /> Register to attend
         </button>
       </Dialog.Trigger>
 
@@ -158,7 +173,7 @@ export function EventRegistrationDialog({
               </Dialog.Title>
               <Dialog.Description className="mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground">
                 Enter your details below. Your selected event is already filled
-                in, and the final request is sent directly to Tona on WhatsApp.
+                in, and your registration will appear in Tona's dashboard.
               </Dialog.Description>
             </div>
             <span className="hidden rounded-full bg-primary/10 p-3 text-primary sm:block">
@@ -178,6 +193,7 @@ export function EventRegistrationDialog({
 
           <div className="mt-7">
             <EventRegistrationForm
+              events={events}
               defaultEvent={event}
               onSubmitted={() => setOpen(false)}
             />
@@ -186,4 +202,16 @@ export function EventRegistrationDialog({
       </Dialog.Portal>
     </Dialog.Root>
   );
+}
+
+function nullable(value: FormDataEntryValue | null) {
+  const text = String(value ?? "").trim();
+  return text || null;
+}
+
+function formatEventDate(value: string) {
+  return new Date(value).toLocaleDateString("en-ET", {
+    month: "short",
+    day: "numeric",
+  });
 }
