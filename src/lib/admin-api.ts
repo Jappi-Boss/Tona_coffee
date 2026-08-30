@@ -15,7 +15,7 @@ const statusInput = authInput.extend({
 });
 
 const productInput = authInput.extend({
-  id: z.string().uuid(),
+  id: z.string().uuid().optional(),
   name: z.string().min(2).max(120),
   region: z.string().min(2).max(120),
   process: z.string().min(2).max(120),
@@ -26,6 +26,18 @@ const productInput = authInput.extend({
   status: z.enum(["draft", "published", "archived"]),
   isAvailable: z.boolean(),
   isFeatured: z.boolean(),
+});
+
+const deleteInput = authInput.extend({
+  entity: z.enum([
+    "products",
+    "events",
+    "orders",
+    "event_registrations",
+    "business_inquiries",
+    "contact_requests",
+  ]),
+  id: z.string().uuid(),
 });
 
 const eventInput = authInput.extend({
@@ -58,8 +70,8 @@ export const updateRecordStatus = createServerFn({ method: "POST" })
 export const saveProduct = createServerFn({ method: "POST" })
   .validator(productInput)
   .handler(async ({ data }) => {
-    const { updateProduct } = await import("./admin-db.server");
-    return updateProduct(data);
+    const { upsertProduct } = await import("./admin-db.server");
+    return upsertProduct(data);
   });
 
 export const saveEvent = createServerFn({ method: "POST" })
@@ -67,4 +79,11 @@ export const saveEvent = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { upsertEvent } = await import("./admin-db.server");
     return upsertEvent(data);
+  });
+
+export const deleteAdminRecord = createServerFn({ method: "POST" })
+  .validator(deleteInput)
+  .handler(async ({ data }) => {
+    const { deleteRecord } = await import("./admin-db.server");
+    return deleteRecord(data);
   });

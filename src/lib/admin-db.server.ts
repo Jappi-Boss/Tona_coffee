@@ -81,8 +81,8 @@ type StatusChange = {
 const allowedStatuses: Record<StatusChange["entity"], string[]> = {
   orders: ["new", "confirmed", "processing", "completed", "cancelled"],
   event_registrations: ["new", "confirmed", "attended", "cancelled"],
-  business_inquiries: ["new", "contacted", "qualified", "closed", "declined"],
-  contact_requests: ["new", "in_progress", "resolved", "closed"],
+  business_inquiries: ["new", "contacted", "qualified", "closed", "lost"],
+  contact_requests: ["new", "in_progress", "resolved", "spam"],
 };
 
 export async function changeRecordStatus(input: StatusChange) {
@@ -107,7 +107,7 @@ export async function changeRecordStatus(input: StatusChange) {
 
 type ProductUpdate = {
   token: string;
-  id: string;
+  id?: string;
   name: string;
   region: string;
   process: string;
@@ -120,11 +120,22 @@ type ProductUpdate = {
   isFeatured: boolean;
 };
 
-export async function updateProduct(input: ProductUpdate) {
+export async function upsertProduct(input: ProductUpdate) {
   const admin = await requireAdmin(input.token);
   const sql = database();
-  await sql`UPDATE products SET name = ${input.name}, region = ${input.region}, process = ${input.process}, description = ${input.description}, tasting_notes = ${input.tastingNotes}, altitude = ${input.altitude}, image_url = ${input.imageUrl}, status = ${input.status}, is_available = ${input.isAvailable}, is_featured = ${input.isFeatured}, updated_at = now() WHERE id = ${input.id}::uuid`;
-  await sql`INSERT INTO audit_log (actor_email, action, entity_type, entity_id) VALUES (${admin.email}, 'updated', 'product', ${input.id})`;
+  let id = input.id;
+  if (id) {
+    await sql`UPDATE products SET name = ${input.name}, region = ${input.region}, process = ${input.process}, description = ${input.description}, tasting_notes = ${input.tastingNotes}, altitude = ${input.altitude}, image_url = ${input.imageUrl}, status = ${input.status}, is_available = ${input.isAvailable}, is_featured = ${input.isFeatured}, updated_at = now() WHERE id = ${id}::uuid`;
+  } else {
+    const slug = `${input.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "")}-${Date.now().toString().slice(-6)}`;
+    const rows =
+      await sql`INSERT INTO products (slug, name, region, process, description, tasting_notes, altitude, image_url, status, is_available, is_featured, sort_order) VALUES (${slug}, ${input.name}, ${input.region}, ${input.process}, ${input.description}, ${input.tastingNotes}, ${input.altitude}, ${input.imageUrl}, ${input.status}, ${input.isAvailable}, ${input.isFeatured}, (SELECT COALESCE(MAX(sort_order), 0) + 1 FROM products)) RETURNING id`;
+    id = String(rows[0].id);
+  }
+  await sql`INSERT INTO audit_log (actor_email, action, entity_type, entity_id) VALUES (${admin.email}, 'saved', 'product', ${id})`;
   return { ok: true };
 }
 
@@ -158,5 +169,45 @@ export async function upsertEvent(input: EventUpdate) {
     id = String(rows[0].id);
   }
   await sql`INSERT INTO audit_log (actor_email, action, entity_type, entity_id) VALUES (${admin.email}, 'saved', 'event', ${id})`;
+  return { ok: true };
+}
+
+type DeleteInput = {
+  token: string;
+  entity:
+    | "products"
+    | "events"
+    | "orders"
+    | "event_registrations"
+    | "business_inquiries"
+    | "contact_requests";
+  id: string;
+};
+
+export async function deleteRecord(input: DeleteInput) {
+  const admin = await requireAdmin(input.token);
+  const sql = database();
+
+  if (input.entity === "events") {
+    const rows =
+      await sql`SELECT COUNT(*)::int AS count FROM event_registrations WHERE event_id = ${input.id}::uuid`;
+    if (Number(rows[0]?.count ?? 0) > 0)
+      throw new Error(
+        "This event has registrations. Cancel or complete it instead of deleting it.",
+      );
+    await sql`DELETE FROM events WHERE id = ${input.id}::uuid`;
+  } else if (input.entity === "products") {
+    await sql`DELETE FROM products WHERE id = ${input.id}::uuid`;
+  } else if (input.entity === "orders") {
+    await sql`DELETE FROM orders WHERE id = ${input.id}::uuid`;
+  } else if (input.entity === "event_registrations") {
+    await sql`DELETE FROM event_registrations WHERE id = ${input.id}::uuid`;
+  } else if (input.entity === "business_inquiries") {
+    await sql`DELETE FROM business_inquiries WHERE id = ${input.id}::uuid`;
+  } else {
+    await sql`DELETE FROM contact_requests WHERE id = ${input.id}::uuid`;
+  }
+
+  await sql`INSERT INTO audit_log (actor_email, action, entity_type, entity_id) VALUES (${admin.email}, 'deleted', ${input.entity}, ${input.id})`;
   return { ok: true };
 }

@@ -14,6 +14,7 @@ import {
   Plus,
   RefreshCw,
   Search,
+  Trash2,
   Users,
   X,
 } from "lucide-react";
@@ -28,6 +29,7 @@ import {
 import { toast } from "sonner";
 
 import {
+  deleteAdminRecord,
   getAdminDashboard,
   saveEvent,
   saveProduct,
@@ -71,7 +73,9 @@ function AdminDashboard() {
   const [view, setView] = useState<View>("overview");
   const [mobileNav, setMobileNav] = useState(false);
   const [query, setQuery] = useState("");
-  const [editingProduct, setEditingProduct] = useState<Row | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Row | "new" | null>(
+    null,
+  );
   const [editingEvent, setEditingEvent] = useState<Row | "new" | null>(null);
 
   const load = useCallback(async () => {
@@ -142,6 +146,21 @@ function AdminDashboard() {
     } catch (caught) {
       toast.error(
         caught instanceof Error ? caught.message : "Could not update status.",
+      );
+    }
+  }
+
+  async function removeRecord(entity: DeleteEntity, id: string, label: string) {
+    if (!window.confirm(`Delete ${label}? This action cannot be undone.`))
+      return;
+    try {
+      const token = await getAdminToken();
+      await deleteAdminRecord({ data: { token, entity, id } });
+      toast.success(`${label} deleted.`);
+      await load();
+    } catch (caught) {
+      toast.error(
+        caught instanceof Error ? caught.message : `Could not delete ${label}.`,
       );
     }
   }
@@ -278,28 +297,70 @@ function AdminDashboard() {
           </div>
           {view === "overview" && <Overview data={data} go={setView} />}
           {view === "products" && (
-            <Products rows={filtered.products} onEdit={setEditingProduct} />
+            <Products
+              rows={filtered.products}
+              onEdit={setEditingProduct}
+              onDelete={(row) =>
+                removeRecord("products", String(row.id), String(row.name))
+              }
+            />
           )}
           {view === "events" && (
-            <Events rows={filtered.events} onEdit={setEditingEvent} />
+            <Events
+              rows={filtered.events}
+              onEdit={setEditingEvent}
+              onDelete={(row) =>
+                removeRecord("events", String(row.id), String(row.title))
+              }
+            />
           )}
           {view === "registrations" && (
             <Registrations
               rows={filtered.registrations}
               onStatus={changeStatus}
+              onDelete={(row) =>
+                removeRecord(
+                  "event_registrations",
+                  String(row.id),
+                  `registration for ${String(row.full_name)}`,
+                )
+              }
             />
           )}
           {view === "orders" && (
-            <Orders rows={filtered.orders} onStatus={changeStatus} />
+            <Orders
+              rows={filtered.orders}
+              onStatus={changeStatus}
+              onDelete={(row) =>
+                removeRecord("orders", String(row.id), String(row.order_number))
+              }
+            />
           )}
           {view === "business" && (
             <Business
               rows={filtered.businessInquiries}
               onStatus={changeStatus}
+              onDelete={(row) =>
+                removeRecord(
+                  "business_inquiries",
+                  String(row.id),
+                  String(row.organization),
+                )
+              }
             />
           )}
           {view === "contacts" && (
-            <Contacts rows={filtered.contactRequests} onStatus={changeStatus} />
+            <Contacts
+              rows={filtered.contactRequests}
+              onStatus={changeStatus}
+              onDelete={(row) =>
+                removeRecord(
+                  "contact_requests",
+                  String(row.id),
+                  `request from ${String(row.full_name)}`,
+                )
+              }
+            />
           )}
         </div>
       </main>
@@ -464,14 +525,24 @@ function Overview({
 function Products({
   rows,
   onEdit,
+  onDelete,
 }: {
   rows: Row[];
-  onEdit: (row: Row) => void;
+  onEdit: (row: Row | "new") => void;
+  onDelete: (row: Row) => void;
 }) {
   return (
     <Section
       title="Coffee catalogue"
       description="Control what customers see and which coffees are available."
+      action={
+        <button
+          onClick={() => onEdit("new")}
+          className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white"
+        >
+          <Plus className="h-4 w-4" /> New product
+        </button>
+      }
     >
       <CardGrid>
         {rows.map((row) => (
@@ -507,18 +578,24 @@ function Products({
                 </div>
                 <Status value={String(row.status)} />
               </div>
-              <div className="mt-5 flex items-center justify-between">
+              <div className="mt-5 flex items-center justify-between gap-3">
                 <span
                   className={`text-xs font-semibold ${row.is_available ? "text-emerald-700" : "text-muted-foreground"}`}
                 >
                   {row.is_available ? "Available" : "Unavailable"}
                 </span>
-                <button
-                  onClick={() => onEdit(row)}
-                  className="rounded-xl border px-4 py-2 text-sm font-bold text-teal hover:border-primary hover:text-primary"
-                >
-                  Edit coffee
-                </button>
+                <div className="flex items-center gap-2">
+                  <DeleteButton
+                    label={`Delete ${String(row.name)}`}
+                    action={() => onDelete(row)}
+                  />
+                  <button
+                    onClick={() => onEdit(row)}
+                    className="rounded-xl border px-4 py-2 text-sm font-bold text-teal hover:border-primary hover:text-primary"
+                  >
+                    Edit coffee
+                  </button>
+                </div>
               </div>
             </div>
           </article>
@@ -531,9 +608,11 @@ function Products({
 function Events({
   rows,
   onEdit,
+  onDelete,
 }: {
   rows: Row[];
   onEdit: (row: Row | "new") => void;
+  onDelete: (row: Row) => void;
 }) {
   return (
     <Section
@@ -576,12 +655,18 @@ function Events({
                 {String(row.registration_count)} registrations
               </p>
             </div>
-            <button
-              onClick={() => onEdit(row)}
-              className="rounded-xl border px-4 py-2 text-sm font-bold text-teal hover:border-primary"
-            >
-              Edit event
-            </button>
+            <div className="flex items-center gap-2">
+              <DeleteButton
+                label={`Delete ${String(row.title)}`}
+                action={() => onDelete(row)}
+              />
+              <button
+                onClick={() => onEdit(row)}
+                className="rounded-xl border px-4 py-2 text-sm font-bold text-teal hover:border-primary"
+              >
+                Edit event
+              </button>
+            </div>
           </article>
         ))}
       </div>
@@ -592,16 +677,20 @@ function Events({
 function Registrations({
   rows,
   onStatus,
+  onDelete,
 }: {
   rows: Row[];
   onStatus: StatusHandler;
+  onDelete: (row: Row) => void;
 }) {
   return (
     <Section
       title="Event registrations"
       description="Confirm attendance and keep an accurate guest list."
     >
-      <RecordTable headers={["Guest", "Event", "Guests", "Date", "Status"]}>
+      <RecordTable
+        headers={["Guest", "Event", "Guests", "Date", "Status", "Actions"]}
+      >
         {rows.map((row) => (
           <tr key={String(row.id)} className="border-t">
             <Cell
@@ -620,6 +709,12 @@ function Registrations({
                 }
               />
             </td>
+            <td className="p-4">
+              <DeleteButton
+                label={`Delete registration for ${String(row.full_name)}`}
+                action={() => onDelete(row)}
+              />
+            </td>
           </tr>
         ))}
       </RecordTable>
@@ -627,13 +722,23 @@ function Registrations({
   );
 }
 
-function Orders({ rows, onStatus }: { rows: Row[]; onStatus: StatusHandler }) {
+function Orders({
+  rows,
+  onStatus,
+  onDelete,
+}: {
+  rows: Row[];
+  onStatus: StatusHandler;
+  onDelete: (row: Row) => void;
+}) {
   return (
     <Section
       title="Orders"
       description="Track every customer order from request to completion."
     >
-      <RecordTable headers={["Order", "Customer", "Items", "Total", "Status"]}>
+      <RecordTable
+        headers={["Order", "Customer", "Items", "Total", "Status", "Actions"]}
+      >
         {rows.map((row) => (
           <tr key={String(row.id)} className="border-t">
             <Cell
@@ -663,6 +768,12 @@ function Orders({ rows, onStatus }: { rows: Row[]; onStatus: StatusHandler }) {
                 change={(status) => onStatus("orders", String(row.id), status)}
               />
             </td>
+            <td className="p-4">
+              <DeleteButton
+                label={`Delete ${String(row.order_number)}`}
+                action={() => onDelete(row)}
+              />
+            </td>
           </tr>
         ))}
       </RecordTable>
@@ -673,9 +784,11 @@ function Orders({ rows, onStatus }: { rows: Row[]; onStatus: StatusHandler }) {
 function Business({
   rows,
   onStatus,
+  onDelete,
 }: {
   rows: Row[];
   onStatus: StatusHandler;
+  onDelete: (row: Row) => void;
 }) {
   return (
     <Section
@@ -683,7 +796,14 @@ function Business({
       description="Follow wholesale, hospitality and export opportunities."
     >
       <RecordTable
-        headers={["Organization", "Contact", "Interest", "Received", "Status"]}
+        headers={[
+          "Organization",
+          "Contact",
+          "Interest",
+          "Received",
+          "Status",
+          "Actions",
+        ]}
       >
         {rows.map((row) => (
           <tr key={String(row.id)} className="border-t">
@@ -703,16 +823,16 @@ function Business({
             <td className="p-4">
               <StatusSelect
                 value={String(row.status)}
-                options={[
-                  "new",
-                  "contacted",
-                  "qualified",
-                  "closed",
-                  "declined",
-                ]}
+                options={["new", "contacted", "qualified", "closed", "lost"]}
                 change={(status) =>
                   onStatus("business_inquiries", String(row.id), status)
                 }
+              />
+            </td>
+            <td className="p-4">
+              <DeleteButton
+                label={`Delete ${String(row.organization)}`}
+                action={() => onDelete(row)}
               />
             </td>
           </tr>
@@ -725,9 +845,11 @@ function Business({
 function Contacts({
   rows,
   onStatus,
+  onDelete,
 }: {
   rows: Row[];
   onStatus: StatusHandler;
+  onDelete: (row: Row) => void;
 }) {
   return (
     <Section
@@ -735,7 +857,14 @@ function Contacts({
       description="Keep customer questions and feedback moving."
     >
       <RecordTable
-        headers={["Customer", "Request", "Message", "Received", "Status"]}
+        headers={[
+          "Customer",
+          "Request",
+          "Message",
+          "Received",
+          "Status",
+          "Actions",
+        ]}
       >
         {rows.map((row) => (
           <tr key={String(row.id)} className="border-t">
@@ -746,10 +875,16 @@ function Contacts({
             <td className="p-4">
               <StatusSelect
                 value={String(row.status)}
-                options={["new", "in_progress", "resolved", "closed"]}
+                options={["new", "in_progress", "resolved", "spam"]}
                 change={(status) =>
                   onStatus("contact_requests", String(row.id), status)
                 }
+              />
+            </td>
+            <td className="p-4">
+              <DeleteButton
+                label={`Delete request from ${String(row.full_name)}`}
+                action={() => onDelete(row)}
               />
             </td>
           </tr>
@@ -769,15 +904,24 @@ type StatusHandler = (
   status: string,
 ) => Promise<void>;
 
+type DeleteEntity =
+  | "products"
+  | "events"
+  | "orders"
+  | "event_registrations"
+  | "business_inquiries"
+  | "contact_requests";
+
 function ProductEditor({
   row,
   close,
   saved,
 }: {
-  row: Row;
+  row: Row | "new";
   close: () => void;
   saved: () => Promise<void>;
 }) {
+  const product = row === "new" ? {} : row;
   const [busy, setBusy] = useState(false);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -788,7 +932,7 @@ function ProductEditor({
       await saveProduct({
         data: {
           token,
-          id: String(row.id),
+          id: row === "new" ? undefined : String(product.id),
           name: String(form.get("name")),
           region: String(form.get("region")),
           process: String(form.get("process")),
@@ -816,36 +960,50 @@ function ProductEditor({
     }
   }
   return (
-    <Modal title="Edit coffee" close={close}>
+    <Modal
+      title={row === "new" ? "Create product" : "Edit coffee"}
+      close={close}
+    >
       <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
-        <EditorField name="name" label="Name" value={row.name} required />
-        <EditorField name="region" label="Region" value={row.region} required />
+        <EditorField name="name" label="Name" value={product.name} required />
+        <EditorField
+          name="region"
+          label="Region"
+          value={product.region}
+          required
+        />
         <EditorField
           name="process"
           label="Process"
-          value={row.process}
+          value={product.process}
           required
         />
-        <EditorField name="altitude" label="Altitude" value={row.altitude} />
+        <EditorField
+          name="altitude"
+          label="Altitude"
+          value={product.altitude}
+        />
         <EditorField
           name="tastingNotes"
           label="Tasting notes (comma separated)"
           value={
-            Array.isArray(row.tasting_notes) ? row.tasting_notes.join(", ") : ""
+            Array.isArray(product.tasting_notes)
+              ? product.tasting_notes.join(", ")
+              : ""
           }
           className="sm:col-span-2"
         />
         <EditorField
           name="imageUrl"
           label="Image URL"
-          value={row.image_url}
+          value={product.image_url}
           className="sm:col-span-2"
         />
         <label className="sm:col-span-2 text-sm font-semibold text-teal">
           Description
           <textarea
             name="description"
-            defaultValue={String(row.description ?? "")}
+            defaultValue={String(product.description ?? "")}
             rows={4}
             className="mt-2 w-full rounded-xl border p-3 font-normal outline-none focus:border-primary"
           />
@@ -854,7 +1012,7 @@ function ProductEditor({
           Publication
           <select
             name="status"
-            defaultValue={String(row.status)}
+            defaultValue={String(product.status ?? "draft")}
             className="mt-2 h-11 w-full rounded-xl border bg-white px-3"
           >
             <option value="draft">Draft</option>
@@ -866,15 +1024,23 @@ function ProductEditor({
           <CheckField
             name="isAvailable"
             label="Available to order"
-            checked={Boolean(row.is_available)}
+            checked={
+              product.is_available === undefined
+                ? true
+                : Boolean(product.is_available)
+            }
           />
           <CheckField
             name="isFeatured"
             label="Featured coffee"
-            checked={Boolean(row.is_featured)}
+            checked={Boolean(product.is_featured)}
           />
         </div>
-        <EditorActions busy={busy} close={close} />
+        <EditorActions
+          busy={busy}
+          close={close}
+          submitLabel={row === "new" ? "Create product" : "Save changes"}
+        />
       </form>
     </Modal>
   );
@@ -997,7 +1163,11 @@ function EventEditor({
             }
           />
         </div>
-        <EditorActions busy={busy} close={close} />
+        <EditorActions
+          busy={busy}
+          close={close}
+          submitLabel={row === "new" ? "Create event" : "Save changes"}
+        />
       </form>
     </Modal>
   );
@@ -1181,7 +1351,15 @@ function CheckField({
     </label>
   );
 }
-function EditorActions({ busy, close }: { busy: boolean; close: () => void }) {
+function EditorActions({
+  busy,
+  close,
+  submitLabel = "Save changes",
+}: {
+  busy: boolean;
+  close: () => void;
+  submitLabel?: string;
+}) {
   return (
     <div className="flex justify-end gap-3 border-t pt-5 sm:col-span-2">
       <button
@@ -1195,9 +1373,29 @@ function EditorActions({ busy, close }: { busy: boolean; close: () => void }) {
         disabled={busy}
         className="rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60"
       >
-        {busy ? "Saving…" : "Save changes"}
+        {busy ? "Saving…" : submitLabel}
       </button>
     </div>
+  );
+}
+
+function DeleteButton({
+  label,
+  action,
+}: {
+  label: string;
+  action: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={action}
+      className="inline-flex items-center justify-center rounded-xl border border-red-200 bg-red-50 p-2 text-red-700 hover:border-red-300 hover:bg-red-100"
+      aria-label={label}
+      title={label}
+    >
+      <Trash2 className="h-4 w-4" />
+    </button>
   );
 }
 function FullPageState({
