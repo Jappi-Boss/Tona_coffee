@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { MessageCircle, Check } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
-import businessImg from "@/assets/business.jpg";
+import { businessImage as businessImg } from "@/lib/site-images";
 import { PRODUCTS, waLink } from "@/lib/tona";
 
 export const Route = createFileRoute("/for-business")({
