@@ -36,6 +36,7 @@ import {
   updateRecordStatus,
 } from "@/lib/admin-api";
 import { adminAuth, getAdminToken } from "@/lib/admin-auth";
+import { TonaLogo } from "@/components/site/TonaLogo";
 
 export const Route = createFileRoute("/admin")({
   component: AdminDashboard,
@@ -193,16 +194,13 @@ function AdminDashboard() {
   const activeLabel = navItems.find(([id]) => id === view)?.[1] ?? "Overview";
 
   return (
-    <div className="min-h-screen bg-[#f6f5f1] text-[#213234] lg:grid lg:grid-cols-[260px_1fr]">
+    <div className="min-h-screen bg-sand text-foreground lg:grid lg:grid-cols-[260px_1fr]">
       <aside
-        className={`${mobileNav ? "flex" : "hidden"} fixed inset-0 z-50 flex-col bg-teal text-white lg:sticky lg:top-0 lg:flex lg:h-screen`}
+        className={`${mobileNav ? "flex" : "hidden"} leaf-field fixed inset-0 z-50 flex-col border-r border-white/10 bg-teal-deep text-white lg:sticky lg:top-0 lg:flex lg:h-screen`}
       >
         <div className="flex h-20 items-center justify-between border-b border-white/10 px-6">
-          <a
-            href="/"
-            className="font-display text-2xl font-extrabold tracking-tight"
-          >
-            TONA<span className="text-primary">.</span>
+          <a href="/" aria-label="Tona Coffee website">
+            <TonaLogo tone="light" />
           </a>
           <button
             onClick={() => setMobileNav(false)}
@@ -223,13 +221,13 @@ function AdminDashboard() {
                 setView(id);
                 setMobileNav(false);
               }}
-              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${view === id ? "bg-white text-teal shadow" : "text-white/70 hover:bg-white/10 hover:text-white"}`}
+              className={`flex w-full items-center gap-3 rounded-md border-l-4 px-4 py-3 text-left text-sm font-bold uppercase tracking-[.04em] transition ${view === id ? "border-primary bg-primary text-white" : "border-transparent text-white/65 hover:border-primary hover:bg-white/8 hover:text-white"}`}
             >
               <Icon className="h-5 w-5" />
               {label}
               {id !== "overview" && (
                 <span
-                  className={`ml-auto rounded-full px-2 py-0.5 text-xs ${view === id ? "bg-primary/10 text-primary" : "bg-white/10"}`}
+                  className={`ml-auto rounded-sm px-2 py-0.5 text-xs ${view === id ? "bg-black/20 text-white" : "bg-white/10"}`}
                 >
                   {countFor(id, data)}
                 </span>
@@ -238,13 +236,13 @@ function AdminDashboard() {
           ))}
         </nav>
         <div className="border-t border-white/10 p-4">
-          <div className="mb-3 rounded-xl bg-white/7 p-3">
+          <div className="mb-3 border-l-4 border-primary bg-white/7 p-3">
             <p className="truncate text-sm font-semibold">{data.admin.name}</p>
             <p className="truncate text-xs text-white/55">{data.admin.email}</p>
           </div>
           <button
             onClick={signOut}
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white/70 hover:bg-white/10 hover:text-white"
+            className="flex w-full items-center gap-3 rounded-md px-4 py-3 text-sm font-bold uppercase tracking-wide text-white/65 hover:bg-white/10 hover:text-white"
           >
             <LogOut className="h-4 w-4" /> Sign out
           </button>
@@ -252,17 +250,17 @@ function AdminDashboard() {
       </aside>
 
       <main className="min-w-0">
-        <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b bg-[#f6f5f1]/90 px-4 backdrop-blur sm:px-7 lg:px-10">
+        <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b-4 border-primary bg-teal-deep px-4 text-white sm:px-7 lg:px-10">
           <button
             onClick={() => setMobileNav(true)}
-            className="rounded-xl border bg-white p-2.5 lg:hidden"
+            className="rounded-md border border-white/20 bg-white/10 p-2.5 text-white lg:hidden"
             aria-label="Open navigation"
           >
             <Menu className="h-5 w-5" />
           </button>
           <div className="min-w-0 flex-1">
             <p className="label-mono text-primary">Tona operations</p>
-            <h1 className="truncate text-2xl font-bold text-teal">
+            <h1 className="truncate text-3xl font-black uppercase text-white">
               {activeLabel}
             </h1>
           </div>
@@ -273,13 +271,13 @@ function AdminDashboard() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search records…"
-              className="h-10 w-full rounded-xl border bg-white pl-10 pr-3 text-sm outline-none focus:border-primary"
+              className="h-10 w-full rounded-md border border-white/15 bg-white/10 pl-10 pr-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-primary"
             />
           </label>
           <button
             onClick={load}
             disabled={busy}
-            className="rounded-xl border bg-white p-2.5 text-teal hover:border-primary hover:text-primary"
+            className="rounded-md border border-white/20 bg-white/10 p-2.5 text-white hover:border-primary hover:text-primary"
             aria-label="Refresh dashboard"
           >
             <RefreshCw className={`h-5 w-5 ${busy ? "animate-spin" : ""}`} />
@@ -292,7 +290,7 @@ function AdminDashboard() {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search records…"
-              className="h-11 w-full rounded-xl border bg-white px-4 text-sm"
+              className="h-11 w-full rounded-md border bg-white px-4 text-sm"
             />
           </div>
           {view === "overview" && <Overview data={data} go={setView} />}
@@ -470,10 +468,10 @@ function Overview({
           <button
             key={label}
             onClick={() => go(target)}
-            className="group rounded-2xl border bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            className="group border border-border border-t-4 border-t-primary bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
             <div
-              className={`mb-5 flex h-11 w-11 items-center justify-center rounded-xl ${color}`}
+              className={`mb-5 flex h-11 w-11 items-center justify-center rounded-md ${color}`}
             >
               <Icon className="h-5 w-5" />
             </div>
@@ -485,9 +483,11 @@ function Overview({
           </button>
         ))}
       </div>
-      <section className="rounded-2xl border bg-white shadow-sm">
-        <div className="border-b px-5 py-4">
-          <h2 className="text-xl font-bold text-teal">Recent activity</h2>
+      <section className="overflow-hidden border bg-white shadow-sm">
+        <div className="border-b-4 border-primary bg-teal-deep px-5 py-4">
+          <h2 className="text-2xl font-black uppercase text-white">
+            Recent activity
+          </h2>
         </div>
         {activity.length ? (
           <div className="divide-y">
@@ -497,7 +497,7 @@ function Overview({
                 onClick={() => go(item.view)}
                 className="flex w-full items-center gap-4 px-5 py-4 text-left hover:bg-muted/40"
               >
-                <span className="rounded-lg bg-secondary px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-primary">
+                <span className="rounded-sm border-l-4 border-primary bg-secondary px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-primary">
                   {item.type}
                 </span>
                 <span className="min-w-0 flex-1">
@@ -538,7 +538,7 @@ function Products({
       action={
         <button
           onClick={() => onEdit("new")}
-          className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white"
+          className="brand-button flex items-center gap-2 bg-primary px-4 py-2.5 text-sm font-bold text-white"
         >
           <Plus className="h-4 w-4" /> New product
         </button>
@@ -548,7 +548,7 @@ function Products({
         {rows.map((row) => (
           <article
             key={String(row.id)}
-            className="overflow-hidden rounded-2xl border bg-white shadow-sm"
+            className="overflow-hidden border border-border bg-white shadow-sm transition hover:border-primary"
           >
             <div className="aspect-[2/1] bg-teal/10">
               {row.image_url ? (
@@ -591,7 +591,7 @@ function Products({
                   />
                   <button
                     onClick={() => onEdit(row)}
-                    className="rounded-xl border px-4 py-2 text-sm font-bold text-teal hover:border-primary hover:text-primary"
+                    className="rounded-md border px-4 py-2 text-sm font-bold uppercase tracking-wide text-teal hover:border-primary hover:text-primary"
                   >
                     Edit coffee
                   </button>
@@ -621,7 +621,7 @@ function Events({
       action={
         <button
           onClick={() => onEdit("new")}
-          className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white"
+          className="brand-button flex items-center gap-2 bg-primary px-4 py-2.5 text-sm font-bold text-white"
         >
           <Plus className="h-4 w-4" /> New event
         </button>
@@ -631,9 +631,9 @@ function Events({
         {rows.map((row) => (
           <article
             key={String(row.id)}
-            className="flex flex-col gap-4 rounded-2xl border bg-white p-5 shadow-sm md:flex-row md:items-center"
+            className="flex flex-col gap-4 border border-border border-l-4 border-l-primary bg-white p-5 shadow-sm md:flex-row md:items-center"
           >
-            <div className="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-xl bg-teal text-white">
+            <div className="leaf-field flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-full bg-teal text-white">
               <span className="text-xl font-bold">
                 {new Date(String(row.event_date)).getDate()}
               </span>
@@ -662,7 +662,7 @@ function Events({
               />
               <button
                 onClick={() => onEdit(row)}
-                className="rounded-xl border px-4 py-2 text-sm font-bold text-teal hover:border-primary"
+                className="rounded-md border px-4 py-2 text-sm font-bold uppercase tracking-wide text-teal hover:border-primary"
               >
                 Edit event
               </button>
@@ -1188,7 +1188,7 @@ function Section({
     <section>
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <h2 className="text-3xl font-bold text-teal">{title}</h2>
+          <h2 className="text-4xl font-black uppercase text-teal">{title}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{description}</p>
         </div>
         {action}
@@ -1210,10 +1210,10 @@ function RecordTable({
   children: ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+    <div className="overflow-hidden border bg-white shadow-sm">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[780px] text-left">
-          <thead className="bg-secondary/60 text-xs uppercase tracking-wider text-muted-foreground">
+          <thead className="border-b-4 border-primary bg-teal-deep text-xs uppercase tracking-wider text-white/70">
             <tr>
               {headers.map((header) => (
                 <th key={header} className="p-4 font-semibold">
@@ -1243,7 +1243,7 @@ function Cell({ title, subtitle }: { title: string; subtitle?: string }) {
 function Status({ value }: { value: string }) {
   return (
     <span
-      className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold capitalize ${statusColor(value)}`}
+      className={`inline-flex rounded-sm border-l-2 border-current px-2.5 py-1 text-[11px] font-bold capitalize ${statusColor(value)}`}
     >
       {value.replaceAll("_", " ")}
     </span>
@@ -1262,7 +1262,7 @@ function StatusSelect({
     <select
       value={value}
       onChange={(event) => change(event.target.value)}
-      className={`rounded-lg border-0 px-2.5 py-1.5 text-xs font-bold capitalize outline-none ring-1 ring-inset ring-black/5 ${statusColor(value)}`}
+      className={`rounded-sm border-0 px-2.5 py-1.5 text-xs font-bold capitalize outline-none ring-1 ring-inset ring-black/5 ${statusColor(value)}`}
     >
       {options.map((option) => (
         <option key={option} value={option}>
@@ -1293,12 +1293,12 @@ function Modal({
       aria-modal="true"
       aria-label={title}
     >
-      <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-[#faf9f6] shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-[#faf9f6] px-6 py-5">
-          <h2 className="text-2xl font-bold text-teal">{title}</h2>
+      <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto border bg-sand shadow-2xl">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b-4 border-primary bg-teal-deep px-6 py-5 text-white">
+          <h2 className="text-3xl font-black uppercase text-white">{title}</h2>
           <button
             onClick={close}
-            className="rounded-xl border bg-white p-2"
+            className="rounded-md border border-white/20 bg-white/10 p-2 text-white"
             aria-label="Close"
           >
             <X className="h-5 w-5" />
@@ -1325,7 +1325,7 @@ function EditorField({
       <input
         {...props}
         defaultValue={value == null ? "" : String(value)}
-        className="mt-2 h-11 w-full rounded-xl border bg-white px-3 font-normal outline-none focus:border-primary"
+        className="mt-2 h-11 w-full rounded-md border bg-white px-3 font-normal outline-none focus:border-primary"
       />
     </label>
   );
@@ -1365,13 +1365,13 @@ function EditorActions({
       <button
         type="button"
         onClick={close}
-        className="rounded-xl border bg-white px-5 py-2.5 text-sm font-bold text-teal"
+        className="rounded-md border bg-white px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-teal"
       >
         Cancel
       </button>
       <button
         disabled={busy}
-        className="rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60"
+        className="brand-button bg-primary px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60"
       >
         {busy ? "Saving…" : submitLabel}
       </button>
@@ -1390,7 +1390,7 @@ function DeleteButton({
     <button
       type="button"
       onClick={action}
-      className="inline-flex items-center justify-center rounded-xl border border-red-200 bg-red-50 p-2 text-red-700 hover:border-red-300 hover:bg-red-100"
+      className="inline-flex items-center justify-center rounded-md border border-red-200 bg-red-50 p-2 text-red-700 hover:border-red-300 hover:bg-red-100"
       aria-label={label}
       title={label}
     >
@@ -1410,9 +1410,9 @@ function FullPageState({
   action?: ReactNode;
 }) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f6f5f1] p-5">
+    <main className="leaf-field flex min-h-screen items-center justify-center bg-sand p-5">
       <div className="max-w-md text-center">
-        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-teal text-white">
+        <div className="brand-shadow mx-auto mb-7 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-white">
           {icon}
         </div>
         <h1 className="text-3xl font-bold text-teal">{title}</h1>

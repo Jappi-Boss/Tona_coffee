@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { toast } from "sonner";
 
 import { adminAuth } from "@/lib/admin-auth";
+import { TonaLogo } from "@/components/site/TonaLogo";
 
 export const Route = createFileRoute("/admin_/reset-password")({
   component: ResetPasswordPage,
@@ -43,9 +44,10 @@ function ResetPasswordPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#f7f4ef] px-5 py-12">
-      <div className="w-full max-w-md rounded-3xl border bg-white p-7 shadow-xl shadow-teal/5 sm:p-10">
-        <div className="mb-7 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-white">
+    <main className="leaf-field flex min-h-screen items-center justify-center bg-teal-deep px-5 py-12">
+      <div className="w-full max-w-md border-t-8 border-primary bg-sand p-7 shadow-2xl sm:p-10">
+        <TonaLogo className="mb-8" />
+        <div className="brand-shadow mb-7 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white">
           <KeyRound className="h-7 w-7" />
         </div>
         <p className="label-mono text-primary">Admin security</p>
@@ -57,7 +59,7 @@ function ResetPasswordPage() {
           <PasswordField name="confirm" label="Confirm password" />
           <button
             disabled={busy}
-            className="h-12 w-full rounded-xl bg-primary font-bold text-white disabled:opacity-60"
+            className="brand-button h-12 w-full bg-primary font-bold text-white disabled:opacity-60"
           >
             {busy ? "Updating…" : "Update password"}
           </button>
@@ -83,7 +85,7 @@ function PasswordField({ name, label }: { name: string; label: string }) {
         minLength={8}
         required
         autoComplete="new-password"
-        className="mt-2 h-12 w-full rounded-xl border px-4 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+        className="mt-2 h-12 w-full rounded-md border px-4 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
       />
     </label>
   );

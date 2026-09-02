@@ -75,10 +75,16 @@ function Events() {
                   <div className="leaf-field flex flex-col justify-between bg-teal p-6 text-teal-foreground">
                     <div>
                       <p className="label-mono text-teal-foreground/60">
-                        {date.toLocaleDateString("en-ET", { month: "long" })}
+                        {date.toLocaleDateString("en-ET", {
+                          month: "long",
+                          timeZone: "Africa/Addis_Ababa",
+                        })}
                       </p>
                       <p className="font-display text-6xl font-bold">
-                        {date.toLocaleDateString("en-ET", { day: "2-digit" })}
+                        {date.toLocaleDateString("en-ET", {
+                          day: "2-digit",
+                          timeZone: "Africa/Addis_Ababa",
+                        })}
                       </p>
                     </div>
                     <p className="mt-6 flex items-center gap-2 text-sm text-teal-foreground/80">
@@ -96,6 +102,7 @@ function Events() {
                         {date.toLocaleTimeString("en-ET", {
                           hour: "numeric",
                           minute: "2-digit",
+                          timeZone: "Africa/Addis_Ababa",
                         })}
                       </span>
                       <span className="flex items-center gap-1.5">

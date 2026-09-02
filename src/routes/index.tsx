@@ -71,18 +71,18 @@ function Home() {
   return (
     <>
       {/* HERO */}
-      <section className="relative overflow-hidden bg-background">
+      <section className="leaf-field relative overflow-hidden bg-teal-deep text-white">
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-14 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-20">
           <div>
-            <span className="label-mono inline-flex rounded-full bg-primary/10 px-4 py-2 text-primary">
+            <span className="label-mono inline-flex border-l-4 border-primary py-1 pl-3 text-primary">
               African-Led Specialty Coffee Roaster
             </span>
-            <h1 className="mt-6 font-display text-5xl font-bold sm:text-6xl lg:text-7xl">
+            <h1 className="mt-6 font-display text-6xl font-black uppercase leading-[.84] text-white sm:text-7xl lg:text-8xl">
               Stay for Tona.
               <br />
               Stay for the <span className="text-primary">moment.</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/68">
               The first cup brings people together. The second round is where
               conversations deepen, ideas take shape, and people stay a little
               longer. This is where Tona belongs.
@@ -90,7 +90,7 @@ function Home() {
             <div className="mt-9 flex flex-wrap gap-3">
               <Link
                 to="/products"
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.03]"
+                className="brand-button inline-flex items-center gap-2 bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5"
               >
                 Explore our coffee <ArrowRight className="h-4 w-4" />
               </Link>
@@ -98,13 +98,13 @@ function Home() {
                 href={waLink("Hi Tona, I'd like to place an order.")}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-teal px-6 py-3.5 text-sm font-semibold text-teal transition-colors hover:bg-teal hover:text-teal-foreground"
+                className="brand-button inline-flex items-center gap-2 border border-white/35 px-6 py-3.5 text-sm font-bold text-white transition-colors hover:border-primary hover:text-primary"
               >
                 <MessageCircle className="h-4 w-4" /> Order on WhatsApp
               </a>
               <Link
                 to="/for-business"
-                className="inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-foreground/70 hover:text-primary"
+                className="inline-flex items-center gap-2 px-6 py-3.5 text-sm font-semibold text-white/65 hover:text-primary"
               >
                 For business
               </Link>
@@ -117,9 +117,9 @@ function Home() {
               alt="Ethiopian coffee ceremony: coffee poured from a jebena into small cups"
               width={1408}
               height={1600}
-              className="aspect-[4/5] w-full rounded-[2rem] object-cover"
+              className="brand-shadow aspect-[4/5] w-full rounded-lg object-cover"
             />
-            <div className="absolute -bottom-6 left-4 right-4 rounded-2xl bg-teal p-5 text-teal-foreground sm:left-8 sm:right-auto sm:max-w-xs">
+            <div className="absolute -bottom-6 left-4 right-4 border-t-4 border-primary bg-black/92 p-5 text-white sm:left-8 sm:right-auto sm:max-w-xs">
               <p className="label-mono text-teal-foreground/60">
                 Where our name comes from
               </p>
@@ -163,6 +163,7 @@ function Home() {
                       "en-ET",
                       {
                         month: "long",
+                        timeZone: "Africa/Addis_Ababa",
                       },
                     )}
                   </p>
@@ -171,6 +172,7 @@ function Home() {
                       "en-ET",
                       {
                         day: "2-digit",
+                        timeZone: "Africa/Addis_Ababa",
                       },
                     )}
                   </p>
@@ -193,6 +195,7 @@ function Home() {
                       {
                         hour: "numeric",
                         minute: "2-digit",
+                        timeZone: "Africa/Addis_Ababa",
                       },
                     )}
                   </span>
@@ -240,7 +243,7 @@ function Home() {
             {PILLARS.map((p, i) => (
               <div
                 key={p.title}
-                className="rounded-2xl border border-border bg-card p-6"
+                className="border border-border bg-card p-6 transition-transform hover:-translate-y-1 hover:border-primary"
               >
                 <p className="label-mono text-muted-foreground">0{i + 1}</p>
                 <p.icon className="mt-5 h-7 w-7 text-primary" />
@@ -274,7 +277,7 @@ function Home() {
               <Link
                 key={p.slug}
                 to="/products"
-                className="group overflow-hidden rounded-2xl border border-border bg-card p-3 transition-all hover:-translate-y-1 hover:border-primary hover:shadow-lg"
+                className="group overflow-hidden border border-border bg-card p-3 transition-all hover:-translate-y-1 hover:border-primary hover:shadow-lg"
               >
                 <div className="overflow-hidden rounded-xl bg-muted">
                   <img

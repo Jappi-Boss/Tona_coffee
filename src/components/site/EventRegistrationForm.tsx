@@ -213,5 +213,6 @@ function formatEventDate(value: string) {
   return new Date(value).toLocaleDateString("en-ET", {
     month: "short",
     day: "numeric",
+    timeZone: "Africa/Addis_Ababa",
   });
 }

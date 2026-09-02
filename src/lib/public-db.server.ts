@@ -1,4 +1,5 @@
 import { neon } from "@neondatabase/serverless";
+import { FORMATS, PRODUCTS, SIZES } from "./tona";
 
 function database() {
   const connectionString = process.env.DATABASE_URL;
@@ -7,6 +8,7 @@ function database() {
 }
 
 export async function loadPublicCatalog() {
+  if (!process.env.DATABASE_URL) return fallbackCatalog();
   const sql = database();
   const [products, events] = await Promise.all([
     sql`
@@ -102,6 +104,64 @@ export async function loadPublicCatalog() {
         : null,
       registrationOpen: Boolean(event.registration_open),
       registrationCount: Number(event.registration_count ?? 0),
+    })),
+  };
+}
+
+function fallbackCatalog() {
+  const productIds = [
+    "11111111-1111-4111-8111-111111111111",
+    "22222222-2222-4222-8222-222222222222",
+    "33333333-3333-4333-8333-333333333333",
+    "44444444-4444-4444-8444-444444444444",
+  ];
+  const eventDates = ["2026-09-26T07:00:00.000Z", "2026-10-10T08:00:00.000Z"];
+
+  return {
+    products: PRODUCTS.map((product, productIndex) => ({
+      id: productIds[productIndex]!,
+      slug: product.slug,
+      name: product.name,
+      region: product.region,
+      process: product.process,
+      description: product.blurb,
+      tastingNotes: product.notes,
+      altitude: product.altitude,
+      imageUrl: null,
+      isAvailable: true,
+      isFeatured: productIndex < 2,
+      variants: SIZES.flatMap((size, sizeIndex) =>
+        FORMATS.map((grind, grindIndex) => ({
+          id: `${productIds[productIndex]!.slice(0, 24)}${String(sizeIndex + 1).padStart(2, "0")}${String(grindIndex + 1).padStart(2, "0")}1111`,
+          size,
+          grind,
+          price: null,
+          stockQuantity: 0,
+        })),
+      ),
+    })),
+    events: eventDates.map((eventDate, index) => ({
+      id:
+        index === 0
+          ? "55555555-5555-4555-8555-555555555555"
+          : "66666666-6666-4666-8666-666666666666",
+      slug: index === 0 ? "tona-coffee-ceremony" : "origin-cupping",
+      title:
+        index === 0
+          ? "Tona Coffee Ceremony Tasting"
+          : "Ethiopian Origin Cupping",
+      summary:
+        index === 0
+          ? "A shared Ethiopian coffee ceremony, selected origins and the spirit of the second round."
+          : "Taste Tona's four Ethiopian origins side by side with our coffee team.",
+      description:
+        "An intimate Tona experience built around coffee, origin and conversation.",
+      eventDate,
+      location: "Bole, Addis Ababa",
+      capacity: 30,
+      coverImageUrl: null,
+      registrationOpen: true,
+      registrationCount: 0,
     })),
   };
 }

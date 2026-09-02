@@ -17,10 +17,14 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-teal-deep/95 text-white backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-3.5 lg:px-8">
-        <Link to="/" aria-label="Tona Coffee home" onClick={() => setOpen(false)}>
-          <TonaLogo />
+        <Link
+          to="/"
+          aria-label="Tona Coffee home"
+          onClick={() => setOpen(false)}
+        >
+          <TonaLogo tone="light" />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
@@ -29,7 +33,7 @@ export function SiteHeader() {
               key={item.to}
               to={item.to}
               activeOptions={{ exact: item.to === "/" }}
-              className="rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground [&.active]:bg-primary/10 [&.active]:text-primary"
+              className="rounded-md px-3.5 py-2 text-sm font-semibold uppercase tracking-[.04em] text-white/65 transition-colors hover:bg-white/10 hover:text-white [&.active]:bg-primary [&.active]:text-white"
             >
               {item.label}
             </Link>
@@ -41,7 +45,7 @@ export function SiteHeader() {
             href={waLink("Hi Tona, I'd like to place an order.")}
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.03] sm:inline-flex"
+            className="brand-button hidden items-center gap-2 bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5 sm:inline-flex"
           >
             <MessageCircle className="h-4 w-4" />
             Order on WhatsApp
@@ -51,7 +55,7 @@ export function SiteHeader() {
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground lg:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/25 text-white lg:hidden"
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -59,14 +63,14 @@ export function SiteHeader() {
       </div>
 
       {open && (
-        <nav className="border-t border-border bg-background px-5 pb-5 pt-2 lg:hidden">
+        <nav className="border-t border-white/10 bg-teal-deep px-5 pb-5 pt-2 lg:hidden">
           {NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
               activeOptions={{ exact: item.to === "/" }}
               onClick={() => setOpen(false)}
-              className="block rounded-lg px-3 py-3 text-base font-medium text-foreground/80 [&.active]:text-primary"
+              className="block rounded-md px-3 py-3 text-base font-semibold uppercase tracking-wide text-white/75 [&.active]:bg-primary [&.active]:text-white"
             >
               {item.label}
             </Link>
@@ -75,7 +79,7 @@ export function SiteHeader() {
             href={waLink("Hi Tona, I'd like to place an order.")}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-2 flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
+            className="brand-button mt-2 flex items-center justify-center gap-2 bg-primary px-5 py-3 text-sm font-bold text-primary-foreground"
           >
             <MessageCircle className="h-4 w-4" />
             Order on WhatsApp

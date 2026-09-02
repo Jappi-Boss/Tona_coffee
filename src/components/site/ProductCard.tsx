@@ -46,7 +46,7 @@ export function ProductCard({ product }: { product: PublicProduct }) {
   }
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-3xl border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg">
+    <article className="group flex flex-col overflow-hidden border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/60 hover:shadow-xl">
       <div className="relative h-44 overflow-hidden bg-muted">
         <img
           src={
@@ -59,7 +59,7 @@ export function ProductCard({ product }: { product: PublicProduct }) {
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/10 to-transparent" />
-        <span className="label-mono absolute left-6 top-5 rounded-full bg-background/90 px-3 py-1.5 text-foreground">
+        <span className="label-mono absolute left-5 top-5 border-l-4 border-primary bg-black/80 px-3 py-1.5 text-white">
           {product.process}
         </span>
         <span className="absolute bottom-5 left-6 font-display text-3xl font-bold text-primary-foreground">
@@ -77,7 +77,7 @@ export function ProductCard({ product }: { product: PublicProduct }) {
           {product.tastingNotes.map((n) => (
             <span
               key={n}
-              className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-foreground/80"
+              className="rounded-sm border border-border bg-secondary px-3 py-1 text-xs font-medium text-foreground/80"
             >
               {n}
             </span>
@@ -128,7 +128,7 @@ export function ProductCard({ product }: { product: PublicProduct }) {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
+            className="brand-button inline-flex flex-1 items-center justify-center gap-2 bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5"
           >
             <ShoppingBag className="h-4 w-4" />
             Order now

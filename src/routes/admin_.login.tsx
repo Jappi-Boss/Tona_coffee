@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { toast } from "sonner";
 
 import { adminAuth } from "@/lib/admin-auth";
+import { TonaLogo } from "@/components/site/TonaLogo";
 
 export const Route = createFileRoute("/admin_/login")({
   component: AdminLoginPage,
@@ -70,9 +71,9 @@ function AdminLoginPage() {
   }
 
   return (
-    <main className="grid min-h-screen bg-[#f7f4ef] lg:grid-cols-[1.05fr_.95fr]">
+    <main className="grid min-h-screen bg-sand lg:grid-cols-[1.05fr_.95fr]">
       <section className="relative hidden overflow-hidden bg-teal px-12 py-14 text-white lg:flex lg:flex-col lg:justify-between">
-        <div className="absolute inset-0 leaf-field opacity-40" />
+        <div className="absolute inset-0 leaf-field opacity-60" />
         <Link
           to="/"
           className="relative flex w-fit items-center gap-2 text-sm font-semibold"
@@ -80,9 +81,10 @@ function AdminLoginPage() {
           <ArrowLeft className="h-4 w-4" /> Back to website
         </Link>
         <div className="relative max-w-xl">
-          <p className="label-mono mb-5 text-orange-200">Tona operations</p>
-          <h1 className="text-6xl font-bold leading-[.95]">
-            Everything Tona, in one calm place.
+          <TonaLogo tone="light" className="mb-10" />
+          <p className="label-mono mb-5 text-primary">Tona operations</p>
+          <h1 className="text-7xl font-black uppercase leading-[.82]">
+            Everything Tona. One place.
           </h1>
           <p className="mt-6 max-w-lg text-lg text-white/75">
             Manage coffee, events, customers and requests without losing the
@@ -96,7 +98,7 @@ function AdminLoginPage() {
 
       <section className="flex items-center justify-center px-5 py-12 sm:px-10">
         <div className="w-full max-w-md">
-          <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-white shadow-lg shadow-orange-200">
+          <div className="brand-shadow mb-8 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-white">
             <LockKeyhole className="h-7 w-7" />
           </div>
           <p className="label-mono text-primary">Admin dashboard</p>
