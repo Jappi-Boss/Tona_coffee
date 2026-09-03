@@ -1,4 +1,4 @@
-import tonaHomeHeroImage from "@/assets/tona-home-hero.jpg";
+import tonaHomeHeroImage from "@/assets/tona-home-hero-hq.jpeg";
 
 const assetBase =
   "https://raw.githubusercontent.com/Jappi-Boss/Tona_coffee/46644382d0a190e7c0ffa62b0f6bd930ee894b76/src/assets";
