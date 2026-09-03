@@ -71,73 +71,54 @@ function Home() {
   return (
     <>
       {/* HERO */}
-      <section className="leaf-field relative overflow-hidden bg-teal-deep text-white">
-        <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-14 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-20">
-          <div>
-            <span className="label-mono inline-flex border-l-4 border-primary py-1 pl-3 text-primary">
-              African-Led Specialty Coffee Roaster
-            </span>
-            <h1 className="mt-6 font-display text-6xl font-black uppercase leading-[.84] text-white sm:text-7xl lg:text-8xl">
+      <section className="relative isolate min-h-[620px] overflow-hidden bg-black text-white sm:min-h-[680px] lg:min-h-[760px]">
+        <img
+          src={heroImg}
+          alt="Tona Coffee specialty coffee packaging with roasted coffee beans"
+          width={1536}
+          height={864}
+          fetchPriority="high"
+          className="absolute inset-0 -z-20 h-full w-full object-cover object-right"
+        />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black via-black/80 via-[42%] to-black/5" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/35 via-transparent to-black/10" />
+
+        <div className="mx-auto flex min-h-[620px] max-w-7xl items-center px-5 py-16 sm:min-h-[680px] lg:min-h-[760px] lg:px-8">
+          <div className="max-w-2xl">
+            <h1 className="font-display text-5xl font-black uppercase leading-[.9] tracking-tight text-white sm:text-6xl lg:text-7xl xl:text-8xl">
               Stay for Tona.
               <br />
-              Stay for the <span className="text-primary">moment.</span>
+              <span className="text-primary">Stay for the moment.</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/68">
-              The first cup brings people together. The second round is where
-              conversations deepen, ideas take shape, and people stay a little
-              longer. This is where Tona belongs.
+            <div className="mt-7 h-1 w-14 bg-primary" />
+            <p className="mt-7 max-w-xl text-base leading-8 text-white/85 sm:text-lg">
+              Ethiopian coffee is more than a drink—it&apos;s culture,
+              connection, and centuries of tradition in every cup. From our
+              farms to your table, we bring you specialty coffee that tells a
+              story worth sharing.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link
                 to="/products"
-                className="brand-button inline-flex items-center gap-2 bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5"
+                className="brand-button inline-flex items-center gap-2 bg-primary px-7 py-4 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5"
               >
-                Explore our coffee <ArrowRight className="h-4 w-4" />
+                Explore Our Coffee <ArrowRight className="h-4 w-4" />
               </Link>
               <a
                 href={waLink("Hi Tona, I'd like to place an order.")}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="brand-button inline-flex items-center gap-2 border border-white/35 px-6 py-3.5 text-sm font-bold text-white transition-colors hover:border-primary hover:text-primary"
+                className="brand-button inline-flex items-center gap-2 border border-primary px-7 py-4 text-sm font-bold text-white transition-colors hover:bg-primary hover:text-primary-foreground"
               >
                 <MessageCircle className="h-4 w-4" /> Order on WhatsApp
               </a>
-              <Link
-                to="/for-business"
-                className="inline-flex items-center gap-2 px-6 py-3.5 text-sm font-semibold text-white/65 hover:text-primary"
-              >
-                For business
-              </Link>
-            </div>
-          </div>
-
-          <div className="relative">
-            <img
-              src={heroImg}
-              alt="Ethiopian coffee ceremony: coffee poured from a jebena into small cups"
-              width={1408}
-              height={1600}
-              className="brand-shadow aspect-[4/5] w-full rounded-lg object-cover"
-            />
-            <div className="absolute -bottom-6 left-4 right-4 border-t-4 border-primary bg-black/92 p-5 text-white sm:left-8 sm:right-auto sm:max-w-xs">
-              <p className="label-mono text-teal-foreground/60">
-                Where our name comes from
-              </p>
-              <p className="mt-2 font-display text-2xl font-bold">
-                The Second Round
-              </p>
-              <p className="mt-2 text-sm text-teal-foreground/75">
-                Ethiopian coffee is served in rounds. Tona takes its spirit from
-                the second — where a simple coffee moment becomes something
-                deeper.
-              </p>
             </div>
           </div>
         </div>
       </section>
 
       {/* UPCOMING EVENTS */}
-      <section className="mt-16 bg-sand py-16 lg:mt-8 lg:py-20">
+      <section className="bg-sand py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className="mb-10 flex flex-wrap items-end justify-between gap-5">
             <div>
