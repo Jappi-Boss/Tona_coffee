@@ -5,10 +5,13 @@ type Props = {
   size?: "sm" | "md" | "lg" | "xl";
 };
 
+const OFFICIAL_LOGO_URL =
+  "https://raw.githubusercontent.com/Jappi-Boss/Tona_coffee/7247bf6b0bd5bd8d6d21d08d20fb861eb2aeb612/public/tona-logo.png";
+
 export function TonaMark({ className = "h-14 w-14" }: { className?: string }) {
   return (
     <img
-      src="/tona-logo.png"
+      src={OFFICIAL_LOGO_URL}
       alt="Tona Coffee — Stay for Tona, Stay for the Moment"
       width="1024"
       height="1024"
