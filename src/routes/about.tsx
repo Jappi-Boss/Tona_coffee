@@ -55,14 +55,16 @@ function About() {
 
       <section className="py-20">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 lg:grid-cols-2 lg:px-8">
-          <img
-            src={aboutProductImg}
-            alt="Tona Coffee product packaging and brand presentation"
-            width={1000}
-            height={1250}
-            loading="lazy"
-            className="aspect-[4/5] w-full rounded-[2rem] object-cover"
-          />
+          <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] bg-black">
+            <img
+              src={aboutProductImg}
+              alt="Tona Coffee product packaging and brand presentation"
+              width={1000}
+              height={1250}
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover object-center"
+            />
+          </div>
           <div className="space-y-5 text-lg leading-relaxed text-muted-foreground">
             <p>
               The first cup brings people together. The second round is where the conversation
