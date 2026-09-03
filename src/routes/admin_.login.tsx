@@ -81,7 +81,7 @@ function AdminLoginPage() {
           <ArrowLeft className="h-4 w-4" /> Back to website
         </Link>
         <div className="relative max-w-xl">
-          <TonaLogo tone="light" className="mb-10" />
+          <TonaLogo tone="light" size="xl" className="mb-10" />
           <p className="label-mono mb-5 text-primary">Tona operations</p>
           <h1 className="text-7xl font-black uppercase leading-[.82]">
             Everything Tona. One place.

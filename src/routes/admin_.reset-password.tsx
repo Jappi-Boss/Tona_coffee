@@ -46,7 +46,7 @@ function ResetPasswordPage() {
   return (
     <main className="leaf-field flex min-h-screen items-center justify-center bg-teal-deep px-5 py-12">
       <div className="w-full max-w-md border-t-8 border-primary bg-sand p-7 shadow-2xl sm:p-10">
-        <TonaLogo className="mb-8" />
+        <TonaLogo size="lg" className="mb-8" />
         <div className="brand-shadow mb-7 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white">
           <KeyRound className="h-7 w-7" />
         </div>

@@ -9,7 +9,7 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <TonaLogo tone="light" />
+            <TonaLogo tone="light" size="lg" />
             <p className="mt-5 max-w-xs text-sm leading-relaxed text-teal-foreground/70">
               An African-led specialty coffee roaster rooted in Ethiopia's
               coffee heartlands. Stay for Tona, stay for the moment.
