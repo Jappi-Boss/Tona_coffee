@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
-import aboutProductImg from "@/assets/tona-about-product.jpg";
+
+const ABOUT_PRODUCT_IMAGE =
+  "https://raw.githubusercontent.com/Jappi-Boss/Tona_coffee/d1a6113e6338c1223ab19cbe5d5d040a85b04176/src/assets/tona-about-product.jpg";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -55,16 +57,13 @@ function About() {
 
       <section className="py-20">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 lg:grid-cols-2 lg:px-8">
-          <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[2rem] bg-black">
-            <img
-              src={aboutProductImg}
-              alt="Tona Coffee product packaging and brand presentation"
-              width={1000}
-              height={1250}
-              loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover object-center"
-            />
-          </div>
+          <img
+            src={ABOUT_PRODUCT_IMAGE}
+            alt="Tona Coffee product packaging and brand presentation"
+            loading="eager"
+            decoding="async"
+            className="block h-auto w-full rounded-[2rem]"
+          />
           <div className="space-y-5 text-lg leading-relaxed text-muted-foreground">
             <p>
               The first cup brings people together. The second round is where the conversation
