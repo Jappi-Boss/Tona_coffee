@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader } from "../components/site/SiteHeader";
 import { SiteFooter } from "../components/site/SiteFooter";
 import { SiteLoadingScreen } from "../components/site/SiteLoadingScreen";
+import { PageMotion } from "../components/site/PageMotion";
 import { WhatsAppFab } from "../components/site/WhatsAppFab";
 import { Toaster } from "sonner";
 
@@ -151,9 +152,10 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const isAdmin = useRouterState({
-    select: (state) => state.location.pathname.startsWith("/admin"),
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
   });
+  const isAdmin = pathname.startsWith("/admin");
   const isRoutePending = useRouterState({
     select: (state) => state.status === "pending",
   });
@@ -161,6 +163,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <SiteLoadingScreen routePending={isRoutePending} />
+      {!isAdmin && <PageMotion pathname={pathname} />}
       <div className="flex min-h-screen flex-col">
         {!isAdmin && <SiteHeader />}
         <main className="flex-1">
