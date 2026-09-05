@@ -1,0 +1,1 @@
+Verified Events product image asset set. Source JPEG reconstructed from SHA-verified base64 parts.
