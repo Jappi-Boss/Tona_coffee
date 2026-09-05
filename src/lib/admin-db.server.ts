@@ -7,6 +7,10 @@ const AUTH_JWKS_URL =
 
 const jwks = createRemoteJWKSet(new URL(AUTH_JWKS_URL));
 
+const NEON_AUTH_URL =
+  process.env.NEON_AUTH_URL ??
+  "https://ep-falling-thunder-avg9v3nc.neonauth.c-11.us-east-1.aws.neon.tech/neondb/auth";
+
 function database() {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) throw new Error("DATABASE_URL is not configured.");
@@ -37,6 +41,43 @@ async function requireAdmin(token: string) {
   };
 }
 
+async function requireSuperAdmin(token: string) {
+  const admin = await requireAdmin(token);
+  if (admin.role !== "super_admin")
+    throw new Error("Only a super admin can manage dashboard users.");
+  return admin;
+}
+
+async function neonAuthRequest<T>(
+  token: string,
+  path: string,
+  options: { method?: "GET" | "POST"; body?: Record<string, unknown> } = {},
+) {
+  const response = await fetch(`${NEON_AUTH_URL}/${path}`, {
+    method: options.method ?? "GET",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
+    },
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+  const payload = (await response.json().catch(() => null)) as
+    (T & { message?: string; error?: string }) | null;
+  if (!response.ok) {
+    throw new Error(
+      String(payload?.message ?? payload?.error ?? "Neon Auth request failed."),
+    );
+  }
+  return payload as T;
+}
+
+function hexDigest(bytes: ArrayBuffer) {
+  return Array.from(new Uint8Array(bytes))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 export async function loadDashboard(token: string) {
   const admin = await requireAdmin(token);
   const sql = database();
@@ -64,7 +105,171 @@ export async function loadDashboard(token: string) {
     orders,
     businessInquiries,
     contactRequests,
+    users: admin.role === "super_admin" ? await listManagedUsers(token) : [],
   };
+}
+
+type AuthUser = {
+  id: string;
+  email: string;
+  name?: string | null;
+  role?: string | string[] | null;
+  createdAt?: string | null;
+  banned?: boolean | null;
+};
+
+async function listManagedUsers(token: string) {
+  const [authResult, allowlist] = await Promise.all([
+    neonAuthRequest<AuthUser[] | { users?: AuthUser[] }>(
+      token,
+      "admin/list-users?limit=100&sortBy=createdAt&sortDirection=desc",
+    ),
+    database()`
+      SELECT email, display_name, role, is_permanent, is_active, created_at
+      FROM public.admin_allowlist
+      ORDER BY created_at DESC
+    `,
+  ]);
+  const authUsers = Array.isArray(authResult)
+    ? authResult
+    : (authResult?.users ?? []);
+  const byEmail = new Map(
+    authUsers.map((user) => [user.email.toLowerCase(), user]),
+  );
+  return allowlist.map((entry) => {
+    const user = byEmail.get(String(entry.email).toLowerCase());
+    return {
+      id: user?.id ?? null,
+      email: String(entry.email),
+      name: String(entry.display_name ?? user?.name ?? "User"),
+      role: String(entry.role),
+      is_permanent: Boolean(entry.is_permanent),
+      is_active: Boolean(entry.is_active) && !user?.banned,
+      created_at: entry.created_at ?? user?.createdAt ?? null,
+    };
+  });
+}
+
+type CreateManagedUserInput = {
+  token: string;
+  name: string;
+  email: string;
+  password: string;
+  role: "admin" | "editor";
+};
+
+export async function createManagedUser(input: CreateManagedUserInput) {
+  const actor = await requireSuperAdmin(input.token);
+  const email = input.email.trim().toLowerCase();
+  const authResult = await neonAuthRequest<{ user?: AuthUser }>(
+    input.token,
+    "admin/create-user",
+    {
+      method: "POST",
+      body: {
+        email,
+        password: input.password,
+        name: input.name.trim(),
+        role: "user",
+      },
+    },
+  );
+  const user = authResult?.user;
+  if (!user?.id) throw new Error("Neon Auth created no user record.");
+
+  const sql = database();
+  try {
+    await sql`
+      INSERT INTO public.admin_allowlist
+        (email, display_name, role, is_permanent, is_active)
+      VALUES
+        (${email}, ${input.name.trim()}, ${input.role}, false, true)
+      ON CONFLICT (email) DO UPDATE SET
+        display_name = EXCLUDED.display_name,
+        role = EXCLUDED.role,
+        is_active = true,
+        updated_at = now()
+    `;
+  } catch (error) {
+    try {
+      await neonAuthRequest(input.token, "admin/remove-user", {
+        method: "POST",
+        body: { userId: user.id },
+      });
+    } catch {
+      // Keep the original database error; the user can be removed manually.
+    }
+    throw error;
+  }
+
+  await sql`
+    INSERT INTO audit_log (actor_email, action, entity_type, entity_id, details)
+    VALUES (${actor.email}, 'created', 'admin_user', ${user.id}, ${JSON.stringify({ email, role: input.role })}::jsonb)
+  `;
+  return { ok: true };
+}
+
+type ResetManagedUserPasswordInput = {
+  token: string;
+  userId: string;
+  newPassword: string;
+};
+
+export async function resetManagedUserPassword(
+  input: ResetManagedUserPasswordInput,
+) {
+  const actor = await requireSuperAdmin(input.token);
+  const authResponse = await neonAuthRequest<
+    AuthUser[] | { users?: AuthUser[] }
+  >(input.token, "admin/list-users?limit=100");
+  const authUsers = Array.isArray(authResponse)
+    ? authResponse
+    : (authResponse.users ?? []);
+  const targetAuthUser = authUsers.find((user) => user.id === input.userId);
+  if (!targetAuthUser?.email)
+    throw new Error("That dashboard user was not found.");
+  const sql = database();
+  const target = await sql`
+    SELECT email, is_permanent, is_active
+    FROM admin_allowlist
+    WHERE lower(email) = lower(${targetAuthUser.email})
+    LIMIT 1
+  `;
+  if (!target[0]) throw new Error("That dashboard user was not found.");
+  if (target[0].is_permanent)
+    throw new Error("The permanent super-admin password cannot be reset here.");
+  if (!target[0].is_active) throw new Error("That dashboard user is inactive.");
+  await neonAuthRequest(input.token, "admin/set-user-password", {
+    method: "POST",
+    body: { userId: input.userId, newPassword: input.newPassword },
+  });
+  await sql`
+    INSERT INTO audit_log (actor_email, action, entity_type, entity_id)
+    VALUES (${actor.email}, 'password_reset', 'admin_user', ${input.userId})
+  `;
+  return { ok: true };
+}
+
+export async function createCloudinaryUploadSignature(token: string) {
+  await requireAdmin(token);
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME ?? "tkiiddxu";
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+  if (!apiKey || !apiSecret)
+    throw new Error(
+      "Cloudinary upload is not configured. Add CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET to the server environment.",
+    );
+
+  const timestamp = Math.floor(Date.now() / 1000);
+  const folder = "tona/products";
+  const signatureBase = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
+  const signature = hexDigest(
+    await crypto.subtle.digest(
+      "SHA-1",
+      new TextEncoder().encode(signatureBase),
+    ),
+  );
+  return { cloudName, apiKey, timestamp, folder, signature };
 }
 
 type StatusChange = {

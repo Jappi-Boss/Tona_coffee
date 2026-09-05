@@ -53,6 +53,18 @@ const eventInput = authInput.extend({
   registrationOpen: z.boolean(),
 });
 
+const createAdminUserInput = authInput.extend({
+  name: z.string().trim().min(2).max(120),
+  email: z.string().trim().email().max(320),
+  password: z.string().min(12).max(128),
+  role: z.enum(["admin", "editor"]),
+});
+
+const resetAdminUserPasswordInput = authInput.extend({
+  userId: z.string().uuid(),
+  newPassword: z.string().min(12).max(128),
+});
+
 export const getAdminDashboard = createServerFn({ method: "POST" })
   .validator(authInput)
   .handler(async ({ data }) => {
@@ -86,4 +98,26 @@ export const deleteAdminRecord = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { deleteRecord } = await import("./admin-db.server");
     return deleteRecord(data);
+  });
+
+export const createAdminUser = createServerFn({ method: "POST" })
+  .validator(createAdminUserInput)
+  .handler(async ({ data }) => {
+    const { createManagedUser } = await import("./admin-db.server");
+    return createManagedUser(data);
+  });
+
+export const resetAdminUserPassword = createServerFn({ method: "POST" })
+  .validator(resetAdminUserPasswordInput)
+  .handler(async ({ data }) => {
+    const { resetManagedUserPassword } = await import("./admin-db.server");
+    return resetManagedUserPassword(data);
+  });
+
+export const getCloudinaryUploadSignature = createServerFn({ method: "POST" })
+  .validator(authInput)
+  .handler(async ({ data }) => {
+    const { createCloudinaryUploadSignature } =
+      await import("./admin-db.server");
+    return createCloudinaryUploadSignature(data.token);
   });

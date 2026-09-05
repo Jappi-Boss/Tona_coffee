@@ -5,6 +5,7 @@ import {
   ClipboardList,
   Coffee,
   Inbox,
+  KeyRound,
   LayoutDashboard,
   LoaderCircle,
   LogOut,
@@ -15,6 +16,8 @@ import {
   RefreshCw,
   Search,
   Trash2,
+  UserCog,
+  UserPlus,
   Users,
   X,
 } from "lucide-react";
@@ -30,7 +33,10 @@ import { toast } from "sonner";
 
 import {
   deleteAdminRecord,
+  createAdminUser,
   getAdminDashboard,
+  getCloudinaryUploadSignature,
+  resetAdminUserPassword,
   saveEvent,
   saveProduct,
   updateRecordStatus,
@@ -52,6 +58,7 @@ type DashboardData = {
   orders: Row[];
   businessInquiries: Row[];
   contactRequests: Row[];
+  users: Row[];
 };
 
 const navItems = [
@@ -62,6 +69,7 @@ const navItems = [
   ["orders", "Orders", PackageCheck],
   ["business", "Business inquiries", ClipboardList],
   ["contacts", "Contact requests", MessageSquareText],
+  ["users", "Users", UserCog],
 ] as const;
 
 type View = (typeof navItems)[number][0];
@@ -78,6 +86,8 @@ function AdminDashboard() {
     null,
   );
   const [editingEvent, setEditingEvent] = useState<Row | "new" | null>(null);
+  const [editingUser, setEditingUser] = useState<"new" | null>(null);
+  const [resettingUser, setResettingUser] = useState<Row | null>(null);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -122,6 +132,7 @@ function AdminDashboard() {
       orders: filter(data.orders),
       businessInquiries: filter(data.businessInquiries),
       contactRequests: filter(data.contactRequests),
+      users: filter(data.users),
     };
   }, [data, query]);
 
@@ -192,6 +203,9 @@ function AdminDashboard() {
   if (!data || !filtered) return null;
 
   const activeLabel = navItems.find(([id]) => id === view)?.[1] ?? "Overview";
+  const visibleNavItems = navItems.filter(
+    ([id]) => id !== "users" || data.admin.role === "super_admin",
+  );
 
   return (
     <div className="min-h-screen bg-sand text-foreground lg:grid lg:grid-cols-[260px_1fr]">
@@ -214,7 +228,7 @@ function AdminDashboard() {
           className="flex-1 space-y-1 overflow-y-auto p-4"
           aria-label="Admin navigation"
         >
-          {navItems.map(([id, label, Icon]) => (
+          {visibleNavItems.map(([id, label, Icon]) => (
             <button
               key={id}
               onClick={() => {
@@ -360,6 +374,13 @@ function AdminDashboard() {
               }
             />
           )}
+          {view === "users" && data.admin.role === "super_admin" && (
+            <UserManagement
+              rows={filtered.users}
+              onCreate={() => setEditingUser("new")}
+              onReset={setResettingUser}
+            />
+          )}
         </div>
       </main>
 
@@ -379,6 +400,25 @@ function AdminDashboard() {
           close={() => setEditingEvent(null)}
           saved={async () => {
             setEditingEvent(null);
+            await load();
+          }}
+        />
+      )}
+      {editingUser && (
+        <UserEditor
+          close={() => setEditingUser(null)}
+          saved={async () => {
+            setEditingUser(null);
+            await load();
+          }}
+        />
+      )}
+      {resettingUser && (
+        <PasswordResetEditor
+          row={resettingUser}
+          close={() => setResettingUser(null)}
+          saved={async () => {
+            setResettingUser(null);
             await load();
           }}
         />
@@ -554,7 +594,7 @@ function Products({
               {row.image_url ? (
                 <img
                   src={String(row.image_url)}
-                  alt=""
+                  alt={`${String(row.name)} product cover`}
                   className="h-full w-full object-cover"
                 />
               ) : (
@@ -912,6 +952,323 @@ type DeleteEntity =
   | "business_inquiries"
   | "contact_requests";
 
+function UserManagement({
+  rows,
+  onCreate,
+  onReset,
+}: {
+  rows: Row[];
+  onCreate: () => void;
+  onReset: (row: Row) => void;
+}) {
+  return (
+    <Section
+      title="Dashboard users"
+      description="Create and maintain the people who can access Tona operations."
+      action={
+        <button
+          onClick={onCreate}
+          className="brand-button flex items-center gap-2 bg-primary px-4 py-2.5 text-sm font-bold text-white"
+        >
+          <UserPlus className="h-4 w-4" /> New user
+        </button>
+      }
+    >
+      <RecordTable headers={["User", "Role", "Status", "Added", "Actions"]}>
+        {rows.map((row) => (
+          <tr key={String(row.email)} className="border-t">
+            <Cell title={String(row.name)} subtitle={String(row.email)} />
+            <td className="p-4">
+              <Status value={String(row.role)} />
+            </td>
+            <td className="p-4">
+              <Status value={row.is_active ? "active" : "inactive"} />
+            </td>
+            <Cell title={formatDate(row.created_at)} />
+            <td className="p-4">
+              {row.id && !row.is_permanent ? (
+                <button
+                  type="button"
+                  onClick={() => onReset(row)}
+                  className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-xs font-bold uppercase tracking-wide text-teal hover:border-primary hover:text-primary"
+                >
+                  <KeyRound className="h-3.5 w-3.5" /> Reset password
+                </button>
+              ) : (
+                <span className="text-xs text-muted-foreground">
+                  Protected account
+                </span>
+              )}
+            </td>
+          </tr>
+        ))}
+      </RecordTable>
+      {!rows.length && <Empty text="No dashboard users found." />}
+    </Section>
+  );
+}
+
+function UserEditor({
+  close,
+  saved,
+}: {
+  close: () => void;
+  saved: () => Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const password = String(form.get("password"));
+    const confirmation = String(form.get("passwordConfirmation"));
+    if (password !== confirmation) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const token = await getAdminToken();
+      await createAdminUser({
+        data: {
+          token,
+          name: String(form.get("name")),
+          email: String(form.get("email")),
+          password,
+          role: String(form.get("role")) as "admin" | "editor",
+        },
+      });
+      toast.success("Dashboard user created.");
+      await saved();
+    } catch (caught) {
+      toast.error(
+        caught instanceof Error ? caught.message : "Could not create user.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <Modal title="Create dashboard user" close={close}>
+      <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
+        <EditorField
+          name="name"
+          label="Full name"
+          required
+          className="sm:col-span-2"
+        />
+        <EditorField
+          name="email"
+          label="Email"
+          type="email"
+          required
+          className="sm:col-span-2"
+        />
+        <EditorField
+          name="password"
+          label="Password"
+          type="password"
+          minLength={12}
+          required
+        />
+        <EditorField
+          name="passwordConfirmation"
+          label="Confirm password"
+          type="password"
+          minLength={12}
+          required
+        />
+        <label className="text-sm font-semibold text-teal sm:col-span-2">
+          Access role
+          <select
+            name="role"
+            defaultValue="editor"
+            className="mt-2 h-11 w-full rounded-xl border bg-white px-3"
+          >
+            <option value="editor">Editor — products and content</option>
+            <option value="admin">Admin — operations access</option>
+          </select>
+        </label>
+        <p className="text-xs leading-5 text-muted-foreground sm:col-span-2">
+          The user can sign in with this password immediately. Passwords are
+          securely managed by Neon Auth and are never shown after creation.
+        </p>
+        <EditorActions busy={busy} close={close} submitLabel="Create user" />
+      </form>
+    </Modal>
+  );
+}
+
+function PasswordResetEditor({
+  row,
+  close,
+  saved,
+}: {
+  row: Row;
+  close: () => void;
+  saved: () => Promise<void>;
+}) {
+  const [busy, setBusy] = useState(false);
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const newPassword = String(form.get("newPassword"));
+    if (newPassword !== String(form.get("newPasswordConfirmation"))) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const token = await getAdminToken();
+      await resetAdminUserPassword({
+        data: { token, userId: String(row.id), newPassword },
+      });
+      toast.success("Password reset successfully.");
+      await saved();
+    } catch (caught) {
+      toast.error(
+        caught instanceof Error ? caught.message : "Could not reset password.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <Modal title="Reset user password" close={close}>
+      <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
+        <div className="rounded-md border bg-white/60 p-4 sm:col-span-2">
+          <p className="font-bold text-teal">{String(row.name)}</p>
+          <p className="text-sm text-muted-foreground">{String(row.email)}</p>
+        </div>
+        <EditorField
+          name="newPassword"
+          label="New password"
+          type="password"
+          minLength={12}
+          required
+        />
+        <EditorField
+          name="newPasswordConfirmation"
+          label="Confirm new password"
+          type="password"
+          minLength={12}
+          required
+        />
+        <p className="text-xs leading-5 text-muted-foreground sm:col-span-2">
+          Share the new password with the user securely. It will not be
+          displayed again in this dashboard.
+        </p>
+        <EditorActions busy={busy} close={close} submitLabel="Reset password" />
+      </form>
+    </Modal>
+  );
+}
+
+function ProductImageUpload({
+  imageUrl,
+  productName,
+  disabled,
+  onUploaded,
+}: {
+  imageUrl: string;
+  productName: string;
+  disabled: boolean;
+  onUploaded: (url: string) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  async function upload(file: File) {
+    const accepted = ["image/jpeg", "image/png", "image/webp"];
+    if (!accepted.includes(file.type)) {
+      setMessage("Choose a JPG, PNG, or WebP image.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage("The image must be smaller than 5 MB.");
+      return;
+    }
+
+    const localPreview = URL.createObjectURL(file);
+    setPreviewUrl((previous) => {
+      if (previous) URL.revokeObjectURL(previous);
+      return localPreview;
+    });
+    setUploading(true);
+    setMessage("Uploading image…");
+    try {
+      const token = await getAdminToken();
+      const signature = await getCloudinaryUploadSignature({
+        data: { token },
+      });
+      const body = new FormData();
+      body.append("file", file);
+      body.append("api_key", signature.apiKey);
+      body.append("timestamp", String(signature.timestamp));
+      body.append("signature", signature.signature);
+      body.append("folder", signature.folder);
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${signature.cloudName}/image/upload`,
+        { method: "POST", body },
+      );
+      const result = (await response.json().catch(() => null)) as {
+        secure_url?: string;
+        error?: { message?: string };
+      } | null;
+      if (!response.ok || !result?.secure_url)
+        throw new Error(result?.error?.message ?? "Cloudinary upload failed.");
+      onUploaded(result.secure_url);
+      setMessage("Upload complete. Save the product to apply the image.");
+    } catch (caught) {
+      setMessage(
+        caught instanceof Error ? caught.message : "Could not upload image.",
+      );
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto]">
+      <label className="flex cursor-pointer items-center justify-center rounded-md border border-dashed border-teal/35 bg-white/60 px-4 py-3 text-center text-sm font-bold text-teal hover:border-primary hover:text-primary has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60">
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="sr-only"
+          disabled={disabled || uploading}
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            event.currentTarget.value = "";
+            if (file) void upload(file);
+          }}
+        />
+        {uploading ? "Uploading…" : "Choose image from computer"}
+      </label>
+      {(previewUrl || imageUrl) && (
+        <div className="relative h-20 overflow-hidden rounded-md border bg-white sm:w-32">
+          <img
+            src={previewUrl || imageUrl}
+            alt={`${productName} preview`}
+            className="h-full w-full object-cover"
+          />
+        </div>
+      )}
+      <p
+        className="text-xs text-muted-foreground sm:col-span-2"
+        aria-live="polite"
+      >
+        {message || "JPG, PNG, or WebP · maximum 5 MB"}
+      </p>
+    </div>
+  );
+}
+
 function ProductEditor({
   row,
   close,
@@ -923,6 +1280,7 @@ function ProductEditor({
 }) {
   const product = row === "new" ? {} : row;
   const [busy, setBusy] = useState(false);
+  const [imageUrl, setImageUrl] = useState(String(product.image_url ?? ""));
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -993,12 +1351,24 @@ function ProductEditor({
           }
           className="sm:col-span-2"
         />
-        <EditorField
-          name="imageUrl"
-          label="Image URL"
-          value={product.image_url}
-          className="sm:col-span-2"
-        />
+        <div className="sm:col-span-2">
+          <label className="text-sm font-semibold text-teal">
+            Product cover image
+            <input
+              name="imageUrl"
+              value={imageUrl}
+              onChange={(event) => setImageUrl(event.target.value)}
+              placeholder="Upload from computer or paste an HTTPS image URL"
+              className="mt-2 h-11 w-full rounded-md border bg-white px-3 font-normal outline-none focus:border-primary"
+            />
+          </label>
+          <ProductImageUpload
+            imageUrl={imageUrl}
+            productName={String(product.name ?? "product")}
+            disabled={busy}
+            onUploaded={setImageUrl}
+          />
+        </div>
         <label className="sm:col-span-2 text-sm font-semibold text-teal">
           Description
           <textarea
@@ -1434,6 +1804,7 @@ function countFor(view: View, data: DashboardData) {
   if (view === "orders") return data.orders.length;
   if (view === "business") return data.businessInquiries.length;
   if (view === "contacts") return data.contactRequests.length;
+  if (view === "users") return data.users.length;
   return 0;
 }
 function statusColor(value: string) {
