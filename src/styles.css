@@ -191,40 +191,6 @@
   pointer-events: none;
 }
 
-.tona-loader__pattern {
-  position: absolute;
-  inset: 0;
-  opacity: 0.13;
-  background-image:
-    linear-gradient(
-      30deg,
-      transparent 24%,
-      #fff8ee 25%,
-      #fff8ee 26%,
-      transparent 27%,
-      transparent 74%,
-      #fff8ee 75%,
-      #fff8ee 76%,
-      transparent 77%
-    ),
-    linear-gradient(
-      150deg,
-      transparent 24%,
-      #fff8ee 25%,
-      #fff8ee 26%,
-      transparent 27%,
-      transparent 74%,
-      #fff8ee 75%,
-      #fff8ee 76%,
-      transparent 77%
-    );
-  background-position:
-    0 0,
-    30px 17px;
-  background-size: 60px 34px;
-  animation: tona-pattern-drift 8s linear infinite;
-}
-
 .tona-loader__glow {
   position: absolute;
   width: min(78vw, 34rem);
@@ -393,14 +359,6 @@
   }
 }
 
-@keyframes tona-pattern-drift {
-  to {
-    background-position:
-      60px 34px,
-      90px 51px;
-  }
-}
-
 @keyframes tona-glow-pulse {
   50% {
     transform: scale(1.08);
@@ -410,7 +368,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .tona-loader,
-  .tona-loader__pattern,
   .tona-loader__glow,
   .tona-loader__cup,
   .tona-loader__steam,

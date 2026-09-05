@@ -42,7 +42,6 @@ export function SiteLoadingScreen() {
       aria-live="polite"
       aria-label="Loading Tona Coffee"
     >
-      <div className="tona-loader__pattern" aria-hidden="true" />
       <div className="tona-loader__glow" aria-hidden="true" />
 
       <div className="tona-loader__content">
