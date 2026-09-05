@@ -14,6 +14,9 @@ export function ProductCard({ product }: { product: PublicProduct }) {
   const [qty, setQty] = useState(1);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
+  const fallbackImage =
+    PRODUCT_IMAGES[product.slug as keyof typeof PRODUCT_IMAGES];
 
   async function placeOrder(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -50,13 +53,13 @@ export function ProductCard({ product }: { product: PublicProduct }) {
       <div className="relative h-44 overflow-hidden bg-muted">
         <img
           src={
-            product.imageUrl ??
-            PRODUCT_IMAGES[product.slug as keyof typeof PRODUCT_IMAGES]
+            imageFailed ? fallbackImage : (product.imageUrl ?? fallbackImage)
           }
           alt={`${product.name} black coffee with roasted coffee beans`}
           width={720}
           height={360}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          onError={() => setImageFailed(true)}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/10 to-transparent" />
         <span className="label-mono absolute left-5 top-5 border-l-4 border-primary bg-black/80 px-3 py-1.5 text-white">
