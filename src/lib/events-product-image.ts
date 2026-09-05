@@ -17,3 +17,5 @@ import part08c from "@/assets/events-product/repair08c.txt?raw";
 
 export const eventsProductImage =
   `data:image/jpeg;base64,${part01a}${part01b}${part01c}${part01d}${part02a}${part02b}${part02c}${part02d}${part03}${part04}${part05}${part06}${part07}${part08a}${part08b}${part08c}`;
+
+export const EVENTS_PRODUCT_IMAGE = eventsProductImage;
