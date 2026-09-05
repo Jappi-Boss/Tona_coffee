@@ -6,6 +6,10 @@ type SiteLoadingScreenProps = {
   routePending: boolean;
 };
 
+const announceLoaderHidden = () => {
+  window.dispatchEvent(new Event("tona:loader-hidden"));
+};
+
 export function SiteLoadingScreen({ routePending }: SiteLoadingScreenProps) {
   const [initialPhase, setInitialPhase] = useState<LoaderPhase>("showing");
   const [initialComplete, setInitialComplete] = useState(false);
@@ -25,6 +29,7 @@ export function SiteLoadingScreen({ routePending }: SiteLoadingScreenProps) {
       () => {
         setInitialPhase("hidden");
         setInitialComplete(true);
+        announceLoaderHidden();
       },
       reducedMotion ? 500 : 1900,
     );
@@ -60,6 +65,7 @@ export function SiteLoadingScreen({ routePending }: SiteLoadingScreenProps) {
         () => {
           setNavigationPhase("hidden");
           navigationStartedAt.current = null;
+          announceLoaderHidden();
         },
         remainingTime + (reducedMotion ? 150 : 320),
       );
