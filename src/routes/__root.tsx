@@ -154,10 +154,13 @@ function RootComponent() {
   const isAdmin = useRouterState({
     select: (state) => state.location.pathname.startsWith("/admin"),
   });
+  const isRoutePending = useRouterState({
+    select: (state) => state.status === "pending",
+  });
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SiteLoadingScreen />
+      <SiteLoadingScreen routePending={isRoutePending} />
       <div className="flex min-h-screen flex-col">
         {!isAdmin && <SiteHeader />}
         <main className="flex-1">

@@ -1,38 +1,91 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type LoaderPhase = "showing" | "leaving" | "hidden";
 
-export function SiteLoadingScreen() {
-  const [phase, setPhase] = useState<LoaderPhase>("showing");
+type SiteLoadingScreenProps = {
+  routePending: boolean;
+};
+
+export function SiteLoadingScreen({ routePending }: SiteLoadingScreenProps) {
+  const [initialPhase, setInitialPhase] = useState<LoaderPhase>("showing");
+  const [initialComplete, setInitialComplete] = useState(false);
+  const [navigationPhase, setNavigationPhase] = useState<LoaderPhase>("hidden");
+  const navigationStartedAt = useRef<number | null>(null);
 
   useEffect(() => {
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
 
     const leaveTimer = window.setTimeout(
-      () => setPhase("leaving"),
+      () => setInitialPhase("leaving"),
       reducedMotion ? 350 : 1450,
     );
     const hideTimer = window.setTimeout(
-      () => setPhase("hidden"),
+      () => {
+        setInitialPhase("hidden");
+        setInitialComplete(true);
+      },
       reducedMotion ? 500 : 1900,
     );
 
     return () => {
       window.clearTimeout(leaveTimer);
       window.clearTimeout(hideTimer);
-      document.body.style.overflow = previousOverflow;
     };
   }, []);
 
   useEffect(() => {
-    if (phase === "hidden") document.body.style.overflow = "";
-  }, [phase]);
+    if (!initialComplete) return;
 
-  if (phase === "hidden") return null;
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    let leaveTimer: number | undefined;
+    let hideTimer: number | undefined;
+
+    if (routePending) {
+      navigationStartedAt.current = Date.now();
+      setNavigationPhase("showing");
+    } else if (navigationStartedAt.current !== null) {
+      const elapsed = Date.now() - navigationStartedAt.current;
+      const minimumVisibleTime = reducedMotion ? 100 : 550;
+      const remainingTime = Math.max(0, minimumVisibleTime - elapsed);
+
+      leaveTimer = window.setTimeout(
+        () => setNavigationPhase("leaving"),
+        remainingTime,
+      );
+      hideTimer = window.setTimeout(
+        () => {
+          setNavigationPhase("hidden");
+          navigationStartedAt.current = null;
+        },
+        remainingTime + (reducedMotion ? 150 : 320),
+      );
+    }
+
+    return () => {
+      if (leaveTimer !== undefined) window.clearTimeout(leaveTimer);
+      if (hideTimer !== undefined) window.clearTimeout(hideTimer);
+    };
+  }, [initialComplete, routePending]);
+
+  const phase = initialPhase === "hidden" ? navigationPhase : initialPhase;
+  const isVisible = phase !== "hidden";
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isVisible]);
+
+  if (!isVisible) return null;
 
   return (
     <div
