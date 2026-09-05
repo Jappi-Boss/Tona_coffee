@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader } from "../components/site/SiteHeader";
 import { SiteFooter } from "../components/site/SiteFooter";
+import { SiteLoadingScreen } from "../components/site/SiteLoadingScreen";
 import { WhatsAppFab } from "../components/site/WhatsAppFab";
 import { Toaster } from "sonner";
 
@@ -156,6 +157,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <SiteLoadingScreen />
       <div className="flex min-h-screen flex-col">
         {!isAdmin && <SiteHeader />}
         <main className="flex-1">
