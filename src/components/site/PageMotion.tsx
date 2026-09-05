@@ -38,20 +38,54 @@ export function PageMotion({ pathname }: PageMotionProps) {
     let fallbackTimer: number | undefined;
     let observer: IntersectionObserver | undefined;
     let started = false;
+    const finishTimers: number[] = [];
+    const motionDelays = new Map<HTMLElement, number>();
+    const sectionTargetCounts = new Map<Element, number>();
 
     targets.forEach((target, index) => {
+      const section = target.closest("section") ?? target;
+      const sectionTargetCount = sectionTargetCounts.get(section) ?? 0;
+      sectionTargetCounts.set(section, sectionTargetCount + 1);
+
       const motionType = target.matches("section")
         ? "section"
         : target.matches("img")
           ? "media"
-          : "item";
+          : target.matches("article, form, .grid > *")
+            ? "card"
+            : target.matches("h1, h2, h3, h4")
+              ? "headline"
+              : "item";
+      const delay = Math.min(sectionTargetCount, 6) * 75;
 
       target.dataset.tonaMotion = motionType;
-      target.style.setProperty("--tona-motion-delay", `${(index % 6) * 65}ms`);
+      target.style.setProperty("--tona-motion-delay", `${delay}ms`);
+      target.style.setProperty(
+        "--tona-motion-x",
+        `${index % 2 === 0 ? -18 : 18}px`,
+      );
+      motionDelays.set(target, delay);
     });
 
+    const finishMotion = (target: HTMLElement) => {
+      target.classList.remove("is-visible");
+      delete target.dataset.tonaMotion;
+      target.style.removeProperty("--tona-motion-delay");
+      target.style.removeProperty("--tona-motion-x");
+    };
+
+    const revealTarget = (target: HTMLElement) => {
+      target.classList.add("is-visible");
+      finishTimers.push(
+        window.setTimeout(
+          () => finishMotion(target),
+          1100 + (motionDelays.get(target) ?? 0),
+        ),
+      );
+    };
+
     const revealAll = () => {
-      targets.forEach((target) => target.classList.add("is-visible"));
+      targets.forEach(revealTarget);
     };
 
     const startMotion = () => {
@@ -70,7 +104,7 @@ export function PageMotion({ pathname }: PageMotionProps) {
           entries.forEach((entry) => {
             if (!entry.isIntersecting) return;
 
-            entry.target.classList.add("is-visible");
+            revealTarget(entry.target as HTMLElement);
             observer?.unobserve(entry.target);
           });
         },
@@ -91,7 +125,7 @@ export function PageMotion({ pathname }: PageMotionProps) {
       window.addEventListener(LOADER_HIDDEN_EVENT, startMotion, { once: true });
       fallbackTimer = window.setTimeout(
         startMotion,
-        isFirstPage.current ? 2400 : 1100,
+        isFirstPage.current ? 2500 : 1250,
       );
     }
 
@@ -103,12 +137,11 @@ export function PageMotion({ pathname }: PageMotionProps) {
         window.cancelAnimationFrame(animationFrame);
       }
       if (fallbackTimer !== undefined) window.clearTimeout(fallbackTimer);
+      finishTimers.forEach((timer) => window.clearTimeout(timer));
       observer?.disconnect();
 
       targets.forEach((target) => {
-        target.classList.remove("is-visible");
-        delete target.dataset.tonaMotion;
-        target.style.removeProperty("--tona-motion-delay");
+        finishMotion(target);
       });
     };
   }, [pathname]);

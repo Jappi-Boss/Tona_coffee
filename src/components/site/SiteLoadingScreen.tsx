@@ -31,7 +31,7 @@ export function SiteLoadingScreen({ routePending }: SiteLoadingScreenProps) {
         setInitialComplete(true);
         announceLoaderHidden();
       },
-      reducedMotion ? 500 : 1900,
+      reducedMotion ? 500 : 2050,
     );
 
     return () => {
@@ -67,7 +67,7 @@ export function SiteLoadingScreen({ routePending }: SiteLoadingScreenProps) {
           navigationStartedAt.current = null;
           announceLoaderHidden();
         },
-        remainingTime + (reducedMotion ? 150 : 320),
+        remainingTime + (reducedMotion ? 150 : 560),
       );
     }
 

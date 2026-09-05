@@ -167,8 +167,8 @@
   }
 }
 
-/* Branded first-load experience. Kept outside Tailwind layers so it is available
- * before the application finishes hydrating. */
+/* Branded loading experience. Kept outside Tailwind layers so it is available
+ * before the application finishes hydrating and during route transitions. */
 .tona-loader {
   position: fixed;
   inset: 0;
@@ -176,19 +176,37 @@
   display: grid;
   place-items: center;
   overflow: hidden;
-  background: #171512;
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      rgba(238, 73, 39, 0.11),
+      transparent 36%
+    ),
+    linear-gradient(155deg, #1c1815 0%, #11100e 58%, #171512 100%);
   color: #fff8ee;
   opacity: 1;
   visibility: visible;
   transition:
-    opacity 420ms ease,
-    visibility 420ms ease;
+    opacity 560ms cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 560ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .tona-loader[data-phase="leaving"] {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
+}
+
+.tona-loader[data-phase="leaving"] .tona-loader__content {
+  opacity: 0;
+  filter: blur(5px);
+  transform: translateY(-0.65rem) scale(0.965);
+}
+
+.tona-loader[data-phase="leaving"] .tona-loader__glow {
+  opacity: 0;
+  animation: none;
+  transform: scale(1.18);
 }
 
 .tona-loader__glow {
@@ -198,6 +216,9 @@
   border-radius: 999px;
   background: radial-gradient(circle, rgba(238, 73, 39, 0.28), transparent 68%);
   animation: tona-glow-pulse 1.7s ease-in-out infinite;
+  transition:
+    opacity 520ms ease,
+    transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .tona-loader__content {
@@ -207,6 +228,10 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
+  transition:
+    opacity 440ms ease,
+    filter 520ms ease,
+    transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .tona-loader__cup {
@@ -366,34 +391,46 @@
   }
 }
 
-/* Page and scroll motion begins only after the branded loader has cleared. */
+/* Cinematic page motion begins only after the branded loader has cleared. */
 [data-tona-motion] {
   opacity: 0;
+  backface-visibility: hidden;
   transition:
-    opacity 680ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 760ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 760ms cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 760ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 960ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 900ms cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: var(--tona-motion-delay, 0ms);
 }
 
 [data-tona-motion="section"] {
-  transform: translateY(18px);
+  transform: translate3d(0, 16px, 0);
 }
 
 [data-tona-motion="item"] {
-  transform: translateY(24px);
-  filter: blur(2px);
+  filter: blur(4px);
+  transform: translate3d(0, 26px, 0) scale(0.99);
+}
+
+[data-tona-motion="headline"] {
+  filter: blur(5px);
+  transform: translate3d(0, 0.55em, 0) scale(0.985);
+}
+
+[data-tona-motion="card"] {
+  filter: blur(4px);
+  transform: translate3d(var(--tona-motion-x, 0), 24px, 0) scale(0.975);
 }
 
 [data-tona-motion="media"] {
-  transform: scale(1.035);
-  filter: saturate(0.86);
+  filter: blur(3px) saturate(0.82) contrast(0.96);
+  transform: scale(1.06) rotate(0.2deg);
+  transform-origin: center;
 }
 
 [data-tona-motion].is-visible {
   opacity: 1;
-  transform: none;
   filter: none;
+  transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
 }
 
 @media (prefers-reduced-motion: reduce) {
