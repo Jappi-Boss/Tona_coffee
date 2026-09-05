@@ -22,3 +22,5 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+<!-- production redeploy trigger: 2026-09-05 12:20 Africa/Addis_Ababa -->
