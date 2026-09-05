@@ -16,7 +16,8 @@ export function ProductCard({ product }: { product: PublicProduct }) {
   const [busy, setBusy] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
   const fallbackImage =
-    PRODUCT_IMAGES[product.slug as keyof typeof PRODUCT_IMAGES];
+    PRODUCT_IMAGES[product.slug as keyof typeof PRODUCT_IMAGES] ??
+    PRODUCT_IMAGES.yirgacheffe;
 
   async function placeOrder(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
