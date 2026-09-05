@@ -1,0 +1,1 @@
+Internal verified image asset parts for the Events page.
