@@ -1,9 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
-
-const ABOUT_PRODUCT_IMAGE =
-  "https://raw.githubusercontent.com/Jappi-Boss/Tona_coffee/d1a6113e6338c1223ab19cbe5d5d040a85b04176/src/assets/tona-about-product.jpg";
+import { ABOUT_PRODUCT_IMAGE } from "@/lib/about-product-image";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -59,10 +57,10 @@ function About() {
         <div className="mx-auto grid max-w-7xl gap-12 px-5 lg:grid-cols-2 lg:px-8">
           <img
             src={ABOUT_PRODUCT_IMAGE}
-            alt="Tona Coffee product packaging and brand presentation"
+            alt="Tona Coffee front and back product packaging in an Ethiopian coffee setting"
             loading="eager"
             decoding="async"
-            className="block h-auto w-full rounded-[2rem]"
+            className="block h-auto w-full rounded-[2rem] object-cover"
           />
           <div className="space-y-5 text-lg leading-relaxed text-muted-foreground">
             <p>
