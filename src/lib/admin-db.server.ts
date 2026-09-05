@@ -45,6 +45,17 @@ async function requireSuperAdmin(token: string) {
   const admin = await requireAdmin(token);
   if (admin.role !== "super_admin")
     throw new Error("Only a super admin can manage dashboard users.");
+  // Neon Auth's Admin plugin checks its own role claim. Keep it aligned with
+  // the application's durable super-admin allowlist before admin operations.
+  await database()`
+    UPDATE neon_auth."user" u
+    SET role = 'admin'
+    FROM public.admin_allowlist a
+    WHERE lower(a.email) = lower(u.email)
+      AND lower(a.email) = lower(${admin.email})
+      AND a.role = 'super_admin'
+      AND COALESCE(u.role, '') <> 'admin'
+  `;
   return admin;
 }
 
