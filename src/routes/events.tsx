@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CalendarDays, MapPin, Clock, MessageCircle } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
 import { EventRegistrationDialog } from "@/components/site/EventRegistrationForm";
-import { eventImage as eventImg } from "@/lib/site-images";
+import { EVENTS_PRODUCT_IMAGE } from "@/lib/events-product-image";
 import { waLink } from "@/lib/tona";
 import { getPublicCatalog } from "@/lib/public-api";
 
@@ -135,12 +135,13 @@ function Events() {
       <section className="bg-sand py-20">
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 lg:grid-cols-2 lg:px-8">
           <img
-            src={eventImg}
-            alt="Guests gathered around a Tona coffee tasting table with a woven basket and cups"
-            width={1400}
-            height={900}
+            src={EVENTS_PRODUCT_IMAGE}
+            alt="Tona Coffee product display with coffee packs, branded cups, roasted beans and traditional coffee service"
+            width={500}
+            height={333}
             loading="lazy"
-            className="rounded-3xl object-cover"
+            decoding="async"
+            className="w-full rounded-3xl object-cover"
           />
           <div>
             <p className="label-mono text-primary">Host Tona</p>
