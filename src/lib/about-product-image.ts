@@ -13,3 +13,5 @@ import part12 from "@/assets/about-product/chunk12.txt?raw";
 
 export const aboutProductImage =
   `data:image/jpeg;base64,${part01}${part02}${part03}${part04}${part05}${part06}${part07}${part08}${part09}${part10}${part11}${part12}`;
+
+export const ABOUT_PRODUCT_IMAGE = aboutProductImage;
