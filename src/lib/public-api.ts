@@ -46,7 +46,17 @@ const orderInput = z.object({
 export const getPublicCatalog = createServerFn({ method: "GET" }).handler(
   async () => {
     const { loadPublicCatalog } = await import("./public-db.server");
-    return loadPublicCatalog();
+    const catalog = await loadPublicCatalog();
+
+    // Keep admin product data intact, but standardize public-facing coffee imagery
+    // to the approved branded Tona glass cup visual.
+    return {
+      ...catalog,
+      products: catalog.products.map((product) => ({
+        ...product,
+        imageUrl: null,
+      })),
+    };
   },
 );
 
