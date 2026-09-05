@@ -30,6 +30,7 @@ import {
   useState,
 } from "react";
 import { toast } from "sonner";
+import { PRODUCT_IMAGES } from "@/lib/product-images";
 
 import {
   deleteAdminRecord,
@@ -598,9 +599,15 @@ function Products({
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex h-full items-center justify-center">
-                  <Coffee className="h-10 w-10 text-teal/35" />
-                </div>
+                <img
+                  src={
+                    PRODUCT_IMAGES[
+                      String(row.slug) as keyof typeof PRODUCT_IMAGES
+                    ] ?? PRODUCT_IMAGES.yirgacheffe
+                  }
+                  alt={`${String(row.name)} default product cover`}
+                  className="h-full w-full object-cover"
+                />
               )}
             </div>
             <div className="p-5">
