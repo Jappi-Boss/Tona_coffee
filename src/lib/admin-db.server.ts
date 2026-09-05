@@ -97,6 +97,16 @@ export async function loadDashboard(token: string) {
     sql`SELECT * FROM contact_requests ORDER BY created_at DESC LIMIT 200`,
   ]);
 
+  let users: Awaited<ReturnType<typeof listManagedUsers>> = [];
+  if (admin.role === "super_admin") {
+    try {
+      users = await listManagedUsers(token);
+    } catch {
+      // User management must not take the whole dashboard offline when the
+      // optional Neon Auth admin endpoint is unavailable.
+    }
+  }
+
   return {
     admin,
     products,
@@ -105,7 +115,7 @@ export async function loadDashboard(token: string) {
     orders,
     businessInquiries,
     contactRequests,
-    users: admin.role === "super_admin" ? await listManagedUsers(token) : [],
+    users,
   };
 }
 
