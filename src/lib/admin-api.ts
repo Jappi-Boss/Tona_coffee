@@ -54,15 +54,14 @@ const eventInput = authInput.extend({
 });
 
 const createAdminUserInput = authInput.extend({
+  userId: z.string().uuid(),
   name: z.string().trim().min(2).max(120),
   email: z.string().trim().email().max(320),
-  password: z.string().min(12).max(128),
   role: z.enum(["admin", "editor"]),
 });
 
 const resetAdminUserPasswordInput = authInput.extend({
   userId: z.string().uuid(),
-  newPassword: z.string().min(12).max(128),
 });
 
 export const getAdminDashboard = createServerFn({ method: "POST" })
@@ -112,6 +111,14 @@ export const resetAdminUserPassword = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { resetManagedUserPassword } = await import("./admin-db.server");
     return resetManagedUserPassword(data);
+  });
+
+export const recordAdminUserPasswordReset = createServerFn({ method: "POST" })
+  .validator(resetAdminUserPasswordInput)
+  .handler(async ({ data }) => {
+    const { recordManagedUserPasswordReset } =
+      await import("./admin-db.server");
+    return recordManagedUserPasswordReset(data);
   });
 
 export const getCloudinaryUploadSignature = createServerFn({ method: "POST" })

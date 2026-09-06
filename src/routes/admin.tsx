@@ -37,6 +37,7 @@ import {
   createAdminUser,
   getAdminDashboard,
   getCloudinaryUploadSignature,
+  recordAdminUserPasswordReset,
   resetAdminUserPassword,
   saveEvent,
   saveProduct,
@@ -1035,15 +1036,36 @@ function UserEditor({
     setBusy(true);
     try {
       const token = await getAdminToken();
-      await createAdminUser({
-        data: {
-          token,
-          name: String(form.get("name")),
-          email: String(form.get("email")),
-          password,
-          role: String(form.get("role")) as "admin" | "editor",
-        },
+      const email = String(form.get("email")).trim().toLowerCase();
+      const name = String(form.get("name")).trim();
+      const role = String(form.get("role")) as "admin" | "editor";
+      const created = await adminAuth.adapter.admin.createUser({
+        email,
+        name,
+        password,
+        role: "user",
       });
+      if (created.error || !created.data?.user?.id) {
+        throw new Error(
+          created.error?.message ?? "Neon Auth could not create the user.",
+        );
+      }
+      try {
+        await createAdminUser({
+          data: {
+            token,
+            userId: created.data.user.id,
+            name,
+            email,
+            role,
+          },
+        });
+      } catch (caught) {
+        await adminAuth.adapter.admin
+          .removeUser({ userId: created.data.user.id })
+          .catch(() => undefined);
+        throw caught;
+      }
       toast.success("Dashboard user created.");
       await saved();
     } catch (caught) {
@@ -1127,7 +1149,17 @@ function PasswordResetEditor({
     try {
       const token = await getAdminToken();
       await resetAdminUserPassword({
-        data: { token, userId: String(row.id), newPassword },
+        data: { token, userId: String(row["id"]) },
+      });
+      const reset = await adminAuth.adapter.admin.setUserPassword({
+        userId: String(row["id"]),
+        newPassword,
+      });
+      if (reset.error) {
+        throw new Error(reset.error.message ?? "Neon Auth rejected the reset.");
+      }
+      await recordAdminUserPasswordReset({
+        data: { token, userId: String(row["id"]) },
       });
       toast.success("Password reset successfully.");
       await saved();
