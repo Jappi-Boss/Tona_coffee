@@ -1206,11 +1206,13 @@ function ProductImageUpload({
   imageUrl,
   productName,
   disabled,
+  onUploadingChange,
   onUploaded,
 }: {
   imageUrl: string;
   productName: string;
   disabled: boolean;
+  onUploadingChange: (uploading: boolean) => void;
   onUploaded: (url: string) => void;
 }) {
   const [uploading, setUploading] = useState(false);
@@ -1240,6 +1242,7 @@ function ProductImageUpload({
       return localPreview;
     });
     setUploading(true);
+    onUploadingChange(true);
     setMessage("Uploading image…");
     try {
       const token = await getAdminToken();
@@ -1265,11 +1268,13 @@ function ProductImageUpload({
       onUploaded(result.secure_url);
       setMessage("Upload complete. Save the product to apply the image.");
     } catch (caught) {
+      setPreviewUrl("");
       setMessage(
         caught instanceof Error ? caught.message : "Could not upload image.",
       );
     } finally {
       setUploading(false);
+      onUploadingChange(false);
     }
   }
 
@@ -1319,9 +1324,14 @@ function ProductEditor({
 }) {
   const product = row === "new" ? {} : row;
   const [busy, setBusy] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState(String(product.image_url ?? ""));
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (imageUploading) {
+      toast.error("Wait for the product image upload to finish.");
+      return;
+    }
     const form = new FormData(event.currentTarget);
     setBusy(true);
     try {
@@ -1405,6 +1415,7 @@ function ProductEditor({
             imageUrl={imageUrl}
             productName={String(product.name ?? "product")}
             disabled={busy}
+            onUploadingChange={setImageUploading}
             onUploaded={setImageUrl}
           />
         </div>
@@ -1446,9 +1457,15 @@ function ProductEditor({
           />
         </div>
         <EditorActions
-          busy={busy}
+          busy={busy || imageUploading}
           close={close}
-          submitLabel={row === "new" ? "Create product" : "Save changes"}
+          submitLabel={
+            imageUploading
+              ? "Uploading image…"
+              : row === "new"
+                ? "Create product"
+                : "Save changes"
+          }
         />
       </form>
     </Modal>

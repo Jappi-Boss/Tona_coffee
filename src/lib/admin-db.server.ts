@@ -273,7 +273,13 @@ export async function upsertProduct(input: ProductUpdate) {
   const sql = database();
   let id = input.id;
   if (id) {
-    await sql`UPDATE products SET name = ${input.name}, region = ${input.region}, process = ${input.process}, description = ${input.description}, tasting_notes = ${input.tastingNotes}, altitude = ${input.altitude}, image_url = ${input.imageUrl}, status = ${input.status}, is_available = ${input.isAvailable}, is_featured = ${input.isFeatured}, updated_at = now() WHERE id = ${id}::uuid`;
+    const rows =
+      await sql`UPDATE products SET name = ${input.name}, region = ${input.region}, process = ${input.process}, description = ${input.description}, tasting_notes = ${input.tastingNotes}, altitude = ${input.altitude}, image_url = ${input.imageUrl}, status = ${input.status}, is_available = ${input.isAvailable}, is_featured = ${input.isFeatured}, updated_at = now() WHERE id = ${id}::uuid RETURNING id`;
+    if (!rows[0])
+      throw new Error(
+        "This product no longer exists. Refresh the dashboard and try again.",
+      );
+    id = String(rows[0].id);
   } else {
     const slug = `${input.name
       .toLowerCase()
@@ -284,7 +290,7 @@ export async function upsertProduct(input: ProductUpdate) {
     id = String(rows[0].id);
   }
   await sql`INSERT INTO audit_log (actor_email, action, entity_type, entity_id) VALUES (${admin.email}, 'saved', 'product', ${id})`;
-  return { ok: true };
+  return { ok: true, id, imageUrl: input.imageUrl };
 }
 
 type EventUpdate = {
