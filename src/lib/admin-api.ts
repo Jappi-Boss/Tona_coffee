@@ -22,7 +22,15 @@ const productInput = authInput.extend({
   description: z.string().max(2000),
   tastingNotes: z.array(z.string().min(1).max(80)).max(12),
   altitude: z.string().max(120).nullable(),
-  imageUrl: z.string().max(2000).nullable(),
+  imageUrl: z
+    .string()
+    .trim()
+    .max(2000)
+    .url("Enter a valid image URL.")
+    .refine((url) => url.startsWith("https://"), {
+      message: "The image URL must use HTTPS.",
+    })
+    .nullable(),
   status: z.enum(["draft", "published", "archived"]),
   isAvailable: z.boolean(),
   isFeatured: z.boolean(),
