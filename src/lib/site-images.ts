@@ -7,5 +7,5 @@ export const heroCeremonyImage =
   "https://res.cloudinary.com/tkiiddxu/image/upload/v1788585734/tona-home-hero-approved_1.jpg";
 export const beansImage = HOME_PARTNERS_IMAGE;
 export const businessImage =
-  "https://res.cloudinary.com/tkiiddxu/image/upload/v1788585734/tona-home-hero-approved_1.jpg";
+  "https://res.cloudinary.com/tkiiddxu/image/upload/v1788710155/tona-business-partnership-approved.webp";
 export const eventImage = `${assetBase}/event.jpg`;
