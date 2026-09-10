@@ -456,3 +456,193 @@
     transition: none;
   }
 }
+
+/* Public-site identity from the Tona 2026 brand system. The variables are
+ * intentionally scoped so the operations dashboard keeps its own UI system. */
+.public-site {
+  --tona-black: #090908;
+  --tona-ink: #131311;
+  --tona-sun: #ffb000;
+  --tona-ember: #ef4a28;
+  --tona-cream: #fffdf8;
+  --tona-parchment: #e4d4ba;
+  --background: oklch(0.985 0.01 83);
+  --foreground: oklch(0.14 0.006 75);
+  --card: oklch(0.995 0.004 82);
+  --card-foreground: oklch(0.14 0.006 75);
+  --primary: oklch(0.79 0.17 76);
+  --primary-foreground: oklch(0.12 0.005 75);
+  --teal: oklch(0.105 0.005 75);
+  --teal-deep: oklch(0.075 0.004 75);
+  --teal-foreground: oklch(0.985 0.01 83);
+  --secondary: oklch(0.92 0.025 79);
+  --muted: oklch(0.93 0.018 78);
+  --muted-foreground: oklch(0.45 0.018 60);
+  --sand: oklch(0.88 0.045 76);
+  --sand-deep: oklch(0.83 0.055 75);
+  --border: oklch(0.72 0.025 72);
+  background: var(--tona-cream);
+}
+
+.public-site main {
+  overflow: clip;
+}
+
+.public-site main > section {
+  border-bottom: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+}
+
+.public-site main > section:not(.public-hero):not(.bg-sand):not(.bg-teal) {
+  --background: oklch(0.075 0.004 75);
+  --foreground: oklch(0.985 0.01 83);
+  --card: oklch(0.115 0.006 73);
+  --card-foreground: oklch(0.985 0.01 83);
+  --secondary: oklch(0.18 0.008 70);
+  --muted-foreground: oklch(0.72 0.014 76);
+  --border: oklch(0.34 0.012 72);
+  background: var(--tona-black);
+  color: var(--tona-cream);
+}
+
+.public-site .bg-teal,
+.public-site .bg-teal-deep {
+  background-color: var(--tona-black);
+}
+
+.public-site .bg-sand {
+  background-color: var(--tona-parchment);
+}
+
+.public-site .bg-primary {
+  background-color: var(--tona-ember);
+}
+
+.public-site .bg-primary.text-primary-foreground {
+  color: var(--tona-cream);
+}
+
+.public-site .text-primary {
+  color: var(--tona-sun);
+}
+
+.public-site .border-primary {
+  border-color: var(--tona-ember);
+}
+
+.public-site .label-mono {
+  font-family: "IBM Plex Mono", Consolas, monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+}
+
+.public-site h1,
+.public-site h2,
+.public-site h3,
+.public-site h4 {
+  letter-spacing: -0.025em;
+}
+
+.public-site h2 {
+  font-size: clamp(3rem, 5.6vw, 6rem);
+  line-height: 0.84;
+}
+
+.public-site main section:not(.public-hero) {
+  padding-block: clamp(5.5rem, 9vw, 9rem);
+}
+
+.public-site main section > div[class*="max-w-7xl"],
+.public-site main section > div[class*="max-w-4xl"],
+.public-site main section > div[class*="max-w-3xl"] {
+  max-width: 90rem;
+  padding-inline: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.public-site :is(.rounded-full, .rounded-3xl, .rounded-\[2rem\], .rounded-2xl, .rounded-xl) {
+  border-radius: 0;
+}
+
+.public-site article,
+.public-site form {
+  box-shadow: none;
+}
+
+.public-site article:hover {
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+.public-site .brand-button,
+.public-site button,
+.public-site a {
+  text-underline-offset: 0.25em;
+}
+
+.public-header {
+  min-height: 5rem;
+}
+
+.public-nav-link {
+  position: relative;
+}
+
+.public-nav-link::after {
+  position: absolute;
+  right: 0.85rem;
+  bottom: 0.15rem;
+  left: 0.85rem;
+  height: 2px;
+  content: "";
+  background: var(--tona-ember);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 220ms ease;
+}
+
+.public-nav-link:hover::after,
+.public-nav-link.active::after {
+  transform: scaleX(1);
+}
+
+.public-hero {
+  background-color: var(--tona-black);
+}
+
+.public-hero .text-primary {
+  color: var(--tona-sun);
+}
+
+.public-whatsapp {
+  border-radius: 0;
+  border-left: 3px solid var(--tona-ember);
+}
+
+.public-site .leaf-field {
+  background-image: none;
+}
+
+.public-site footer {
+  background: var(--tona-black);
+  border-top-width: 1px;
+  border-top-color: rgba(255, 255, 255, 0.16);
+}
+
+.public-site footer h4 {
+  color: var(--tona-sun);
+}
+
+.public-site input,
+.public-site select,
+.public-site textarea {
+  border-radius: 0;
+}
+
+@media (max-width: 767px) {
+  .public-site h2 {
+    font-size: clamp(2.8rem, 14vw, 4.5rem);
+  }
+
+  .public-site main section:not(.public-hero) {
+    padding-block: 4.5rem;
+  }
+}

@@ -120,7 +120,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         },
         {
           rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap",
+          href: "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600&display=swap",
         },
         {
           rel: "icon",
@@ -164,7 +164,9 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <SiteLoadingScreen routePending={isRoutePending} />
       {!isAdmin && <PageMotion pathname={pathname} />}
-      <div className="flex min-h-screen flex-col">
+      <div
+        className={`flex min-h-screen flex-col${isAdmin ? "" : " public-site"}`}
+      >
         {!isAdmin && <SiteHeader />}
         <main className="flex-1">
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
