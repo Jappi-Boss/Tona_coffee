@@ -685,3 +685,37 @@
     left: 0.75rem;
   }
 }
+
+.order-dialog {
+  border-radius: 0;
+  box-shadow:
+    0 0 0 1px rgba(239, 74, 40, 0.18),
+    0 32px 90px rgba(0, 0, 0, 0.55);
+}
+
+.order-dialog::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 4px;
+  content: "";
+  background: linear-gradient(90deg, #ef4a28 0 78%, #ffb000 78% 100%);
+}
+
+.order-dialog label {
+  font-family: "IBM Plex Mono", Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.order-dialog input,
+.order-dialog textarea {
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: normal;
+  text-transform: none;
+}
+

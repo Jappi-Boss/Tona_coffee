@@ -144,12 +144,12 @@ export function ProductCard({ product }: { product: PublicProduct }) {
 
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-[100] bg-foreground/65 backdrop-blur-sm" />
-          <Dialog.Content className="fixed left-1/2 top-1/2 z-[110] max-h-[90vh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl border bg-card p-6 shadow-2xl sm:p-8">
-            <Dialog.Title className="font-display text-3xl font-bold text-teal">
+          <Dialog.Overlay className="fixed inset-0 z-[100] bg-[#090908]/80 backdrop-blur-md data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=open]:animate-in data-[state=open]:fade-in" />
+          <Dialog.Content className="order-dialog fixed left-1/2 top-1/2 z-[110] max-h-[90vh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto border border-[#e4d4ba]/35 bg-[#061b18] p-6 text-[#fffdf8] shadow-2xl outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95 sm:p-8">
+            <Dialog.Title className="font-display text-3xl font-black uppercase leading-none text-[#fffdf8] sm:text-4xl">
               Order {product.name}
             </Dialog.Title>
-            <Dialog.Description className="mt-2 text-sm text-muted-foreground">
+            <Dialog.Description className="mt-3 max-w-md text-sm leading-relaxed text-[#fffdf8]/65">
               {qty} × {size}, {format}. Your order will appear directly in
               Tona's dashboard.
             </Dialog.Description>
@@ -157,7 +157,7 @@ export function ProductCard({ product }: { product: PublicProduct }) {
               <button
                 type="button"
                 aria-label="Close order form"
-                className="absolute right-5 top-5 rounded-full bg-secondary p-2"
+                className="absolute right-5 top-5 inline-flex h-10 w-10 items-center justify-center border border-[#e4d4ba]/35 bg-[#e4d4ba] text-[#151411] transition-colors hover:border-[#ffb000] hover:bg-[#ffb000]"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -182,17 +182,17 @@ export function ProductCard({ product }: { product: PublicProduct }) {
                 type="email"
                 autoComplete="email"
               />
-              <label className="text-sm font-semibold text-teal">
+              <label className="text-sm font-semibold text-[#fffdf8]">
                 Note (optional)
                 <textarea
                   name="notes"
                   rows={3}
-                  className="mt-2 w-full resize-none rounded-xl border bg-background px-4 py-3 font-normal outline-none focus:border-primary"
+                  className="mt-2 w-full resize-none border border-[#e4d4ba]/45 bg-[#fff9ef] px-4 py-3 font-normal text-[#151411] outline-none transition-colors focus:border-[#ffb000] focus:ring-1 focus:ring-[#ffb000]"
                 />
               </label>
               <button
                 disabled={busy}
-                className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-white disabled:opacity-60"
+                className="brand-button mt-2 inline-flex items-center justify-center gap-2 bg-[#ef4a28] px-6 py-4 text-sm font-bold text-white transition-colors hover:bg-[#ffb000] hover:text-[#151411] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <ShoppingBag className="h-4 w-4" />
                 {busy ? "Submitting…" : "Place order"}
@@ -210,11 +210,11 @@ function OrderField({
   ...props
 }: React.InputHTMLAttributes<HTMLInputElement> & { label: string }) {
   return (
-    <label className="text-sm font-semibold text-teal">
+    <label className="text-sm font-semibold text-[#fffdf8]">
       {label}
       <input
         {...props}
-        className="mt-2 h-12 w-full rounded-xl border bg-background px-4 font-normal outline-none focus:border-primary"
+        className="mt-2 h-12 w-full border border-[#e4d4ba]/45 bg-[#fff9ef] px-4 font-normal text-[#151411] outline-none transition-colors focus:border-[#ffb000] focus:ring-1 focus:ring-[#ffb000]"
       />
     </label>
   );
