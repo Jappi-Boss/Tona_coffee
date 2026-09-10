@@ -50,8 +50,8 @@ export function ProductCard({ product }: { product: PublicProduct }) {
   }
 
   return (
-    <article className="group flex flex-col overflow-hidden border border-border bg-card transition-all hover:-translate-y-1 hover:border-primary/60 hover:shadow-xl">
-      <div className="relative h-44 overflow-hidden bg-muted">
+    <article className="product-card group flex flex-col overflow-hidden border border-white/15 bg-[#061b18] text-[#fffdf8] transition-all">
+      <div className="relative h-48 overflow-hidden bg-[#102520]">
         <img
           src={
             imageFailed ? fallbackImage : (product.imageUrl ?? fallbackImage)
@@ -59,21 +59,23 @@ export function ProductCard({ product }: { product: PublicProduct }) {
           alt={`${product.name} black coffee with roasted coffee beans`}
           width={720}
           height={360}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.035]"
           onError={() => setImageFailed(true)}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/10 to-transparent" />
-        <span className="label-mono absolute left-5 top-5 border-l-4 border-primary bg-black/80 px-3 py-1.5 text-white">
-          {product.process}
-        </span>
-        <span className="absolute bottom-5 left-6 font-display text-3xl font-bold text-primary-foreground">
-          {product.name}
-        </span>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#061b18]/25 via-transparent to-transparent" />
       </div>
 
       <div className="flex flex-1 flex-col p-6">
-        <p className="label-mono text-muted-foreground">{product.region}</p>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+        <div className="flex items-start justify-between gap-4">
+          <p className="label-mono text-[#ef4a28]">{product.process}</p>
+          <p className="label-mono text-right text-[#fffdf8]/72">
+            {product.region}
+          </p>
+        </div>
+        <h3 className="mt-4 font-display text-3xl font-black text-[#fffdf8]">
+          {product.name}
+        </h3>
+        <p className="mt-3 text-sm leading-relaxed text-[#fffdf8]/82">
           {product.description}
         </p>
 
@@ -81,20 +83,20 @@ export function ProductCard({ product }: { product: PublicProduct }) {
           {product.tastingNotes.map((n) => (
             <span
               key={n}
-              className="rounded-sm border border-border bg-secondary px-3 py-1 text-xs font-medium text-foreground/80"
+              className="border border-[#e4d4ba] bg-[#e4d4ba] px-3 py-1 text-[.68rem] font-bold uppercase tracking-[.08em] text-[#151411]"
             >
               {n}
             </span>
           ))}
         </div>
 
-        <p className="mt-3 text-xs text-muted-foreground">
+        <p className="label-mono mt-4 text-[#fffdf8]/55">
           {product.altitude
             ? `Altitude ${product.altitude}`
             : "Ethiopian origin"}
         </p>
 
-        <div className="mt-6 space-y-4">
+        <div className="mt-6 space-y-4 border-t border-white/15 pt-6">
           <Choice
             label="Size"
             options={sizes.length ? sizes : [...SIZES]}
@@ -110,12 +112,12 @@ export function ProductCard({ product }: { product: PublicProduct }) {
         </div>
 
         <div className="mt-6 flex items-center gap-3">
-          <div className="flex items-center gap-1 rounded-full border border-border p-1">
+          <div className="flex items-center gap-1 border border-white/25 p-1">
             <button
               type="button"
               aria-label={`Decrease ${product.name} quantity`}
               onClick={() => setQty((q) => Math.max(1, q - 1))}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-secondary"
+              className="inline-flex h-8 w-8 items-center justify-center text-[#fffdf8] hover:bg-white/10"
             >
               <Minus className="h-4 w-4" />
             </button>
@@ -124,7 +126,7 @@ export function ProductCard({ product }: { product: PublicProduct }) {
               type="button"
               aria-label={`Increase ${product.name} quantity`}
               onClick={() => setQty((q) => q + 1)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-secondary"
+              className="inline-flex h-8 w-8 items-center justify-center text-[#fffdf8] hover:bg-white/10"
             >
               <Plus className="h-4 w-4" />
             </button>
@@ -132,7 +134,7 @@ export function ProductCard({ product }: { product: PublicProduct }) {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="brand-button inline-flex flex-1 items-center justify-center gap-2 bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5"
+            className="brand-button inline-flex flex-1 items-center justify-center gap-2 bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-[#ffb000] hover:text-[#151411]"
           >
             <ShoppingBag className="h-4 w-4" />
             Order now
@@ -240,7 +242,7 @@ function Choice({
 }) {
   return (
     <div>
-      <p className="label-mono mb-2 text-muted-foreground">{label}</p>
+      <p className="label-mono mb-2 text-[#fffdf8]/55">{label}</p>
       <div className="flex flex-wrap gap-2">
         {options.map((o) => (
           <button
@@ -248,10 +250,10 @@ function Choice({
             type="button"
             onClick={() => onChange(o)}
             aria-pressed={value === o}
-            className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+            className={`border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
               value === o
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border text-foreground/70 hover:border-primary/50"
+                ? "border-[#ef4a28] bg-[#ef4a28] text-[#fffdf8]"
+                : "border-white/25 text-[#fffdf8]/72 hover:border-[#ffb000] hover:text-[#ffb000]"
             }`}
           >
             {o}
