@@ -719,3 +719,219 @@
   text-transform: none;
 }
 
+.event-registration-form label {
+  font-family: "IBM Plex Mono", Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.event-registration-form input,
+.event-registration-form select,
+.event-registration-form textarea {
+  font-family: Inter, system-ui, sans-serif;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.admin-dashboard {
+  --admin-ink: #090908;
+  --admin-green: #061b18;
+  --admin-paper: #f1e7d7;
+  --admin-cream: #fff9ef;
+  --admin-ember: #ef4a28;
+  --admin-sun: #ffb000;
+  background-color: var(--admin-paper);
+}
+
+.admin-dashboard aside,
+.admin-dashboard > main > header {
+  background-color: var(--admin-ink);
+}
+
+.admin-dashboard aside nav button,
+.admin-dashboard aside > div:last-child button,
+.admin-dashboard .brand-button,
+.admin-dashboard th {
+  font-family: "IBM Plex Mono", Consolas, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-dashboard aside nav button {
+  border-radius: 0;
+}
+
+.admin-dashboard aside nav button:hover {
+  color: var(--admin-sun);
+}
+
+.admin-dashboard aside nav button[class*="bg-primary"] {
+  border-color: var(--admin-ember);
+  background-color: var(--admin-ember);
+  color: white;
+}
+
+.admin-dashboard > main > header {
+  border-color: var(--admin-ember);
+}
+
+.admin-dashboard h1,
+.admin-dashboard h2,
+.admin-dashboard h3 {
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+  font-weight: 900;
+}
+
+.admin-dashboard main article,
+.admin-dashboard main section.overflow-hidden,
+.admin-dashboard main > div > section > div.overflow-hidden,
+.admin-dashboard table {
+  border-radius: 0;
+}
+
+.admin-dashboard main article,
+.admin-dashboard main section > div.overflow-hidden,
+.admin-dashboard main button.border.bg-white {
+  background-color: var(--admin-cream);
+}
+
+.admin-dashboard main article,
+.admin-dashboard main section > div.overflow-hidden {
+  border-color: rgba(9, 9, 8, 0.18);
+  box-shadow: 0 10px 28px rgba(9, 9, 8, 0.08);
+  transition:
+    border-color 220ms ease,
+    box-shadow 260ms ease,
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-dashboard main article:hover,
+.admin-dashboard main section > div.overflow-hidden:hover {
+  border-color: var(--admin-ember);
+  box-shadow: 0 18px 42px rgba(9, 9, 8, 0.14);
+}
+
+.admin-dashboard thead,
+.admin-dashboard section > div.border-b-4 {
+  background-color: var(--admin-green);
+  border-color: var(--admin-ember);
+}
+
+.admin-dashboard tbody tr {
+  transition: background-color 180ms ease;
+}
+
+.admin-dashboard tbody tr:hover {
+  background-color: rgba(255, 176, 0, 0.08);
+}
+
+.admin-dashboard input:not([type="checkbox"]):not([type="file"]),
+.admin-dashboard select,
+.admin-dashboard textarea {
+  border-radius: 0;
+}
+
+.admin-dashboard .brand-button,
+.admin-dashboard button.rounded-md,
+.admin-dashboard button.rounded-xl {
+  border-radius: 0;
+}
+
+.admin-dashboard .brand-button:hover {
+  background-color: var(--admin-sun);
+  color: var(--admin-ink);
+  box-shadow: 0 0 0 1px var(--admin-ink);
+}
+
+.admin-modal {
+  position: relative;
+  border-radius: 0;
+  box-shadow:
+    0 0 0 1px rgba(239, 74, 40, 0.18),
+    0 32px 90px rgba(0, 0, 0, 0.55);
+}
+
+.admin-modal::before {
+  position: absolute;
+  z-index: 20;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 4px;
+  content: "";
+  background: linear-gradient(90deg, #ef4a28 0 78%, #ffb000 78% 100%);
+}
+
+.admin-modal__header h2 {
+  font-family: "Barlow Condensed", "Arial Narrow", sans-serif;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.admin-modal label {
+  color: #fffdf8;
+  font-family: "IBM Plex Mono", Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.admin-modal input:not([type="checkbox"]):not([type="file"]),
+.admin-modal select,
+.admin-modal textarea {
+  border-radius: 0;
+  border-color: rgba(228, 212, 186, 0.45);
+  background-color: #fff9ef;
+  color: #151411;
+  font-family: Inter, system-ui, sans-serif;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.admin-modal input:focus,
+.admin-modal select:focus,
+.admin-modal textarea:focus {
+  border-color: #ffb000;
+  box-shadow: 0 0 0 1px #ffb000;
+}
+
+.admin-modal .text-muted-foreground {
+  color: rgba(255, 253, 248, 0.58);
+}
+
+.admin-modal form > div.border-t {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.admin-modal form > div.border-t button[type="button"] {
+  border-radius: 0;
+  border-color: rgba(228, 212, 186, 0.45);
+  background-color: #e4d4ba;
+  color: #151411;
+}
+
+.admin-modal .brand-button {
+  border-radius: 0;
+  background-color: #ef4a28;
+  color: white;
+  font-family: "IBM Plex Mono", Consolas, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-modal .brand-button:hover {
+  background-color: #ffb000;
+  color: #151411;
+}
+
+.admin-modal label:has(input[type="file"]),
+.admin-modal div.rounded-md.border.bg-white\/60 {
+  border-radius: 0;
+  border-color: rgba(228, 212, 186, 0.45);
+  background-color: rgba(228, 212, 186, 0.12);
+  color: #fffdf8;
+}
+
