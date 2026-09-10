@@ -685,6 +685,66 @@
     right: 0.75rem;
     left: 0.75rem;
   }
+
+  /* Mobile color rhythm: each section keeps the same Tona contrast system
+   * instead of inheriting an accidental color from the previous block. */
+  .public-site main > section.bg-sand,
+  .public-site main > section.bg-background {
+    background-color: var(--tona-parchment);
+    color: var(--tona-ink);
+  }
+
+  .public-site main > section.bg-black,
+  .public-site main > section.bg-teal,
+  .public-site main > section.bg-teal-deep,
+  .public-site main > section.section-dark,
+  .public-site main > section.leaf-field {
+    background-color: var(--tona-black);
+    color: var(--tona-cream);
+  }
+
+  .public-site main > section.bg-sand .text-foreground,
+  .public-site main > section.bg-sand .text-card-foreground,
+  .public-site main > section.bg-background .text-foreground {
+    color: var(--tona-ink);
+  }
+
+  .public-site main > section.bg-sand .text-muted-foreground,
+  .public-site main > section.bg-background .text-muted-foreground {
+    color: rgba(21, 20, 17, 0.68);
+  }
+
+  .public-site main > section.bg-sand .border-border,
+  .public-site main > section.bg-background .border-border {
+    border-color: rgba(21, 20, 17, 0.2);
+  }
+
+  .public-site main > section.bg-black .text-muted-foreground,
+  .public-site main > section.bg-teal .text-muted-foreground,
+  .public-site main > section.bg-teal-deep .text-muted-foreground,
+  .public-site main > section.section-dark .text-muted-foreground {
+    color: rgba(255, 253, 248, 0.68);
+  }
+
+  .public-site .product-card,
+  .public-site .origin-card {
+    background-color: #061b18;
+    border-color: rgba(255, 253, 248, 0.2);
+  }
+
+  .public-site .product-card h3,
+  .public-site .origin-card h3 {
+    color: var(--tona-cream);
+  }
+
+  .public-site .product-card p,
+  .public-site .origin-card p {
+    color: rgba(255, 253, 248, 0.72);
+  }
+
+  .public-site footer {
+    background-color: var(--tona-black);
+  }
 }
 
 .order-dialog {
