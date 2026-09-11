@@ -167,9 +167,9 @@ function ForBusiness() {
           </div>
           <img
             src={businessImg}
-            alt="Barista preparing espresso at a café counter stocked with coffee bags"
-            width={1400}
-            height={900}
+            alt="Two women sharing Tona coffee during a contemporary Ethiopian coffee ceremony"
+            width={1800}
+            height={2377}
             loading="lazy"
             className="rounded-3xl object-cover"
           />
