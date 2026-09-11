@@ -298,9 +298,9 @@ function Home() {
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 lg:grid-cols-2 lg:px-8">
           <img
             src={beansImg}
-            alt="Freshly roasted Ethiopian coffee beans with a green coffee leaf"
-            width={1400}
-            height={900}
+            alt="Two Ethiopian women sharing the second round of a traditional coffee ceremony"
+            width={1448}
+            height={1086}
             loading="lazy"
             className="rounded-3xl object-cover"
           />
