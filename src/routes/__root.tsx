@@ -123,6 +123,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         },
         {
           rel: "stylesheet",
+          href: "https://tona-coffee-two.vercel.app/assets/vendor/leaflet.css",
+        },
+        {
+          rel: "stylesheet",
           href: "https://tona-coffee-two.vercel.app/styles.css",
         },
         {

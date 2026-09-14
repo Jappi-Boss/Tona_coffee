@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ReactNode } from "react";
+import { Fragment, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { waLink } from "@/lib/tona";
 
@@ -8,11 +8,11 @@ export const REFERENCE_IMAGES = {
   hero: REFERENCE_BASE + "/framer-hero-illustration.png",
   about: REFERENCE_BASE + "/tona-ceremony-about-v2.webp",
   business: REFERENCE_BASE + "/assets/tona-partnership-support-v3.webp",
-  event: REFERENCE_BASE + "/assets/event.jpg",
-  yirgacheffe: REFERENCE_BASE + "/assets/origins/yirgacheffe.webp",
-  sidama: REFERENCE_BASE + "/assets/origins/sidama.webp",
-  guji: REFERENCE_BASE + "/assets/origins/guji.webp",
-  jimma: REFERENCE_BASE + "/assets/origins/jimma.webp",
+  event: REFERENCE_BASE + "/assets/tona-events-v3.webp",
+  yirgacheffe: REFERENCE_BASE + "/assets/origins-v2/yirgacheffe-washed-v3.webp",
+  sidama: REFERENCE_BASE + "/assets/origins-v2/sidama-natural-v3.webp",
+  guji: REFERENCE_BASE + "/assets/origins-v2/guji-natural-v3.webp",
+  jimma: REFERENCE_BASE + "/assets/origins-v2/jimma-natural-v3.webp",
 } as const;
 
 export const REFERENCE_ORIGINS = [
@@ -82,12 +82,12 @@ const REFERENCE_EVENTS = [
 ] as const;
 
 const PARTNERS = [
-  ["Cafés & coffee shops", "Coffee supply, brewing guidance, Ethiopian origin storytelling and barista support."],
-  ["Supermarkets & retailers", "Retail-ready products, promotional and tasting support, and wholesale supply."],
-  ["Hotels & resorts", "Coffee supply, product selection, brewing guidance and coffee experiences for guests."],
-  ["Distributors & international partners", "Wholesale supply, product information, brand storytelling and long-term development."],
-  ["Corporate & office", "Workplace coffee supply, meeting and event solutions, and customized experiences."],
-  ["Events & collaborations", "Coffee supply, tasting experiences, sampling and co-branded activations."],
+  ["Cafés & coffee shops", "Coffee supply, brewing guidance, Ethiopian origin storytelling and barista support.", "cup"],
+  ["Supermarkets & retailers", "Retail-ready products, promotional and tasting support, and wholesale supply.", "store"],
+  ["Hotels & resorts", "Coffee supply, product selection, brewing guidance and coffee experiences for guests.", "hotel"],
+  ["Distributors & international partners", "Wholesale supply, product information, brand storytelling and long-term development.", "globe"],
+  ["Corporate & office", "Workplace coffee supply, meeting and event solutions, and customized experiences.", "office"],
+  ["Events & collaborations", "Coffee supply, tasting experiences, sampling and co-branded activations.", "calendar"],
 ] as const;
 
 const PACKAGES = [
@@ -133,11 +133,111 @@ type SectionHeadingProps = {
   intro?: string;
 };
 
+function RevealWords({ words, startAt = 0 }: { words: string[]; startAt?: number }) {
+  return (
+    <>
+      {words.map((word, index) => (
+        <Fragment key={word + "-" + index}>
+          <span
+            className="reveal-word"
+            aria-hidden="true"
+            style={{ "--word-delay": (startAt + index) * 38 + "ms" } as CSSProperties}
+          >
+            {word}
+          </span>
+          {index < words.length - 1 ? " " : null}
+        </Fragment>
+      ))}
+    </>
+  );
+}
+
+function CinematicHeading({
+  as,
+  text,
+}: {
+  as: "h3" | "h4";
+  text: string;
+}) {
+  const Heading = as;
+  const words = text.split(" ");
+
+  return (
+    <Heading className="cinematic-copy" aria-label={text}>
+      {words.map((word, index) => (
+        <Fragment key={word + "-" + index}>
+          <span className="cinematic-word-mask">
+            <span
+              className="cinematic-word"
+              aria-hidden="true"
+              style={{ "--cinematic-delay": index * 48 + "ms" } as CSSProperties}
+            >
+              {word}
+            </span>
+          </span>
+          {index < words.length - 1 ? " " : null}
+        </Fragment>
+      ))}
+    </Heading>
+  );
+}
+
+function AmendIcon({
+  type,
+  delay,
+}: {
+  type: "cup" | "store" | "hotel" | "globe" | "office" | "calendar";
+  delay: number;
+}) {
+  let artwork: ReactNode;
+
+  if (type === "cup") {
+    artwork = (
+      <>
+        <path data-draw="" pathLength={1} d="M7 17h25v10a11 11 0 0 1-11 11h-3A11 11 0 0 1 7 27Z" />
+        <path data-draw="" pathLength={1} d="M32 21h4a5 5 0 0 1 0 10h-5M5 42h34M14 12c-2-4 3-5 1-9M23 12c-2-4 3-5 1-9" />
+      </>
+    );
+  } else if (type === "store") {
+    artwork = (
+      <>
+        <path data-draw="" pathLength={1} d="M6 19h36v23H6ZM9 8h30l4 11H5Z" />
+        <path data-draw="" pathLength={1} d="M15 42V29h9v13M29 28h8v7h-8M5 19c3 4 6 4 9 0 3 4 6 4 9 0 3 4 6 4 9 0 3 4 6 4 11 0" />
+      </>
+    );
+  } else if (type === "hotel") {
+    artwork = <path data-draw="" pathLength={1} d="M9 43V8h30v35M4 43h40M16 15h5v5h-5ZM27 15h5v5h-5ZM16 26h5v5h-5ZM27 26h5v5h-5ZM21 43V35h6v8" />;
+  } else if (type === "globe") {
+    artwork = (
+      <>
+        <circle data-draw="" pathLength={1} cx="24" cy="24" r="19" />
+        <path data-draw="" pathLength={1} d="M5 24h38M24 5c6 6 9 12 9 19s-3 13-9 19c-6-6-9-12-9-19s3-13 9-19ZM8 15h32M8 33h32" />
+      </>
+    );
+  } else if (type === "office") {
+    artwork = <path data-draw="" pathLength={1} d="M7 43V13h22v30M29 22h12v21M3 43h42M13 20h5M13 27h5M13 34h5M23 20h1M23 27h1M23 34h1M34 29h3M34 35h3" />;
+  } else {
+    artwork = (
+      <>
+        <rect data-draw="" pathLength={1} x="6" y="10" width="29" height="32" rx="2" />
+        <path data-draw="" pathLength={1} d="M13 5v10M28 5v10M6 20h29M39 28v12M33 34h12" />
+      </>
+    );
+  }
+
+  return (
+    <span className="amend-icon" aria-hidden="true" style={{ "--icon-delay": delay + "ms" } as CSSProperties}>
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        {artwork}
+      </svg>
+    </span>
+  );
+}
 function SectionHeading({ id, index, title, intro }: SectionHeadingProps) {
   return (
     <div className="section-heading reveal">
       <p className="section-index">{index}</p>
-      <h2 id={id} className="display word-reveal motion-heading">{title}</h2>
+      <h2 id={id} className="display word-reveal motion-heading" aria-label={titleLabel}>{title}</h2>
       {intro ? <p className="section-intro motion-copy">{intro}</p> : null}
     </div>
   );
@@ -223,11 +323,12 @@ function ReferenceAboutSection() {
       <SectionHeading
         id="story-title"
         index="01 / About Tona"
+        titleLabel="Some conversationsneed more time."
         title={
           <>
-            Some conversations
+            <RevealWords words={["Some", "conversations"]} />
             <br />
-            need more time.
+            <RevealWords words={["need", "more", "time."]} startAt={2} />
           </>
         }
       />
@@ -271,10 +372,10 @@ function ReferenceAboutSection() {
       <div className="moment-block">
         <div className="moment-intro reveal">
           <p className="mono-label">A moment for everyone</p>
-          <h3 className="display">
-            Around the cup,
+          <h3 className="display word-reveal motion-heading" aria-label="Around the cup,we come closer.">
+            <RevealWords words={["Around", "the", "cup"]} />
             <br />
-            we come closer.
+            <RevealWords words={["we", "come", "closer."]} startAt={3} />
           </h3>
           <p className="section-intro">
             Five reasons people stay for the second round—and what Tona brings to
@@ -292,7 +393,7 @@ function ReferenceAboutSection() {
           ].map(([number, title, text, tag]) => (
             <article className="moment-card reveal" key={number}>
               <span className="moment-no">{number}</span>
-              <h4>{title}</h4>
+              <CinematicHeading as="h4" text={title} />
               <p>{text}</p>
               <span className="moment-tag">{tag}</span>
             </article>
@@ -333,7 +434,7 @@ function OriginCard({
           src={origin.image}
           width="720"
           height="360"
-          alt={origin.name + " coffee from Ethiopia"}
+          alt={origin.name === "Yirgacheffe" ? "Yirgacheffe washed coffee overlooking Ethiopia’s misty Gedeo highlands" : origin.name === "Sidama" ? "Sidama natural coffee beside raised drying beds in Ethiopia’s highlands" : origin.name === "Guji" ? "Guji natural coffee in a forested Ethiopian coffee landscape" : "Jimma coffee overlooking the forested hills of western Oromia"}
           loading="lazy"
         />
       </figure>
@@ -342,7 +443,7 @@ function OriginCard({
           <span>{origin.process}</span>
           <span>{origin.region}</span>
         </div>
-        <h3>{origin.name}</h3>
+        <CinematicHeading as="h3" text={origin.name} />
         <p>{origin.description}</p>
         <ul className="tasting-notes" aria-label={origin.name + " tasting notes"}>
           {origin.notes.map((note) => (
@@ -365,11 +466,12 @@ function ReferenceCoffeeSection() {
       <SectionHeading
         id="coffee-title"
         index="02 / Our coffee"
+        titleLabel="Four origins.Cleared for export."
         title={
           <>
-            Four origins.
+            <RevealWords words={["Four", "origins."]} />
             <br />
-            <span className="ember">Cleared for export.</span>
+            <span className="ember"><RevealWords words={["Cleared", "for", "export."]} startAt={2} /></span>
           </>
         }
         intro="These four lots are cupped, graded and reserved for international buyers—they never reach an Ethiopian shelf. What we pour at home is the House Blend, further down this page."
@@ -441,11 +543,12 @@ function ReferenceDifferenceSection() {
       <SectionHeading
         id="difference-title"
         index="03 / The difference"
+        titleLabel="The codewe live by."
         title={
           <>
-            The code
+            <RevealWords words={["The", "code"]} />
             <br />
-            we live by.
+            <RevealWords words={["we", "live", "by."]} startAt={2} />
           </>
         }
       />
@@ -456,7 +559,7 @@ function ReferenceDifferenceSection() {
             <span className="principle-icon" aria-hidden="true">
               <PrincipleIcon type={icon} />
             </span>
-            <h3 className="cinematic-copy">{title}</h3>
+            <CinematicHeading as="h3" text={title} />
             <p>{text}</p>
           </article>
         ))}
@@ -471,28 +574,30 @@ function ReferenceBusinessSection() {
       <SectionHeading
         id="business-title"
         index="04 / For business"
+        titleLabel="Long-term partnerships.Not one-time orders."
         title={
           <>
-            Long-term partnerships.
+            <RevealWords words={["Long-term", "partnerships."]} />
             <br />
-            Not one-time orders.
+            <RevealWords words={["Not", "one-time", "orders."]} startAt={2} />
           </>
         }
         intro="We build around each partner—from neighbourhood cafés to international distributors—with supply, guidance and storytelling support included."
       />
 
       <div className="partner-list">
-        {PARTNERS.map(([title, text], index) => (
+        {PARTNERS.map(([title, text, icon], index) => (
           <article className="partner-row reveal motion-card" key={title}>
             <span>{String(index + 1).padStart(2, "0")}</span>
-            <h3 className="cinematic-copy">{title}</h3>
+            <AmendIcon type={icon} delay={index * 80} />
+            <CinematicHeading as="h3" text={title} />
             <p>{text}</p>
           </article>
         ))}
       </div>
 
       <div className="sample-layout">
-        <figure className="sample-media reveal">
+        <figure className="sample-media reveal motion-media parallax-media">
           <img
             src={REFERENCE_IMAGES.business}
             width="1800"
@@ -598,11 +703,12 @@ function ReferenceEventsSection() {
       <SectionHeading
         id="events-title"
         index="05 / Events"
+        titleLabel="Meet usin person."
         title={
           <>
-            Meet us
+            <RevealWords words={["Meet", "us"]} />
             <br />
-            <span className="ember">in person.</span>
+            <span className="ember"><RevealWords words={["in", "person."]} startAt={2} /></span>
           </>
         }
         intro="Tastings, pop-ups and coffee-ceremony demonstrations across Addis Ababa—plus Tona experiences hosted at your own event."
@@ -614,7 +720,7 @@ function ReferenceEventsSection() {
             src={REFERENCE_IMAGES.event}
             width="1400"
             height="900"
-            alt="Guests gathered around a Tona coffee tasting table with a woven basket and cups"
+            alt="Two women enjoying Tona coffee among ripe Ethiopian coffee cherries"
             loading="lazy"
           />
         </figure>
@@ -624,7 +730,7 @@ function ReferenceEventsSection() {
               <time dateTime={event.date}><span>{event.month}</span><b>{event.day}</b></time>
               <div>
                 <p className="mono-label">{event.location}</p>
-                <h3>{event.title}</h3>
+                <CinematicHeading as="h3" text={event.title} />
                 <p>{event.description}</p>
                 <small>Open to the public</small>
               </div>
@@ -639,12 +745,12 @@ function ReferenceEventsSection() {
       <div className="host-tona reveal motion-media">
         <div className="host-heading">
           <p className="mono-label">Host Tona</p>
-          <h3 className="display word-reveal motion-heading">Bring the second round<br />to your event.</h3>
+          <h3 className="display word-reveal motion-heading" aria-label="Bring the second roundto your event."><RevealWords words={["Bring", "the", "second", "round"]} /><br /><RevealWords words={["to", "your", "event."]} startAt={4} /></h3>
         </div>
         <div className="host-services">
-          <article><h4>Coffee ceremony experience</h4><p>A trained host, jebena service and origin storytelling for your guests.</p></article>
-          <article><h4>Brew bar &amp; sampling</h4><p>Filter and espresso service for launches, conferences and markets.</p></article>
-          <article><h4>Co-branded activation</h4><p>Custom bags, signage and tasting flights built around your brand.</p></article>
+          <article><CinematicHeading as="h4" text="Coffee ceremony experience" /><p>A trained host, jebena service and origin storytelling for your guests.</p></article>
+          <article><CinematicHeading as="h4" text="Brew bar & sampling" /><p>Filter and espresso service for launches, conferences and markets.</p></article>
+          <article><CinematicHeading as="h4" text="Co-branded activation" /><p>Custom bags, signage and tasting flights built around your brand.</p></article>
         </div>
       </div>
 
@@ -685,7 +791,7 @@ function ReferenceEventsSection() {
         <div className="hosted-grid">
           {HOSTED_EVENTS.map(([date, title, place, format]) => (
             <article className="hosted-card reveal" key={title}>
-              <time>{date}</time><h4>{title}</h4><p>{place}</p><small>{format}</small>
+              <time>{date}</time><CinematicHeading as="h4" text={title} /><p>{place}</p><small>{format}</small>
             </article>
           ))}
         </div>
@@ -705,7 +811,7 @@ function ReferenceOrdersSection() {
     <section className="quotation section section-ember motion-section section-cinema" id="orders" aria-labelledby="orders-title">
       <div className="quotation-intro reveal">
         <p className="section-index">06 / Order &amp; enquire</p>
-        <h2 id="orders-title" className="display">Tell us what<br />you’re pouring.</h2>
+        <h2 id="orders-title" className="display word-reveal motion-heading" aria-label="Tell us whatyou’re pouring."><RevealWords words={["Tell", "us", "what"]} /><br /><RevealWords words={["you’re", "pouring."]} startAt={3} /></h2>
         <p>
           The House Blend is our local-market coffee: one consistent Ethiopian
           blend, in the formats your bar, shelf or hospitality programme needs.
@@ -721,10 +827,10 @@ function ReferenceOrdersSection() {
           {PACKAGES.map(([size, description], index) => (
             <article className="pack-card reveal motion-card" key={size}>
               <label className="pack-choice">
-                <input type="radio" name="package" value={size + " Tona package"} checked={selectedPackage === size} onChange={() => setSelectedPackage(size)} />
+                <input type="radio" name="package" form="quote-form" value={size + " Tona package"} checked={selectedPackage === size} onChange={() => setSelectedPackage(size)} />
                 <span className="pack-choice-body">
                   <span className="pack-card-head"><span className="pack-no">0{index + 1}</span><span>Tona package</span></span>
-                  <h3>{size}</h3>
+                  <CinematicHeading as="h3" text={size} />
                   <p>{description}</p>
                   <ul aria-label={"Available " + size + " formats"}>
                     {FORMATS.map(([short, label]) => <li key={short}>{short} <span>{label}</span></li>)}
@@ -735,10 +841,10 @@ function ReferenceOrdersSection() {
           ))}
           <article className="pack-card pack-card-custom reveal motion-card">
             <label className="pack-choice">
-              <input type="radio" name="package" value="250g custom package" checked={selectedPackage === "custom"} onChange={() => setSelectedPackage("custom")} />
+              <input type="radio" name="package" form="quote-form" value="250g custom package" checked={selectedPackage === "custom"} onChange={() => setSelectedPackage("custom")} />
               <span className="pack-choice-body">
                 <span className="pack-card-head"><span className="pack-no">04</span><span>Custom package</span></span>
-                <h3>250g</h3>
+                <CinematicHeading as="h3" text="250g" />
                 <p>Tona coffee presented with your customer-facing logo.</p>
                 <ul aria-label="Available custom 250 gram formats">
                   {FORMATS.map(([short, label]) => <li key={short}>{short} <span>{label}</span></li>)}
@@ -751,25 +857,24 @@ function ReferenceOrdersSection() {
       </div>
 
       <div className="orders-layout">
-        <form className="quote-form reveal motion-card" onSubmit={(event) => openWhatsAppFromForm(event, "Hi Tona, I'd like a House Blend quotation.", setQuoteStatus)}>
+        <form className="quote-form reveal motion-card" id="quote-form" onSubmit={(event) => openWhatsAppFromForm(event, "Hi Tona, I'd like a House Blend quotation.", setQuoteStatus)}>
           <p className="form-kicker">House Blend quotation</p>
           <fieldset>
             <legend>01 / Choose a format</legend>
-            <div className="choice-grid format-choices">
+            <div className="choice-grid format-choices" id="format-options" aria-live="polite">
               {FORMATS.map(([short, label], index) => (
-                <label className="choice-card" key={short}>
-                  <input type="radio" name="format" value={label} defaultChecked={index === 0} />
-                  <span><b>{short}</b><small>{label}</small></span>
+                <label key={short}>
+                  <input type="radio" name="format-choice" value={label} defaultChecked={index === 0} />
+                  <span>{short} — {label}</span>
                 </label>
               ))}
             </div>
+            <input type="hidden" id="format-name" name="format" />
           </fieldset>
-          {selectedPackage === "custom" ? (
-            <div className="logo-field">
-              <label htmlFor="brand-name">Customer brand or logo name</label>
-              <input id="brand-name" name="brand-name" type="text" autoComplete="organization" placeholder="Your brand name" />
-            </div>
-          ) : null}
+          <div className="logo-field" id="logo-field" hidden={selectedPackage !== "custom"}>
+            <label htmlFor="brand-name">Customer brand or logo name</label>
+            <input id="brand-name" name="brand-name" type="text" autoComplete="organization" placeholder="Your brand name" />
+          </div>
           <fieldset className="contact-fields">
             <legend>02 / Your details</legend>
             <div className="field-grid">
@@ -805,17 +910,80 @@ function ReferenceOrdersSection() {
   );
 }
 
+const MAP_TILES = [
+  ["https://tile.openstreetmap.org/14/9954/7780.png", "translate3d(165px, -5px, 0px)"],
+  ["https://tile.openstreetmap.org/14/9955/7780.png", "translate3d(421px, -5px, 0px)"],
+  ["https://tile.openstreetmap.org/14/9954/7781.png", "translate3d(165px, 251px, 0px)"],
+  ["https://tile.openstreetmap.org/14/9955/7781.png", "translate3d(421px, 251px, 0px)"],
+  ["https://tile.openstreetmap.org/14/9953/7780.png", "translate3d(-91px, -5px, 0px)"],
+  ["https://tile.openstreetmap.org/14/9956/7780.png", "translate3d(677px, -5px, 0px)"],
+  ["https://tile.openstreetmap.org/14/9953/7781.png", "translate3d(-91px, 251px, 0px)"],
+  ["https://tile.openstreetmap.org/14/9956/7781.png", "translate3d(677px, 251px, 0px)"],
+] as const;
+
+function ReferenceMap() {
+  return (
+    <div
+      id="tona-map"
+      role="img"
+      aria-label="Map of Addis Ababa showing Tona Coffee stockists: Emawa Mart in Lideta and Allmart at Bisrate Gabriel"
+      className="leaflet-container leaflet-touch leaflet-fade-anim leaflet-grab leaflet-touch-drag leaflet-touch-zoom"
+      tabIndex={0}
+    >
+      <div className="leaflet-pane leaflet-map-pane" style={{ transform: "translate3d(0px, 0px, 0px)" }}>
+        <div className="leaflet-pane leaflet-tile-pane">
+          <div className="leaflet-layer" style={{ zIndex: 1, opacity: 1 }}>
+            <div className="leaflet-tile-container leaflet-zoom-animated" style={{ zIndex: 19, transform: "translate3d(0px, 0px, 0px) scale(1)" }}>
+              {MAP_TILES.map(([src, transform]) => (
+                <img key={src} alt="" src={src} className="leaflet-tile leaflet-tile-loaded" style={{ width: "256px", height: "256px", transform }} />
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="leaflet-pane leaflet-overlay-pane" />
+        <div className="leaflet-pane leaflet-shadow-pane" />
+        <div className="leaflet-pane leaflet-marker-pane">
+          <div className="leaflet-marker-icon tona-pin-wrap leaflet-zoom-animated leaflet-interactive" title="Emawa Mart" tabIndex={0} role="button" style={{ marginLeft: "-17px", marginTop: "-44px", width: "34px", height: "44px", transform: "translate3d(481px, 84px, 0px)", zIndex: 84 }}>
+            <span className="tona-pin"><span className="tona-pin-no">01</span></span>
+          </div>
+          <div className="leaflet-marker-icon tona-pin-wrap leaflet-zoom-animated leaflet-interactive" title="Allmart" tabIndex={0} role="button" style={{ marginLeft: "-17px", marginTop: "-44px", width: "34px", height: "44px", transform: "translate3d(229px, 330px, 0px)", zIndex: 330 }}>
+            <span className="tona-pin"><span className="tona-pin-no">02</span></span>
+          </div>
+        </div>
+        <div className="leaflet-pane leaflet-tooltip-pane" />
+        <div className="leaflet-pane leaflet-popup-pane" />
+        <div className="leaflet-proxy leaflet-zoom-animated" style={{ transform: "translate3d(2548410px, 1991890px, 0px) scale(8192)" }} />
+      </div>
+      <div className="leaflet-control-container">
+        <div className="leaflet-top leaflet-left">
+          <div className="leaflet-control-zoom leaflet-bar leaflet-control">
+            <a className="leaflet-control-zoom-in" href="#" title="Zoom in" role="button" aria-label="Zoom in" aria-disabled="false">+</a>
+            <a className="leaflet-control-zoom-out" href="#" title="Zoom out" role="button" aria-label="Zoom out" aria-disabled="false">−</a>
+          </div>
+        </div>
+        <div className="leaflet-top leaflet-right" />
+        <div className="leaflet-bottom leaflet-left" />
+        <div className="leaflet-bottom leaflet-right">
+          <div className="leaflet-control-attribution leaflet-control">
+            <a href="https://leafletjs.com" title="A JavaScript library for interactive maps">Leaflet</a> <span aria-hidden="true">|</span> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 function ReferenceFindUsSection() {
   return (
     <section className="findus section section-dark motion-section section-cinema" id="contact" aria-labelledby="findus-title">
       <SectionHeading
         id="findus-title"
         index="07 / Where to find us"
+        titleLabel="Tona is alreadyon the shelf."
         title={
           <>
-            Tona is already
+            <RevealWords words={["Tona", "is", "already"]} />
             <br />
-            <span className="ember">on the shelf.</span>
+            <span className="ember"><RevealWords words={["on", "the", "shelf."]} startAt={3} /></span>
           </>
         }
         intro="Retail stockists across Addis Ababa. More locations are added as they open—ask us on WhatsApp if you want Tona nearer to you."
@@ -842,12 +1010,7 @@ function ReferenceFindUsSection() {
         </ul>
 
         <div className="stockist-map reveal">
-          <div id="tona-map" role="img" aria-label="Map of Addis Ababa showing Tona Coffee stockists: Emawa Mart in Lideta and Allmart at Bisrate Gabriel">
-            <span className="map-route" aria-hidden="true" />
-            <span className="map-pin map-pin-one"><b>01</b><small>Emawa</small></span>
-            <span className="map-pin map-pin-two"><b>02</b><small>Allmart</small></span>
-            <span className="map-label">Addis Ababa</span>
-          </div>
+          <ReferenceMap />
         </div>
       </div>
 
@@ -877,11 +1040,12 @@ function ReferenceFeedbackSection() {
       <SectionHeading
         id="feedback-title"
         index="08 / Feedback"
+        titleLabel="Where the conversationcontinues."
         title={
           <>
-            Where the conversation
+            <RevealWords words={["Where", "the", "conversation"]} />
             <br />
-            continues.
+            <RevealWords words={["continues."]} startAt={3} />
           </>
         }
         intro="Rate your coffee, tell us what went wrong, or share an idea. A real person follows up."

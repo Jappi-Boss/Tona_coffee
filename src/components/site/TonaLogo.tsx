@@ -19,7 +19,7 @@ export function TonaMark({ className = "h-14 w-14", tone = "dark" }: { className
           event.currentTarget.src = DARK_LOGO_URL;
         }
       }}
-      alt="Tona Coffee — Stay for Tona, Stay for the Moment"
+      alt="Tona Coffee"
       width="1024"
       height="1024"
       className={className}
