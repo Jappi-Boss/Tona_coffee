@@ -1,5 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 import { FORMATS, PRODUCTS, SIZES } from "./tona";
+import { PRODUCT_IMAGES } from "./product-images";
 
 function database() {
   const connectionString = process.env.DATABASE_URL;
@@ -66,30 +67,41 @@ export async function loadPublicCatalog() {
   ]);
 
   return {
-    products: products.map((product) => ({
-      id: String(product.id),
-      slug: String(product.slug),
-      name: String(product.name),
-      region: String(product.region),
-      process: String(product.process),
-      description: String(product.description ?? ""),
-      tastingNotes: Array.isArray(product.tasting_notes)
-        ? product.tasting_notes.map(String)
-        : [],
-      altitude: product.altitude ? String(product.altitude) : null,
-      imageUrl: product.image_url ? String(product.image_url) : null,
-      isAvailable: Boolean(product.is_available),
-      isFeatured: Boolean(product.is_featured),
-      variants: Array.isArray(product.variants)
-        ? product.variants.map((variant: Record<string, unknown>) => ({
-            id: String(variant.id),
-            size: String(variant.size),
-            grind: String(variant.grind),
-            price: variant.price == null ? null : Number(variant.price),
-            stockQuantity: Number(variant.stockQuantity ?? 0),
-          }))
-        : [],
-    })),
+    products: products.map((product) => {
+      const slug = String(product.slug);
+      const reference = PRODUCTS.find((item) => item.slug === slug);
+      const referenceImage =
+        PRODUCT_IMAGES[slug as keyof typeof PRODUCT_IMAGES] ??
+        PRODUCT_IMAGES.yirgacheffe;
+
+      return {
+        id: String(product.id),
+        slug,
+        name: reference?.name ?? String(product.name),
+        region: reference?.region ?? String(product.region),
+        process: reference?.process ?? String(product.process),
+        description:
+          reference?.blurb ?? String(product.description ?? ""),
+        tastingNotes: reference?.notes ??
+          (Array.isArray(product.tasting_notes)
+            ? product.tasting_notes.map(String)
+            : []),
+        altitude: reference?.altitude ??
+          (product.altitude ? String(product.altitude) : null),
+        imageUrl: referenceImage,
+        isAvailable: Boolean(product.is_available),
+        isFeatured: Boolean(product.is_featured),
+        variants: Array.isArray(product.variants)
+          ? product.variants.map((variant: Record<string, unknown>) => ({
+              id: String(variant.id),
+              size: String(variant.size),
+              grind: String(variant.grind),
+              price: variant.price == null ? null : Number(variant.price),
+              stockQuantity: Number(variant.stockQuantity ?? 0),
+            }))
+          : [],
+      };
+    }),
     events: events.map((event) => ({
       id: String(event.id),
       slug: String(event.slug),
