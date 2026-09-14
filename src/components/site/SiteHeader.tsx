@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { TonaLogo } from "./TonaLogo";
@@ -14,6 +14,9 @@ const NAV = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const pathname = useRouterState({
+    select: (state) => state.location.pathname,
+  });
 
   return (
     <header className="site-header reference-header" id="site-header">
@@ -49,7 +52,10 @@ export function SiteHeader() {
           <Link
             key={item.to}
             to={item.to}
-            activeOptions={{ exact: item.to === "/" }}
+            className={pathname === item.to ? "active" : undefined}
+            aria-current={pathname === item.to ? "page" : undefined}
+            data-status={pathname === item.to ? "active" : undefined}
+            activeOptions={{ exact: true }}
             onClick={() => setOpen(false)}
           >
             {item.label}
