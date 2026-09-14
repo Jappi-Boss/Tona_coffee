@@ -2,9 +2,8 @@ import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Minus, Plus, ShoppingBag, X } from "lucide-react";
 import { toast } from "sonner";
-import { FORMATS, SIZES } from "@/lib/tona";
+import { FORMATS, PRODUCTS, SIZES } from "@/lib/tona";
 import { PRODUCT_IMAGES } from "@/lib/product-images";
-import { PRODUCTS } from "@/lib/tona";
 import { submitOrder, type PublicProduct } from "@/lib/public-api";
 
 export function ProductCard({ product }: { product: PublicProduct }) {
@@ -28,7 +27,6 @@ export function ProductCard({ product }: { product: PublicProduct }) {
   const [qty, setQty] = useState(1);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [imageFailed, setImageFailed] = useState(false);
   const fallbackImage =
     PRODUCT_IMAGES[product.slug as keyof typeof PRODUCT_IMAGES] ??
     PRODUCT_IMAGES.yirgacheffe;
@@ -67,14 +65,11 @@ export function ProductCard({ product }: { product: PublicProduct }) {
     <article className="product-card group flex flex-col overflow-hidden border border-white/15 bg-[#061b18] text-[#fffdf8] transition-all">
       <div className="relative h-48 overflow-hidden bg-[#102520]">
         <img
-          src={
-            imageFailed ? fallbackImage : (product.imageUrl ?? fallbackImage)
-          }
+          src={fallbackImage}
           alt={`${displayName} coffee with roasted coffee beans`}
           width={720}
           height={360}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.035]"
-          onError={() => setImageFailed(true)}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#061b18]/25 via-transparent to-transparent" />
       </div>
@@ -105,9 +100,7 @@ export function ProductCard({ product }: { product: PublicProduct }) {
         </div>
 
         <p className="label-mono mt-4 text-[#fffdf8]/55">
-          {product.altitude
-            ? `Altitude ${displayAltitude}`
-            : "Ethiopian origin"}
+          {displayAltitude ? `Altitude ${displayAltitude}` : "Ethiopian origin"}
         </p>
 
         <div className="mt-6 space-y-4 border-t border-white/15 pt-6">
