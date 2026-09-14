@@ -131,6 +131,7 @@ type SectionHeadingProps = {
   index: string;
   title: ReactNode;
   intro?: string;
+  titleLabel?: string;
 };
 
 function RevealWords({ words, startAt = 0 }: { words: string[]; startAt?: number }) {
@@ -233,7 +234,7 @@ function AmendIcon({
     </span>
   );
 }
-function SectionHeading({ id, index, title, intro }: SectionHeadingProps) {
+function SectionHeading({ id, index, title, intro, titleLabel }: SectionHeadingProps) {
   return (
     <div className="section-heading reveal">
       <p className="section-index">{index}</p>
