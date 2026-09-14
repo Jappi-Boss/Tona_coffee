@@ -16,7 +16,6 @@ import { SiteHeader } from "../components/site/SiteHeader";
 import { SiteFooter } from "../components/site/SiteFooter";
 import { SiteLoadingScreen } from "../components/site/SiteLoadingScreen";
 import { PageMotion } from "../components/site/PageMotion";
-import { WhatsAppFab } from "../components/site/WhatsAppFab";
 import { Toaster } from "sonner";
 
 function NotFoundComponent() {
@@ -92,17 +91,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         {
           name: "description",
           content:
-            "African-led specialty coffee roaster sourcing Yirgacheffe, Sidama, Guji and Gesha from Ethiopia's coffee heartlands.",
+            "Tona Coffee is an African-led Ethiopian specialty coffee roaster. Four export origins, one local House Blend, wholesale partnerships, 100g samples and coffee experiences in Addis Ababa.",
         },
         { name: "author", content: "Tona Coffee" },
         {
           property: "og:title",
-          content: "Tona Coffee — Ethiopian Specialty Coffee",
+          content: "Tona Coffee — Stay for Tona, Stay for the Moment",
         },
         {
           property: "og:description",
           content:
-            "African-led specialty coffee roaster sourcing Yirgacheffe, Sidama, Guji and Gesha from Ethiopia's coffee heartlands.",
+            "African-led specialty coffee roaster. Four export origins, one local House Blend, wholesale partnerships, 100g samples and coffee experiences in Addis Ababa.",
         },
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary_large_image" },
@@ -120,7 +119,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         },
         {
           rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600&display=swap",
+          href: "https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=IBM+Plex+Mono:wght@500&family=Inter:wght@400;500;600&display=swap",
         },
         {
           rel: "icon",
@@ -174,7 +173,6 @@ function RootComponent() {
         </main>
         {!isAdmin && <SiteFooter />}
       </div>
-      {!isAdmin && <WhatsAppFab />}
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );

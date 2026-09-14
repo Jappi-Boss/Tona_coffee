@@ -5,13 +5,20 @@ type Props = {
   size?: "sm" | "md" | "lg" | "xl";
 };
 
-const OFFICIAL_LOGO_URL =
+const LIGHT_LOGO_URL =
+  "https://tona-coffee-two.vercel.app/website/assets/images/tona-logo-light.png";
+const DARK_LOGO_URL =
   "https://raw.githubusercontent.com/Jappi-Boss/Tona_coffee/7247bf6b0bd5bd8d6d21d08d20fb861eb2aeb612/public/tona-logo.png";
 
-export function TonaMark({ className = "h-14 w-14" }: { className?: string }) {
+export function TonaMark({ className = "h-14 w-14", tone = "dark" }: { className?: string; tone?: "dark" | "light" }) {
   return (
     <img
-      src={OFFICIAL_LOGO_URL}
+      src={tone === "light" ? LIGHT_LOGO_URL : DARK_LOGO_URL}
+      onError={(event) => {
+        if (event.currentTarget.src !== DARK_LOGO_URL) {
+          event.currentTarget.src = DARK_LOGO_URL;
+        }
+      }}
       alt="Tona Coffee — Stay for Tona, Stay for the Moment"
       width="1024"
       height="1024"
@@ -36,11 +43,11 @@ export function TonaLogo({
 }: Props) {
   return (
     <span
-      className={`inline-flex shrink-0 items-center ${className}`}
+      className={"inline-flex shrink-0 items-center " + className}
       data-tone={tone}
       data-mark-only={markOnly || undefined}
     >
-      <TonaMark className={`${logoSizes[size]} object-contain`} />
+      <TonaMark className={logoSizes[size] + " object-contain"} tone={tone} />
     </span>
   );
 }
