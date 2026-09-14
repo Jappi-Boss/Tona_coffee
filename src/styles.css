@@ -457,3 +457,14 @@
   }
 }
 
+
+
+/* Route-aware active navigation cue. */
+.primary-navigation a.active,
+.primary-navigation a[data-status="active"] {
+  color: #ef4a28 !important;
+  text-decoration: underline !important;
+  text-decoration-color: #ef4a28 !important;
+  text-decoration-thickness: 1px !important;
+  text-underline-offset: 6px !important;
+}
