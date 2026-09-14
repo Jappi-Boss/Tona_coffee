@@ -321,7 +321,7 @@ function ReferenceHero() {
             </p>
           </div>
           <div className="hero-intro">
-            <p className="motion-copy">
+            <p>
               The first cup brings people together. The second round is where
               conversations deepen, ideas take shape, and people stay a little
               longer. This is where Tona belongs.
@@ -393,7 +393,7 @@ function ReferenceAboutSection() {
             rooted in Ethiopia’s coffee heartlands.
           </p>
           <div className="copy-columns">
-            <p>
+            <p className="motion-copy">
               The first cup brings people together. The second is where
               formalities fade, ideas deepen, people listen, question, laugh,
               reflect and connect. This is where Tona belongs.
