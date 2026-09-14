@@ -8,7 +8,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -153,6 +153,104 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function WhatsAppConcierge() {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <aside
+      className="whatsapp-concierge"
+      aria-label="Tona Coffee WhatsApp concierge"
+    >
+      <section
+        className="whatsapp-chat"
+        id="whatsapp-chat"
+        role="dialog"
+        aria-label="Chat with Tona Coffee"
+        hidden={!open}
+      >
+        <div className="whatsapp-chat-head">
+          <span className="whatsapp-chat-mark">
+            <img
+              src="https://tona-coffee-two.vercel.app/website/assets/images/tona-logo-light.png"
+              alt=""
+            />
+          </span>
+          <span>
+            <strong>Tona Coffee</strong>
+            <span>Typically replies on WhatsApp</span>
+          </span>
+          <button
+            className="whatsapp-close"
+            type="button"
+            aria-label="Close WhatsApp chat"
+            onClick={() => setOpen(false)}
+          >
+            ×
+          </button>
+        </div>
+        <div className="whatsapp-chat-body">
+          <p className="whatsapp-message">
+            Selam—welcome to Tona Coffee. What can we help you arrange?
+          </p>
+          <nav
+            className="whatsapp-options"
+            aria-label="Choose a WhatsApp conversation"
+          >
+            <a
+              href="https://wa.me/251986212224?text=Hi%20Tona%2C%20I%E2%80%99d%20like%20to%20place%20a%20retail%20coffee%20order."
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Retail order <span aria-hidden="true">↗</span>
+            </a>
+            <a
+              href="https://wa.me/251986212224?text=Hi%20Tona%2C%20I%E2%80%99d%20like%20to%20discuss%20wholesale%20or%20business%20supply."
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Wholesale &amp; business <span aria-hidden="true">↗</span>
+            </a>
+            <a
+              href="https://wa.me/251986212224?text=Hi%20Tona%2C%20I%E2%80%99d%20like%20to%20request%20a%20100g%20coffee%20sample."
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Request a 100g sample <span aria-hidden="true">↗</span>
+            </a>
+            <a
+              href="https://wa.me/251986212224?text=Hi%20Tona%2C%20I%E2%80%99d%20like%20to%20make%20an%20export%20request%20for%20your%20origin%20coffees%20(Yirgacheffe%2C%20Sidama%2C%20Guji%20or%20Jimma).%20Please%20send%20lot%20details%20and%20pricing."
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Export request <span aria-hidden="true">↗</span>
+            </a>
+            <a
+              href="https://wa.me/251986212224?text=Hi%20Tona%2C%20I%E2%80%99d%20like%20to%20ask%20about%20events%20or%20hosting%20a%20Tona%20experience."
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Events &amp; experiences <span aria-hidden="true">↗</span>
+            </a>
+          </nav>
+          <p className="whatsapp-note">Continue securely in WhatsApp.</p>
+        </div>
+      </section>
+      <button
+        className="whatsapp-launcher"
+        type="button"
+        aria-label={open ? "Close Tona Coffee WhatsApp chat" : "Open Tona Coffee WhatsApp chat"}
+        aria-expanded={open}
+        aria-controls="whatsapp-chat"
+        onClick={() => setOpen((value) => !value)}
+      >
+        <svg viewBox="0 0 24 24" width="29" height="29" aria-hidden="true">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.198.297-.767.967-.94 1.164-.173.198-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.149-.173.198-.297.198-.495.099-.198.05-.372-.025-.521-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.009-.372-.011-.57-.011-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479s1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.693.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.981.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.002-5.45 4.436-9.883 9.889-9.883a9.82 9.82 0 0 1 7.021 2.91 9.83 9.83 0 0 1 2.897 7.027c-.003 5.45-4.446 9.899-9.923 9.899m8.413-18.297A11.82 11.82 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.9 11.9 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.82 11.82 0 0 0-3.48-8.413Z" />
+        </svg>
+      </button>
+    </aside>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({
@@ -176,6 +274,7 @@ function RootComponent() {
           <Outlet />
         </main>
         {!isAdmin && <SiteFooter />}
+        {!isAdmin && <WhatsAppConcierge />}
       </div>
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
