@@ -87,7 +87,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       meta: [
         { charSet: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
-        { title: "Tona Coffee — Ethiopian Specialty Coffee" },
+        { title: "Tona Coffee — Stay for Tona, Stay for the Moment" },
         {
           name: "description",
           content:
@@ -120,6 +120,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         {
           rel: "stylesheet",
           href: "https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=IBM+Plex+Mono:wght@500&family=Inter:wght@400;500;600&display=swap",
+        },
+        {
+          rel: "stylesheet",
+          href: "https://tona-coffee-two.vercel.app/styles.css",
         },
         {
           rel: "icon",
