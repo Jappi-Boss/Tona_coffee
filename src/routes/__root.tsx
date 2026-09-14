@@ -251,6 +251,33 @@ function WhatsAppConcierge() {
   );
 }
 
+function ScrollProgress() {
+  useEffect(() => {
+    const bar = document.getElementById("scroll-progress-bar");
+    if (!bar) return;
+
+    const update = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = max > 0 ? (window.scrollY / max) * 100 : 0;
+      bar.style.width = String(Math.min(100, Math.max(0, progress))) + "%";
+    };
+
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
+
+  return (
+    <div className="scroll-progress" aria-hidden="true">
+      <span id="scroll-progress-bar" style={{ width: "0%" }} />
+    </div>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({
@@ -265,11 +292,11 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <SiteLoadingScreen routePending={isRoutePending} />
       {!isAdmin && <PageMotion pathname={pathname} />}
-      <div
-        className={`flex min-h-screen flex-col${isAdmin ? "" : " public-site"}`}
-      >
+      <div className="flex min-h-screen flex-col">
+        {!isAdmin && <a className="skip-link" href="#main-content">Skip to content</a>}
+        {!isAdmin && <ScrollProgress />}
         {!isAdmin && <SiteHeader />}
-        <main className="flex-1">
+        <main id="main-content" className="flex-1">
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
         </main>
