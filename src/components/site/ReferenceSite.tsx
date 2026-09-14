@@ -234,6 +234,57 @@ function AmendIcon({
     </span>
   );
 }
+function MomentIcon({
+  type,
+  delay,
+}: {
+  type: "people" | "briefcase" | "handshake" | "family" | "cup";
+  delay: number;
+}) {
+  let artwork: ReactNode;
+
+  if (type === "people") {
+    artwork = (
+      <>
+        <circle data-draw="" pathLength={1} cx="17" cy="17" r="5" />
+        <circle data-draw="" pathLength={1} cx="31" cy="18" r="4" />
+        <path data-draw="" pathLength={1} d="M7 38c1.6-7.2 5-10 10-10s8.4 2.8 10 10M27 29c5.7-1.3 10.7 1.7 13 8" />
+      </>
+    );
+  } else if (type === "briefcase") {
+    artwork = (
+      <>
+        <rect data-draw="" pathLength={1} x="7" y="15" width="34" height="24" rx="2" />
+        <path data-draw="" pathLength={1} d="M17 15v-4h14v4M7 24h34M20 24v4h8v-4" />
+      </>
+    );
+  } else if (type === "handshake") {
+    artwork = <path data-draw="" pathLength={1} d="m5 18 8-6 8 6-5 4a3 3 0 0 0 4 4.5l6-4.5 9-10 8 6M6 31l9 8a3 3 0 0 0 4 0l2-2M42 31l-9 8a3 3 0 0 1-4 0L20 31" />;
+  } else if (type === "family") {
+    artwork = (
+      <>
+        <path data-draw="" pathLength={1} d="M6 23 24 8l18 15v18H6Z" />
+        <path data-draw="" pathLength={1} d="M17 41V28h14v13M24 25c-5-5-10 2 0 9 10-7 5-14 0-9Z" />
+      </>
+    );
+  } else {
+    artwork = (
+      <>
+        <path data-draw="" pathLength={1} d="M9 20h25v9a10 10 0 0 1-10 10h-5A10 10 0 0 1 9 29Z" />
+        <path data-draw="" pathLength={1} d="M34 23h4a5 5 0 0 1 0 10h-5M6 42h33M17 14c-3-4 3-5 0-9M26 14c-3-4 3-5 0-9" />
+      </>
+    );
+  }
+
+  return (
+    <span className="amend-icon" aria-hidden="true" style={{ "--icon-delay": delay + "ms" } as CSSProperties}>
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        {artwork}
+      </svg>
+    </span>
+  );
+}
+
 function SectionHeading({ id, index, title, intro, titleLabel }: SectionHeadingProps) {
   return (
     <div className="section-heading reveal">
@@ -385,15 +436,16 @@ function ReferenceAboutSection() {
         </div>
 
         <div className="moment-grid">
-          {[
-            ["01", "For friends", "Another round is how an evening keeps going.", "Connection"],
-            ["02", "For colleagues", "Where a discussion moves past the agenda.", "Quality"],
-            ["03", "For partners", "Space for ideas, decisions and the trust behind them.", "Origin"],
-            ["04", "For families", "The oldest reason to gather, poured not explained.", "Culture"],
-            ["05", "For yourself", "A deliberate pause, and a cup worth the time.", "Craft"],
-          ].map(([number, title, text, tag]) => (
+          {([
+            ["01", "For friends", "Another round is how an evening keeps going.", "Connection", "people"],
+            ["02", "For colleagues", "Where a discussion moves past the agenda.", "Quality", "briefcase"],
+            ["03", "For partners", "Space for ideas, decisions and the trust behind them.", "Origin", "handshake"],
+            ["04", "For families", "The oldest reason to gather, poured not explained.", "Culture", "family"],
+            ["05", "For yourself", "A deliberate pause, and a cup worth the time.", "Craft", "cup"],
+          ] as const).map(([number, title, text, tag, icon], index) => (
             <article className="moment-card reveal" key={number}>
               <span className="moment-no">{number}</span>
+              <MomentIcon type={icon} delay={index * 80} />
               <CinematicHeading as="h4" text={title} />
               <p>{text}</p>
               <span className="moment-tag">{tag}</span>
