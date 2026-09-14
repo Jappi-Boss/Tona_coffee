@@ -133,18 +133,18 @@ type SectionHeadingProps = {
   intro?: string;
 };
 
-function SectionHeading({ index, title, intro }: SectionHeadingProps) {
+function SectionHeading({ id, index, title, intro }: SectionHeadingProps) {
   return (
     <div className="section-heading reveal">
       <p className="section-index">{index}</p>
-      <h2 className="display">{title}</h2>
-      {intro ? <p className="section-intro">{intro}</p> : null}
+      <h2 id={id} className="display word-reveal motion-heading">{title}</h2>
+      {intro ? <p className="section-intro motion-copy">{intro}</p> : null}
     </div>
   );
 }
 
 function ReferencePage({ children }: { children: ReactNode }) {
-  return <div className="reference-page">{children}</div>;
+  return <>{children}</>;
 }
 
 function ReferenceHero() {
@@ -219,8 +219,9 @@ function ReferenceHero() {
 
 function ReferenceAboutSection() {
   return (
-    <section className="about section" id="story" aria-labelledby="story-title">
+    <section className="about section motion-section section-cinema" id="story" aria-labelledby="story-title">
       <SectionHeading
+        id="story-title"
         index="01 / About Tona"
         title={
           <>
@@ -232,7 +233,7 @@ function ReferenceAboutSection() {
       />
 
       <div className="about-layout">
-        <div className="about-copy reveal">
+        <div className="about-copy reveal motion-copy">
           <p className="lead">
             Born from Ethiopia’s coffee culture and inspired by the second round
             of the coffee ceremony, Tona is an African-led specialty roaster
@@ -252,7 +253,7 @@ function ReferenceAboutSection() {
           </div>
         </div>
 
-        <figure className="about-art reveal">
+        <figure className="about-art reveal motion-media parallax-media">
           <img
             src={REFERENCE_IMAGES.about}
             width="1448"
@@ -326,8 +327,8 @@ function OriginCard({
   origin: (typeof REFERENCE_ORIGINS)[number];
 }) {
   return (
-    <article className="origin-card reveal" data-origin={origin.name}>
-      <figure>
+    <article className="origin-card reveal motion-card" data-origin={origin.name}>
+      <figure className="parallax-media">
         <img
           src={origin.image}
           width="720"
@@ -357,11 +358,12 @@ function OriginCard({
 function ReferenceCoffeeSection() {
   return (
     <section
-      className="origins section section-dark"
+      className="origins section section-dark motion-section section-cinema"
       id="coffee"
       aria-labelledby="coffee-title"
     >
       <SectionHeading
+        id="coffee-title"
         index="02 / Our coffee"
         title={
           <>
@@ -435,8 +437,9 @@ function ReferenceDifferenceSection() {
   ] as const;
 
   return (
-    <section className="difference section" id="difference" aria-labelledby="difference-title">
+    <section className="difference section motion-section section-cinema" id="difference" aria-labelledby="difference-title">
       <SectionHeading
+        id="difference-title"
         index="03 / The difference"
         title={
           <>
@@ -448,12 +451,12 @@ function ReferenceDifferenceSection() {
       />
       <div className="principle-list">
         {principles.map(([number, icon, title, text]) => (
-          <article className="principle reveal" key={number}>
+          <article className="principle reveal motion-card" key={number}>
             <span className="principle-no">{number}</span>
             <span className="principle-icon" aria-hidden="true">
               <PrincipleIcon type={icon} />
             </span>
-            <h3>{title}</h3>
+            <h3 className="cinematic-copy">{title}</h3>
             <p>{text}</p>
           </article>
         ))}
@@ -464,8 +467,9 @@ function ReferenceDifferenceSection() {
 
 function ReferenceBusinessSection() {
   return (
-    <section className="business section" id="business" aria-labelledby="business-title">
+    <section className="business section motion-section section-cinema" id="business" aria-labelledby="business-title">
       <SectionHeading
+        id="business-title"
         index="04 / For business"
         title={
           <>
@@ -479,9 +483,9 @@ function ReferenceBusinessSection() {
 
       <div className="partner-list">
         {PARTNERS.map(([title, text], index) => (
-          <article className="partner-row reveal" key={title}>
+          <article className="partner-row reveal motion-card" key={title}>
             <span>{String(index + 1).padStart(2, "0")}</span>
-            <h3>{title}</h3>
+            <h3 className="cinematic-copy">{title}</h3>
             <p>{text}</p>
           </article>
         ))}
@@ -590,8 +594,9 @@ function ReferenceEventsSection() {
   const [status, setStatus] = useState("");
 
   return (
-    <section className="events section section-dark" id="events" aria-labelledby="events-title">
+    <section className="events section section-dark motion-section section-cinema" id="events" aria-labelledby="events-title">
       <SectionHeading
+        id="events-title"
         index="05 / Events"
         title={
           <>
@@ -604,7 +609,7 @@ function ReferenceEventsSection() {
       />
 
       <div className="events-layout">
-        <figure className="events-image reveal">
+        <figure className="events-image reveal motion-media parallax-media">
           <img
             src={REFERENCE_IMAGES.event}
             width="1400"
@@ -615,7 +620,7 @@ function ReferenceEventsSection() {
         </figure>
         <div className="event-list">
           {REFERENCE_EVENTS.map((event) => (
-            <article className="event-card reveal" key={event.title}>
+            <article className="event-card reveal motion-card" key={event.title}>
               <time dateTime={event.date}><span>{event.month}</span><b>{event.day}</b></time>
               <div>
                 <p className="mono-label">{event.location}</p>
@@ -631,10 +636,10 @@ function ReferenceEventsSection() {
         </div>
       </div>
 
-      <div className="host-tona reveal">
+      <div className="host-tona reveal motion-media">
         <div className="host-heading">
           <p className="mono-label">Host Tona</p>
-          <h3 className="display">Bring the second round<br />to your event.</h3>
+          <h3 className="display word-reveal motion-heading">Bring the second round<br />to your event.</h3>
         </div>
         <div className="host-services">
           <article><h4>Coffee ceremony experience</h4><p>A trained host, jebena service and origin storytelling for your guests.</p></article>
@@ -697,7 +702,7 @@ function ReferenceOrdersSection() {
   const [requestStatus, setRequestStatus] = useState("");
 
   return (
-    <section className="quotation section section-ember" id="orders" aria-labelledby="orders-title">
+    <section className="quotation section section-ember motion-section section-cinema" id="orders" aria-labelledby="orders-title">
       <div className="quotation-intro reveal">
         <p className="section-index">06 / Order &amp; enquire</p>
         <h2 id="orders-title" className="display">Tell us what<br />you’re pouring.</h2>
@@ -714,7 +719,7 @@ function ReferenceOrdersSection() {
         <p className="mono-label">Service packages — choose one</p>
         <div className="pack-grid">
           {PACKAGES.map(([size, description], index) => (
-            <article className="pack-card reveal" key={size}>
+            <article className="pack-card reveal motion-card" key={size}>
               <label className="pack-choice">
                 <input type="radio" name="package" value={size + " Tona package"} checked={selectedPackage === size} onChange={() => setSelectedPackage(size)} />
                 <span className="pack-choice-body">
@@ -728,7 +733,7 @@ function ReferenceOrdersSection() {
               </label>
             </article>
           ))}
-          <article className="pack-card pack-card-custom reveal">
+          <article className="pack-card pack-card-custom reveal motion-card">
             <label className="pack-choice">
               <input type="radio" name="package" value="250g custom package" checked={selectedPackage === "custom"} onChange={() => setSelectedPackage("custom")} />
               <span className="pack-choice-body">
@@ -746,7 +751,7 @@ function ReferenceOrdersSection() {
       </div>
 
       <div className="orders-layout">
-        <form className="quote-form reveal" onSubmit={(event) => openWhatsAppFromForm(event, "Hi Tona, I'd like a House Blend quotation.", setQuoteStatus)}>
+        <form className="quote-form reveal motion-card" onSubmit={(event) => openWhatsAppFromForm(event, "Hi Tona, I'd like a House Blend quotation.", setQuoteStatus)}>
           <p className="form-kicker">House Blend quotation</p>
           <fieldset>
             <legend>01 / Choose a format</legend>
@@ -779,7 +784,7 @@ function ReferenceOrdersSection() {
           <p className="form-status" role="status">{quoteStatus}</p>
         </form>
 
-        <form className="request-form reveal" onSubmit={(event) => openWhatsAppFromForm(event, "Hi Tona, I have a request.", setRequestStatus)}>
+        <form className="request-form reveal motion-card" onSubmit={(event) => openWhatsAppFromForm(event, "Hi Tona, I have a request.", setRequestStatus)}>
           <p className="form-kicker">How can we help?</p>
           <div className="field-grid">
             <label><span>Full name</span><input name="full-name" type="text" autoComplete="name" required /></label>
@@ -802,8 +807,9 @@ function ReferenceOrdersSection() {
 
 function ReferenceFindUsSection() {
   return (
-    <section className="findus section section-dark" id="contact" aria-labelledby="findus-title">
+    <section className="findus section section-dark motion-section section-cinema" id="contact" aria-labelledby="findus-title">
       <SectionHeading
+        id="findus-title"
         index="07 / Where to find us"
         title={
           <>
@@ -867,8 +873,9 @@ function ReferenceFeedbackSection() {
   const [status, setStatus] = useState("");
 
   return (
-    <section className="feedback section" id="feedback" aria-labelledby="feedback-title">
+    <section className="feedback section motion-section section-cinema" id="feedback" aria-labelledby="feedback-title">
       <SectionHeading
+        id="feedback-title"
         index="08 / Feedback"
         title={
           <>
