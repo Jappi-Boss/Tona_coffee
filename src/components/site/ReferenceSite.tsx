@@ -321,7 +321,7 @@ function ReferenceHero() {
             </p>
           </div>
           <div className="hero-intro">
-            <p>
+            <p className="motion-copy">
               The first cup brings people together. The second round is where
               conversations deepen, ideas take shape, and people stay a little
               longer. This is where Tona belongs.
@@ -386,8 +386,8 @@ function ReferenceAboutSection() {
       />
 
       <div className="about-layout">
-        <div className="about-copy reveal motion-copy">
-          <p className="lead">
+        <div className="about-copy reveal">
+          <p className="lead motion-copy">
             Born from Ethiopia’s coffee culture and inspired by the second round
             of the coffee ceremony, Tona is an African-led specialty roaster
             rooted in Ethiopia’s coffee heartlands.
@@ -398,7 +398,7 @@ function ReferenceAboutSection() {
               formalities fade, ideas deepen, people listen, question, laugh,
               reflect and connect. This is where Tona belongs.
             </p>
-            <p>
+            <p className="motion-copy">
               It is about more than the coffee in the cup. It is about what
               happens around the cup—origin, careful roasting, hospitality and
               the conversations that shared coffee makes possible.
@@ -429,7 +429,7 @@ function ReferenceAboutSection() {
             <br />
             <RevealWords words={["we", "come", "closer."]} startAt={3} />
           </h3>
-          <p className="section-intro">
+          <p className="section-intro motion-copy">
             Five reasons people stay for the second round—and what Tona brings to
             each of them.
           </p>
@@ -455,14 +455,14 @@ function ReferenceAboutSection() {
       </div>
 
       <div className="vision-mission reveal">
-        <article>
+        <article className="motion-copy">
           <p className="mono-label">Vision</p>
           <p>
             To see African coffee recognized globally for excellence, while
             creating value for communities and inspiring cultural pride.
           </p>
         </article>
-        <article>
+        <article className="motion-copy">
           <p className="mono-label">Mission</p>
           <p>
             We source responsibly, roast carefully, and create meaningful coffee
@@ -1068,10 +1068,10 @@ function ReferenceFindUsSection() {
       </div>
 
       <div className="contact-details contact-details-expanded reveal">
-        <div><p className="mono-label">WhatsApp</p><a href={waLink("Hi Tona, I have an enquiry.")} target="_blank" rel="noopener noreferrer">+251 98 621 2224</a><small>Fastest way to order or ask a question.</small></div>
-        <div><p className="mono-label">Email</p><a href="mailto:hello@tonacoffee.com">hello@tonacoffee.com</a></div>
-        <div><p className="mono-label">Roastery</p><p>Addis Ababa, Ethiopia</p></div>
-        <div><p className="mono-label">Hours</p><p>Mon – Sat, 8:00 AM – 6:00 PM (EAT)</p></div>
+        <div className="motion-copy"><p className="mono-label">WhatsApp</p><a href={waLink("Hi Tona, I have an enquiry.")} target="_blank" rel="noopener noreferrer">+251 98 621 2224</a><small>Fastest way to order or ask a question.</small></div>
+        <div className="motion-copy"><p className="mono-label">Email</p><a href="mailto:hello@tonacoffee.com">hello@tonacoffee.com</a></div>
+        <div className="motion-copy"><p className="mono-label">Roastery</p><p>Addis Ababa, Ethiopia</p></div>
+        <div className="motion-copy"><p className="mono-label">Hours</p><p>Mon – Sat, 8:00 AM – 6:00 PM (EAT)</p></div>
       </div>
 
       <nav className="contact-social-band reveal" aria-label="Follow Tona Coffee">
