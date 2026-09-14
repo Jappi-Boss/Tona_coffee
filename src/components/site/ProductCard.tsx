@@ -4,9 +4,23 @@ import { Minus, Plus, ShoppingBag, X } from "lucide-react";
 import { toast } from "sonner";
 import { FORMATS, SIZES } from "@/lib/tona";
 import { PRODUCT_IMAGES } from "@/lib/product-images";
+import { PRODUCTS } from "@/lib/tona";
 import { submitOrder, type PublicProduct } from "@/lib/public-api";
 
 export function ProductCard({ product }: { product: PublicProduct }) {
+  const referenceProduct =
+    PRODUCTS.find(
+      (item) =>
+        item.slug === product.slug ||
+        (product.slug === "yergachef" && item.slug === "yirgacheffe"),
+    ) ?? null;
+  const displayName = referenceProduct?.name ?? product.name;
+  const displayRegion = referenceProduct?.region ?? product.region;
+  const displayProcess = referenceProduct?.process ?? product.process;
+  const displayDescription =
+    referenceProduct?.blurb ?? product.description;
+  const displayNotes = referenceProduct?.notes ?? product.tastingNotes;
+  const displayAltitude = referenceProduct?.altitude ?? product.altitude;
   const sizes = unique(product.variants.map((variant) => variant.size));
   const formats = unique(product.variants.map((variant) => variant.grind));
   const [size, setSize] = useState<string>(sizes[0] ?? SIZES[0]!);
@@ -56,7 +70,7 @@ export function ProductCard({ product }: { product: PublicProduct }) {
           src={
             imageFailed ? fallbackImage : (product.imageUrl ?? fallbackImage)
           }
-          alt={`${product.name} black coffee with roasted coffee beans`}
+          alt={`${displayName} coffee with roasted coffee beans`}
           width={720}
           height={360}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.035]"
@@ -67,20 +81,20 @@ export function ProductCard({ product }: { product: PublicProduct }) {
 
       <div className="flex flex-1 flex-col p-6">
         <div className="flex items-start justify-between gap-4">
-          <p className="label-mono text-[#ef4a28]">{product.process}</p>
+          <p className="label-mono text-[#ef4a28]">{displayProcess}</p>
           <p className="label-mono text-right text-[#fffdf8]/72">
-            {product.region}
+            {displayRegion}
           </p>
         </div>
         <h3 className="mt-4 font-display text-3xl font-black text-[#fffdf8]">
-          {product.name}
+          {displayName}
         </h3>
         <p className="mt-3 text-sm leading-relaxed text-[#fffdf8]/82">
-          {product.description}
+          {displayDescription}
         </p>
 
         <div className="mt-4 flex flex-wrap gap-2">
-          {product.tastingNotes.map((n) => (
+          {displayNotes.map((n) => (
             <span
               key={n}
               className="border border-[#e4d4ba] bg-[#e4d4ba] px-3 py-1 text-[.68rem] font-bold uppercase tracking-[.08em] text-[#151411]"
@@ -92,7 +106,7 @@ export function ProductCard({ product }: { product: PublicProduct }) {
 
         <p className="label-mono mt-4 text-[#fffdf8]/55">
           {product.altitude
-            ? `Altitude ${product.altitude}`
+            ? `Altitude ${displayAltitude}`
             : "Ethiopian origin"}
         </p>
 
@@ -115,7 +129,7 @@ export function ProductCard({ product }: { product: PublicProduct }) {
           <div className="flex items-center gap-1 border border-white/25 p-1">
             <button
               type="button"
-              aria-label={`Decrease ${product.name} quantity`}
+              aria-label={`Decrease ${displayName} quantity`}
               onClick={() => setQty((q) => Math.max(1, q - 1))}
               className="inline-flex h-8 w-8 items-center justify-center text-[#fffdf8] hover:bg-white/10"
             >
@@ -124,7 +138,7 @@ export function ProductCard({ product }: { product: PublicProduct }) {
             <span className="w-6 text-center text-sm font-semibold">{qty}</span>
             <button
               type="button"
-              aria-label={`Increase ${product.name} quantity`}
+              aria-label={`Increase ${displayName} quantity`}
               onClick={() => setQty((q) => q + 1)}
               className="inline-flex h-8 w-8 items-center justify-center text-[#fffdf8] hover:bg-white/10"
             >
@@ -147,7 +161,7 @@ export function ProductCard({ product }: { product: PublicProduct }) {
           <Dialog.Overlay className="fixed inset-0 z-[100] bg-[#090908]/80 backdrop-blur-md data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=open]:animate-in data-[state=open]:fade-in" />
           <Dialog.Content className="order-dialog fixed left-1/2 top-1/2 z-[110] max-h-[90vh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto border border-[#e4d4ba]/35 bg-[#061b18] p-6 text-[#fffdf8] shadow-2xl outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95 sm:p-8">
             <Dialog.Title className="font-display text-3xl font-black uppercase leading-none text-[#fffdf8] sm:text-4xl">
-              Order {product.name}
+              Order {displayName}
             </Dialog.Title>
             <Dialog.Description className="mt-3 max-w-md text-sm leading-relaxed text-[#fffdf8]/65">
               {qty} × {size}, {format}. Your order will appear directly in
