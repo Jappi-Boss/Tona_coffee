@@ -1,4 +1,4 @@
-import { Fragment, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
+import { Fragment, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { waLink } from "@/lib/tona";
 
@@ -975,15 +975,92 @@ const MAP_TILES = [
 ] as const;
 
 function ReferenceMap() {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    offsetX: number;
+    offsetY: number;
+  } | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(0);
+  const [mapOffset, setMapOffset] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+
+  const changeZoom = (delta: number) => {
+    setZoomLevel((value) => Math.max(-1, Math.min(2, value + delta)));
+  };
+
+  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0) return;
+    const target = event.target;
+    if (target instanceof Element && target.closest(".leaflet-control, .tona-pin-wrap")) return;
+
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      offsetX: mapOffset.x,
+      offsetY: mapOffset.y,
+    };
+    mapRef.current?.setPointerCapture(event.pointerId);
+    setDragging(true);
+  };
+
+  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+
+    setMapOffset({
+      x: drag.offsetX + event.clientX - drag.startX,
+      y: drag.offsetY + event.clientY - drag.startY,
+    });
+  };
+
+  const finishPointerDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current || dragRef.current.pointerId !== event.pointerId) return;
+    if (mapRef.current?.hasPointerCapture(event.pointerId)) {
+      mapRef.current.releasePointerCapture(event.pointerId);
+    }
+    dragRef.current = null;
+    setDragging(false);
+  };
+
+  const initialMapTransform = "translate3d(0px, 0px, 0px)";
+  const mapPaneTransform =
+    zoomLevel === 0 && mapOffset.x === 0 && mapOffset.y === 0
+      ? initialMapTransform
+      : `translate3d(${mapOffset.x}px, ${mapOffset.y}px, 0px) scale(${Math.pow(2, zoomLevel)})`;
+
   return (
     <div
+      ref={mapRef}
       id="tona-map"
       role="img"
       aria-label="Map of Addis Ababa showing Tona Coffee stockists: Emawa Mart in Lideta and Allmart at Bisrate Gabriel"
-      className="leaflet-container leaflet-touch leaflet-fade-anim leaflet-grab leaflet-touch-drag leaflet-touch-zoom"
+      className={"leaflet-container leaflet-touch leaflet-fade-anim leaflet-grab leaflet-touch-drag leaflet-touch-zoom" + (dragging ? " leaflet-dragging" : "")}
       tabIndex={0}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={finishPointerDrag}
+      onPointerCancel={finishPointerDrag}
+      onKeyDown={(event) => {
+        if (event.key === "+" || event.key === "=") {
+          event.preventDefault();
+          changeZoom(1);
+        } else if (event.key === "-" || event.key === "_") {
+          event.preventDefault();
+          changeZoom(-1);
+        }
+      }}
     >
-      <div className="leaflet-pane leaflet-map-pane" style={{ transform: "translate3d(0px, 0px, 0px)" }}>
+      <div
+        className="leaflet-pane leaflet-map-pane"
+        style={{
+          transform: mapPaneTransform,
+          ...(mapPaneTransform === initialMapTransform ? {} : { transformOrigin: "center center" }),
+        }}
+      >
         <div className="leaflet-pane leaflet-tile-pane">
           <div className="leaflet-layer" style={{ zIndex: 1, opacity: 1 }}>
             <div className="leaflet-tile-container leaflet-zoom-animated" style={{ zIndex: 19, transform: "translate3d(0px, 0px, 0px) scale(1)" }}>
@@ -1010,8 +1087,8 @@ function ReferenceMap() {
       <div className="leaflet-control-container">
         <div className="leaflet-top leaflet-left">
           <div className="leaflet-control-zoom leaflet-bar leaflet-control">
-            <a className="leaflet-control-zoom-in" href="#" title="Zoom in" role="button" aria-label="Zoom in" aria-disabled="false">+</a>
-            <a className="leaflet-control-zoom-out" href="#" title="Zoom out" role="button" aria-label="Zoom out" aria-disabled="false">−</a>
+            <a className="leaflet-control-zoom-in" href="#" title="Zoom in" role="button" aria-label="Zoom in" aria-disabled={zoomLevel >= 2 ? "true" : "false"} onClick={(event) => { event.preventDefault(); changeZoom(1); }}>+</a>
+            <a className="leaflet-control-zoom-out" href="#" title="Zoom out" role="button" aria-label="Zoom out" aria-disabled={zoomLevel <= -1 ? "true" : "false"} onClick={(event) => { event.preventDefault(); changeZoom(-1); }}>−</a>
           </div>
         </div>
         <div className="leaflet-top leaflet-right" />
