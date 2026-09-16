@@ -475,6 +475,8 @@
   .hero .hero-intro {
     position: absolute !important;
     top: auto !important;
+    right: clamp(1.75rem, 3.6vw, 3rem) !important;
+    width: min(22.5vw, 20rem) !important;
     bottom: calc(clamp(6rem, 20.5vh, 13.5rem) - 2rem) !important;
   }
 
