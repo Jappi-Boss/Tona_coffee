@@ -468,3 +468,18 @@
   text-decoration-thickness: 1px !important;
   text-underline-offset: 6px !important;
 }
+
+/* Screenshot-guided hero alignment. */
+/* Keep the supporting copy aligned with the lower edge of the hero title. */
+@media (min-width: 900px) {
+  .hero .hero-intro {
+    position: relative;
+    top: clamp(-2rem, -2.2vw, -1.25rem) !important;
+  }
+
+  /* The reference screenshot places the story control in the open upper-right area. */
+  .hero .original-hero-play {
+    margin-left: clamp(7rem, 14vw, 12rem) !important;
+    margin-top: clamp(-9rem, -10.5vw, -5rem) !important;
+  }
+}
