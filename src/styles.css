@@ -470,14 +470,14 @@
 }
 
 /* Screenshot-guided hero alignment. */
-/* Keep the complete intro group inside the lower-right target area. */
+/* Match the approved example: one clear line below the yellow headline. */
 @media (min-width: 900px) {
   .hero .hero-intro {
     position: absolute !important;
-    top: auto !important;
+    top: 72vh !important;
     right: clamp(1.75rem, 3.6vw, 3rem) !important;
     width: min(22.5vw, 20rem) !important;
-    bottom: calc(clamp(6rem, 20.5vh, 13.5rem) - 2rem) !important;
+    bottom: auto !important;
   }
 
   /* The reference screenshot places the story control in the open upper-right area. */
