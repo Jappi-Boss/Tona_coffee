@@ -314,7 +314,7 @@ function ReferenceHero() {
               longer. This is where Tona belongs.
             </p>
             <div className="button-row">
-              <a href="#coffee">
+              <a href="#orders">
                 Explore our coffee <span aria-hidden="true">↓</span>
               </a>
             </div>
@@ -1294,6 +1294,7 @@ export function ReferenceHome() {
     <ReferencePage>
       <ReferenceHero />
       <ReferenceAboutSection />
+      <ReferenceOrdersSection />
       <ReferenceCoffeeSection />
       <ReferenceDifferenceSection />
       <ReferenceBusinessSection />
@@ -1310,7 +1311,7 @@ export function ReferenceAboutPage() {
 }
 
 export function ReferenceCoffeePage() {
-  return <ReferencePage><ReferenceCoffeeSection /></ReferencePage>;
+  return <ReferencePage><ReferenceOrdersSection /><ReferenceCoffeeSection /></ReferencePage>;
 }
 
 export function ReferenceBusinessPage() {
