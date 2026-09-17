@@ -286,6 +286,14 @@ function ReferencePage({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+function MainLogoTarget({ className }: { className: string }) {
+  return (
+    <span className={"tona-logo-target " + className}>
+      <img src="/tona-logo.png" alt="" width="1024" height="1024" />
+    </span>
+  );
+}
+
 function ReferenceHero() {
   return (
     <section className="hero" id="home" aria-labelledby="hero-title">
@@ -330,6 +338,9 @@ function ReferenceHero() {
           alt="Illustration of two women sharing the Ethiopian coffee ceremony among coffee branches"
           fetchPriority="high"
         />
+        <div className="tona-logo-target-layer" aria-hidden="true">
+          <MainLogoTarget className="tona-logo-target--hero" />
+        </div>
       </figure>
 
       <a
@@ -402,6 +413,13 @@ function ReferenceAboutSection() {
             loading="lazy"
             decoding="async"
           />
+          <div className="tona-logo-target-layer" aria-hidden="true">
+            <MainLogoTarget className="tona-logo-target--about-pour" />
+            <MainLogoTarget className="tona-logo-target--about-tray-one" />
+            <MainLogoTarget className="tona-logo-target--about-tray-two" />
+            <MainLogoTarget className="tona-logo-target--about-tray-three" />
+            <MainLogoTarget className="tona-logo-target--about-tray-four" />
+          </div>
           <figcaption>
             The coffee creates the pause. The moment creates the meaning.
           </figcaption>
@@ -1299,7 +1317,6 @@ export function ReferenceHome() {
       <ReferenceDifferenceSection />
       <ReferenceBusinessSection />
       <ReferenceEventsSection />
-      <ReferenceOrdersSection />
       <ReferenceFindUsSection />
       <ReferenceFeedbackSection />
     </ReferencePage>
