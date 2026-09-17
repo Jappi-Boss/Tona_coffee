@@ -519,15 +519,15 @@ function ReferenceCoffeeSection() {
       <SectionHeading
         id="coffee-title"
         index="02 / Our coffee"
-        titleLabel="Four origins.Cleared for export."
+        titleLabel="Ethiopian coffee. Sourced for export."
         title={
           <>
-            <RevealWords words={["Four", "origins."]} />
+            <RevealWords words={["Ethiopian", "coffee."]} />
             <br />
-            <span className="ember"><RevealWords words={["Cleared", "for", "export."]} startAt={2} /></span>
+            <span className="ember"><RevealWords words={["Sourced", "for", "export."]} startAt={2} /></span>
           </>
         }
-        intro="These four lots are cupped, graded and reserved for international buyers—they never reach an Ethiopian shelf. What we pour at home is the House Blend, further down this page."
+        intro="We source and export premium Ethiopian green coffee for roasters, importers, and traders worldwide. From regions such as Gedeo, Sidama, Oromia, and Jimma, we source to your quality, profile, and volume requirements—and deliver to your door."
       />
 
       <div className="origin-grid">
