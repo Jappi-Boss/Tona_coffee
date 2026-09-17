@@ -50,6 +50,13 @@ export const getPublicCatalog = createServerFn({ method: "GET" }).handler(
   },
 );
 
+export const getPublicLocations = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const { loadPublicLocations } = await import("./public-db.server");
+    return loadPublicLocations();
+  },
+);
+
 export const submitEventRegistration = createServerFn({ method: "POST" })
   .validator(registrationInput)
   .handler(async ({ data }) => {
@@ -81,3 +88,6 @@ export const submitOrder = createServerFn({ method: "POST" })
 export type PublicCatalog = Awaited<ReturnType<typeof getPublicCatalog>>;
 export type PublicProduct = PublicCatalog["products"][number];
 export type PublicEvent = PublicCatalog["events"][number];
+export type PublicStockist = Awaited<
+  ReturnType<typeof getPublicLocations>
+>[number];

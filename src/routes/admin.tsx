@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   LoaderCircle,
   LogOut,
+  MapPin,
   Menu,
   MessageSquareText,
   PackageCheck,
@@ -34,12 +35,14 @@ import { PRODUCT_IMAGES } from "@/lib/product-images";
 
 import {
   deleteAdminRecord,
+  deleteLocation,
   createAdminUser,
   getAdminDashboard,
   getCloudinaryUploadSignature,
   recordAdminUserPasswordReset,
   resetAdminUserPassword,
   saveEvent,
+  saveLocation,
   saveProduct,
   updateRecordStatus,
 } from "@/lib/admin-api";
@@ -60,6 +63,7 @@ type DashboardData = {
   orders: Row[];
   businessInquiries: Row[];
   contactRequests: Row[];
+  locations: Row[];
   users: Row[];
 };
 
@@ -67,6 +71,7 @@ const navItems = [
   ["overview", "Overview", LayoutDashboard],
   ["products", "Products", Coffee],
   ["events", "Events", CalendarDays],
+  ["locations", "Locations", MapPin],
   ["registrations", "Registrations", Users],
   ["orders", "Orders", PackageCheck],
   ["business", "Business inquiries", ClipboardList],
@@ -88,6 +93,7 @@ function AdminDashboard() {
     null,
   );
   const [editingEvent, setEditingEvent] = useState<Row | "new" | null>(null);
+  const [editingLocation, setEditingLocation] = useState<Row | "new" | null>(null);
   const [editingUser, setEditingUser] = useState<"new" | null>(null);
   const [resettingUser, setResettingUser] = useState<Row | null>(null);
 
@@ -134,6 +140,7 @@ function AdminDashboard() {
       orders: filter(data.orders),
       businessInquiries: filter(data.businessInquiries),
       contactRequests: filter(data.contactRequests),
+      locations: filter(data.locations),
       users: filter(data.users),
     };
   }, [data, query]);
@@ -175,6 +182,22 @@ function AdminDashboard() {
     } catch (caught) {
       toast.error(
         caught instanceof Error ? caught.message : `Could not delete ${label}.`,
+      );
+    }
+  }
+
+
+  async function removeLocation(id: string, label: string) {
+    if (!window.confirm("Delete " + label + "? This action cannot be undone."))
+      return;
+    try {
+      const token = await getAdminToken();
+      await deleteLocation({ data: { token, id } });
+      toast.success(label + " deleted.");
+      await load();
+    } catch (caught) {
+      toast.error(
+        caught instanceof Error ? caught.message : "Could not delete " + label + ".",
       );
     }
   }
@@ -328,6 +351,15 @@ function AdminDashboard() {
               }
             />
           )}
+          {view === "locations" && (
+            <Locations
+              rows={filtered.locations}
+              onEdit={setEditingLocation}
+              onDelete={(row) =>
+                removeLocation(String(row.id), String(row.name))
+              }
+            />
+          )}
           {view === "registrations" && (
             <Registrations
               rows={filtered.registrations}
@@ -402,6 +434,16 @@ function AdminDashboard() {
           close={() => setEditingEvent(null)}
           saved={async () => {
             setEditingEvent(null);
+            await load();
+          }}
+        />
+      )}
+      {editingLocation && (
+        <LocationEditor
+          row={editingLocation}
+          close={() => setEditingLocation(null)}
+          saved={async () => {
+            setEditingLocation(null);
             await load();
           }}
         />
@@ -718,6 +760,88 @@ function Events({
           </article>
         ))}
       </div>
+    </Section>
+  );
+}
+
+
+function Locations({
+  rows,
+  onEdit,
+  onDelete,
+}: {
+  rows: Row[];
+  onEdit: (row: Row | "new") => void;
+  onDelete: (row: Row) => void;
+}) {
+  return (
+    <Section
+      title="Locations"
+      description="Manage the places where customers can find Tona Coffee."
+      action={
+        <button
+          onClick={() => onEdit("new")}
+          className="brand-button flex items-center gap-2 bg-primary px-4 py-2.5 text-sm font-bold text-white"
+        >
+          <Plus className="h-4 w-4" /> New location
+        </button>
+      }
+    >
+      {rows.length ? (
+        <div className="grid gap-5 lg:grid-cols-2">
+          {rows.map((row) => (
+            <article
+              key={String(row.id)}
+              className="border border-border border-t-4 border-t-primary bg-white p-5 shadow-sm"
+            >
+              <div className="flex items-start gap-4">
+                <span className="label-mono shrink-0 text-primary">
+                  {String(row.number)}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-2xl font-black uppercase text-teal">
+                    {String(row.name)}
+                  </h3>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {String(row.address)}
+                  </p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {String(row.note)}
+                  </p>
+                </div>
+                <span className="text-xl text-primary" aria-hidden="true">
+                  →
+                </span>
+              </div>
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t pt-4">
+                <a
+                  href={String(row.directions)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-bold uppercase tracking-wide text-teal underline decoration-primary underline-offset-4"
+                >
+                  Directions ↗
+                </a>
+                <div className="flex items-center gap-2">
+                  <DeleteButton
+                    label={"Delete " + String(row.name)}
+                    action={() => onDelete(row)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => onEdit(row)}
+                    className="rounded-md border px-4 py-2 text-sm font-bold uppercase tracking-wide text-teal hover:border-primary hover:text-primary"
+                  >
+                    Edit location
+                  </button>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <Empty text="No locations have been added yet." />
+      )}
     </Section>
   );
 }
@@ -1599,6 +1723,98 @@ function EventEditor({
   );
 }
 
+
+function LocationEditor({
+  row,
+  close,
+  saved,
+}: {
+  row: Row | "new";
+  close: () => void;
+  saved: () => Promise<void>;
+}) {
+  const location = row === "new" ? {} : row;
+  const [busy, setBusy] = useState(false);
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    setBusy(true);
+    try {
+      const token = await getAdminToken();
+      await saveLocation({
+        data: {
+          token,
+          id: row === "new" ? undefined : String(location.id),
+          number: String(form.get("number")),
+          name: String(form.get("name")),
+          address: String(form.get("address")),
+          note: String(form.get("note")),
+          directions: String(form.get("directions")),
+        },
+      });
+      toast.success("Location saved.");
+      await saved();
+    } catch (caught) {
+      toast.error(
+        caught instanceof Error ? caught.message : "Could not save location.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Modal
+      title={row === "new" ? "Create location" : "Edit location"}
+      close={close}
+    >
+      <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
+        <EditorField
+          name="number"
+          label="Location number"
+          value={location.number}
+          maxLength={4}
+          required
+        />
+        <EditorField
+          name="name"
+          label="Location name"
+          value={location.name}
+          required
+          className="sm:col-span-2"
+        />
+        <EditorField
+          name="address"
+          label="Address"
+          value={location.address}
+          required
+          className="sm:col-span-2"
+        />
+        <EditorField
+          name="note"
+          label="Product / stock note"
+          value={location.note}
+          className="sm:col-span-2"
+        />
+        <EditorField
+          name="directions"
+          label="Directions link"
+          type="url"
+          value={location.directions}
+          required
+          className="sm:col-span-2"
+        />
+        <EditorActions
+          busy={busy}
+          close={close}
+          submitLabel={row === "new" ? "Create location" : "Save changes"}
+        />
+      </form>
+    </Modal>
+  );
+}
+
 function Section({
   title,
   description,
@@ -1860,6 +2076,7 @@ function countFor(view: View, data: DashboardData) {
   if (view === "orders") return data.orders.length;
   if (view === "business") return data.businessInquiries.length;
   if (view === "contacts") return data.contactRequests.length;
+  if (view === "locations") return data.locations.length;
   if (view === "users") return data.users.length;
   return 0;
 }

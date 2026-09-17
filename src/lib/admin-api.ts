@@ -61,6 +61,25 @@ const eventInput = authInput.extend({
   registrationOpen: z.boolean(),
 });
 
+const locationInput = authInput.extend({
+  id: z.string().trim().min(1).max(120).optional(),
+  number: z.string().trim().min(1).max(4),
+  name: z.string().trim().min(2).max(120),
+  address: z.string().trim().min(2).max(240),
+  note: z.string().trim().max(240),
+  directions: z
+    .string()
+    .trim()
+    .url("Enter a valid directions URL.")
+    .refine((url) => url.startsWith("https://"), {
+      message: "The directions link must use HTTPS.",
+    }),
+});
+
+const locationDeleteInput = authInput.extend({
+  id: z.string().trim().min(1).max(120),
+});
+
 const createAdminUserInput = authInput.extend({
   userId: z.string().uuid(),
   name: z.string().trim().min(2).max(120),
@@ -98,6 +117,20 @@ export const saveEvent = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { upsertEvent } = await import("./admin-db.server");
     return upsertEvent(data);
+  });
+
+export const saveLocation = createServerFn({ method: "POST" })
+  .validator(locationInput)
+  .handler(async ({ data }) => {
+    const { upsertLocation } = await import("./admin-db.server");
+    return upsertLocation(data);
+  });
+
+export const deleteLocation = createServerFn({ method: "POST" })
+  .validator(locationDeleteInput)
+  .handler(async ({ data }) => {
+    const { removeLocation } = await import("./admin-db.server");
+    return removeLocation(data);
   });
 
 export const deleteAdminRecord = createServerFn({ method: "POST" })

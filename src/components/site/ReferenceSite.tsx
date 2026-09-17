@@ -1,5 +1,7 @@
-import { Fragment, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import { Fragment, useEffect, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
+import { getPublicLocations, type PublicStockist } from "@/lib/public-api";
+import { DEFAULT_STOCKISTS } from "@/lib/locations";
 import { waLink } from "@/lib/tona";
 
 const REFERENCE_BASE = "https://tona-coffee-two.vercel.app";
@@ -104,22 +106,7 @@ const FORMATS = [
   ["M.D.E", "Medium Dark Espresso"],
 ] as const;
 
-const STOCKISTS = [
-  {
-    number: "01",
-    name: "Emawa Mart",
-    address: "Mexico, Lideta · Addis Ababa",
-    note: "Tona House Blend, retail packs.",
-    directions: "https://www.google.com/maps/search/?api=1&query=Emawa%20Mart%2C%20Addis%20Ababa%2C%20Ethiopia",
-  },
-  {
-    number: "02",
-    name: "Allmart",
-    address: "Bisrate Gabriel, Nefas Silk · Addis Ababa",
-    note: "Tona House Blend, retail packs.",
-    directions: "https://www.google.com/maps/search/?api=1&query=Allmart%20Bisrate%20Gabriel%2C%20Addis%20Ababa%2C%20Ethiopia",
-  },
-] as const;
+const STOCKISTS = DEFAULT_STOCKISTS;
 
 const HOSTED_EVENTS = [
   ["Jun 2026", "Second Round Pop-Up", "Bole, Addis Ababa", "Brew bar & sampling"],
@@ -974,7 +961,32 @@ const MAP_TILES = [
   ["https://tile.openstreetmap.org/14/9956/7781.png", "translate3d(677px, 251px, 0px)"],
 ] as const;
 
-function ReferenceMap() {
+
+const MAP_MARKER_POSITIONS = [
+  { x: 481, y: 84 },
+  { x: 229, y: 330 },
+  { x: 560, y: 250 },
+  { x: 340, y: 180 },
+  { x: 100, y: 260 },
+  { x: 650, y: 180 },
+] as const;
+
+const KNOWN_MAP_POSITIONS: Record<string, { x: number; y: number }> = {
+  "Emawa Mart": { x: 481, y: 84 },
+  Allmart: { x: 229, y: 330 },
+};
+
+function getStockistMapPosition(stockist: PublicStockist, index: number) {
+  return (
+    KNOWN_MAP_POSITIONS[stockist.name] ??
+    MAP_MARKER_POSITIONS[index % MAP_MARKER_POSITIONS.length] ?? {
+      x: 300,
+      y: 200,
+    }
+  );
+}
+
+function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{
     pointerId: number;
@@ -1027,6 +1039,7 @@ function ReferenceMap() {
   };
 
   const initialMapTransform = "translate3d(0px, 0px, 0px)";
+  const stockistNames = stockists.map((stockist) => stockist.name).join(", ");
   const mapPaneTransform =
     zoomLevel === 0 && mapOffset.x === 0 && mapOffset.y === 0
       ? initialMapTransform
@@ -1037,7 +1050,7 @@ function ReferenceMap() {
       ref={mapRef}
       id="tona-map"
       role="img"
-      aria-label="Map of Addis Ababa showing Tona Coffee stockists: Emawa Mart in Lideta and Allmart at Bisrate Gabriel"
+      aria-label={"Map of Addis Ababa showing Tona Coffee stockists: " + (stockistNames || "none listed")}
       className={"leaflet-container leaflet-touch leaflet-fade-anim leaflet-grab leaflet-touch-drag leaflet-touch-zoom" + (dragging ? " leaflet-dragging" : "")}
       tabIndex={0}
       onPointerDown={handlePointerDown}
@@ -1073,12 +1086,35 @@ function ReferenceMap() {
         <div className="leaflet-pane leaflet-overlay-pane" />
         <div className="leaflet-pane leaflet-shadow-pane" />
         <div className="leaflet-pane leaflet-marker-pane">
-          <div className="leaflet-marker-icon tona-pin-wrap leaflet-zoom-animated leaflet-interactive" title="Emawa Mart" tabIndex={0} role="button" style={{ marginLeft: "-17px", marginTop: "-44px", width: "34px", height: "44px", transform: "translate3d(481px, 84px, 0px)", zIndex: 84 }}>
-            <span className="tona-pin"><span className="tona-pin-no">01</span></span>
-          </div>
-          <div className="leaflet-marker-icon tona-pin-wrap leaflet-zoom-animated leaflet-interactive" title="Allmart" tabIndex={0} role="button" style={{ marginLeft: "-17px", marginTop: "-44px", width: "34px", height: "44px", transform: "translate3d(229px, 330px, 0px)", zIndex: 330 }}>
-            <span className="tona-pin"><span className="tona-pin-no">02</span></span>
-          </div>
+          {stockists.map((stockist, index) => {
+            const position = getStockistMapPosition(stockist, index);
+            return (
+              <div
+                className="leaflet-marker-icon tona-pin-wrap leaflet-zoom-animated leaflet-interactive"
+                title={stockist.name}
+                tabIndex={0}
+                role="button"
+                key={stockist.id}
+                style={{
+                  marginLeft: "-17px",
+                  marginTop: "-44px",
+                  width: "34px",
+                  height: "44px",
+                  transform:
+                    "translate3d(" +
+                    position.x +
+                    "px, " +
+                    position.y +
+                    "px, 0px)",
+                  zIndex: position.y,
+                }}
+              >
+                <span className="tona-pin">
+                  <span className="tona-pin-no">{stockist.number}</span>
+                </span>
+              </div>
+            );
+          })}
         </div>
         <div className="leaflet-pane leaflet-tooltip-pane" />
         <div className="leaflet-pane leaflet-popup-pane" />
@@ -1103,6 +1139,23 @@ function ReferenceMap() {
   );
 }
 function ReferenceFindUsSection() {
+  const [stockists, setStockists] = useState<PublicStockist[]>(STOCKISTS);
+
+  useEffect(() => {
+    let mounted = true;
+    void getPublicLocations()
+      .then((locations) => {
+        if (mounted) setStockists(locations);
+      })
+      .catch(() => {
+        // Keep the default locations visible if the database request fails.
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   return (
     <section className="findus section section-dark motion-section section-cinema" id="contact" aria-labelledby="findus-title">
       <SectionHeading
@@ -1121,8 +1174,8 @@ function ReferenceFindUsSection() {
 
       <div className="stockist-layout">
         <ul className="stockist-list">
-          {STOCKISTS.map((stockist) => (
-            <li className="stockist reveal" key={stockist.name}>
+          {stockists.map((stockist) => (
+            <li className="stockist reveal" key={stockist.id}>
               <button type="button" className="stockist-button">
                 <span className="stockist-no">{stockist.number}</span>
                 <span className="stockist-body">
@@ -1140,7 +1193,7 @@ function ReferenceFindUsSection() {
         </ul>
 
         <div className="stockist-map reveal">
-          <ReferenceMap />
+          <ReferenceMap stockists={stockists} />
         </div>
       </div>
 

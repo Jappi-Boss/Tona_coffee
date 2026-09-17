@@ -1,5 +1,10 @@
 import { neon } from "@neondatabase/serverless";
 import { createRemoteJWKSet, jwtVerify } from "jose";
+import {
+  STOCKISTS_SETTING_KEY,
+  normalizeStockists,
+  orderStockists,
+} from "./locations";
 
 const AUTH_JWKS_URL =
   process.env.NEON_AUTH_JWKS_URL ??
@@ -75,6 +80,7 @@ export async function loadDashboard(token: string) {
     orders,
     businessInquiries,
     contactRequests,
+    locationSettings,
   ] = await Promise.all([
     sql`SELECT p.*, COUNT(v.id)::int AS variant_count FROM products p LEFT JOIN product_variants v ON v.product_id = p.id GROUP BY p.id ORDER BY p.sort_order, p.name`,
     sql`SELECT e.*, COUNT(r.id)::int AS registration_count FROM events e LEFT JOIN event_registrations r ON r.event_id = e.id GROUP BY e.id ORDER BY e.event_date DESC`,
@@ -82,6 +88,7 @@ export async function loadDashboard(token: string) {
     sql`SELECT o.*, COALESCE(json_agg(json_build_object('productName', i.product_name, 'size', i.size, 'grind', i.grind, 'quantity', i.quantity, 'unitPrice', i.unit_price)) FILTER (WHERE i.id IS NOT NULL), '[]') AS items FROM orders o LEFT JOIN order_items i ON i.order_id = o.id GROUP BY o.id ORDER BY o.created_at DESC LIMIT 200`,
     sql`SELECT * FROM business_inquiries ORDER BY created_at DESC LIMIT 200`,
     sql`SELECT * FROM contact_requests ORDER BY created_at DESC LIMIT 200`,
+    sql`SELECT value FROM public.site_settings WHERE key = ${STOCKISTS_SETTING_KEY} LIMIT 1`,
   ]);
 
   let users: Awaited<ReturnType<typeof listManagedUsers>> = [];
@@ -97,6 +104,7 @@ export async function loadDashboard(token: string) {
     orders,
     businessInquiries,
     contactRequests,
+    locations: normalizeStockists(locationSettings[0]?.value),
     users,
   };
 }
@@ -323,6 +331,84 @@ export async function upsertEvent(input: EventUpdate) {
     id = String(rows[0].id);
   }
   await sql`INSERT INTO audit_log (actor_email, action, entity_type, entity_id) VALUES (${admin.email}, 'saved', 'event', ${id})`;
+  return { ok: true };
+}
+
+type LocationUpdate = {
+  token: string;
+  id?: string;
+  number: string;
+  name: string;
+  address: string;
+  note: string;
+  directions: string;
+};
+
+export async function upsertLocation(input: LocationUpdate) {
+  const admin = await requireAdmin(input.token);
+  const sql = database();
+  const rows =
+    await sql\`SELECT value FROM public.site_settings WHERE key = \${STOCKISTS_SETTING_KEY} LIMIT 1\`;
+  const existing = normalizeStockists(rows[0]?.value);
+  const id = input.id?.trim() || crypto.randomUUID();
+  const next = orderStockists([
+    ...existing.filter((location) => location.id !== id),
+    {
+      id,
+      number: input.number.trim(),
+      name: input.name.trim(),
+      address: input.address.trim(),
+      note: input.note.trim(),
+      directions: input.directions.trim(),
+    },
+  ]);
+
+  await sql\`
+    INSERT INTO public.site_settings (key, value, description)
+    VALUES (
+      \${STOCKISTS_SETTING_KEY},
+      \${JSON.stringify(next)}::jsonb,
+      'Locations shown on the public stockist list and map.'
+    )
+    ON CONFLICT (key) DO UPDATE SET
+      value = EXCLUDED.value,
+      description = EXCLUDED.description,
+      updated_at = now()
+  \`;
+  await sql\`
+    INSERT INTO audit_log (actor_email, action, entity_type, entity_id)
+    VALUES (\${admin.email}, 'saved', 'location', \${id})
+  \`;
+  return { ok: true, id };
+}
+
+export async function removeLocation(input: { token: string; id: string }) {
+  const admin = await requireAdmin(input.token);
+  const sql = database();
+  const rows =
+    await sql\`SELECT value FROM public.site_settings WHERE key = \${STOCKISTS_SETTING_KEY} LIMIT 1\`;
+  const existing = normalizeStockists(rows[0]?.value);
+  if (!existing.some((location) => location.id === input.id)) {
+    throw new Error("This location no longer exists. Refresh the dashboard and try again.");
+  }
+  const next = existing.filter((location) => location.id !== input.id);
+
+  await sql\`
+    INSERT INTO public.site_settings (key, value, description)
+    VALUES (
+      \${STOCKISTS_SETTING_KEY},
+      \${JSON.stringify(next)}::jsonb,
+      'Locations shown on the public stockist list and map.'
+    )
+    ON CONFLICT (key) DO UPDATE SET
+      value = EXCLUDED.value,
+      description = EXCLUDED.description,
+      updated_at = now()
+  \`;
+  await sql\`
+    INSERT INTO audit_log (actor_email, action, entity_type, entity_id)
+    VALUES (\${admin.email}, 'deleted', 'location', \${input.id})
+  \`;
   return { ok: true };
 }
 

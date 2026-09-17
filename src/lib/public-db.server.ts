@@ -1,11 +1,25 @@
 import { neon } from "@neondatabase/serverless";
 import { FORMATS, PRODUCTS, SIZES } from "./tona";
 import { PRODUCT_IMAGES } from "./product-images";
+import {
+  DEFAULT_STOCKISTS,
+  STOCKISTS_SETTING_KEY,
+  normalizeStockists,
+} from "./locations";
 
 function database() {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) throw new Error("DATABASE_URL is not configured.");
   return neon(connectionString);
+}
+
+
+export async function loadPublicLocations() {
+  if (!process.env.DATABASE_URL) return normalizeStockists(DEFAULT_STOCKISTS);
+  const sql = database();
+  const rows =
+    await sql\`SELECT value FROM public.site_settings WHERE key = \${STOCKISTS_SETTING_KEY} LIMIT 1\`;
+  return normalizeStockists(rows[0]?.value);
 }
 
 export async function loadPublicCatalog() {
