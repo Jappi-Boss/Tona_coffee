@@ -348,7 +348,7 @@ export async function upsertLocation(input: LocationUpdate) {
   const admin = await requireAdmin(input.token);
   const sql = database();
   const rows =
-    await sql\`SELECT value FROM public.site_settings WHERE key = \${STOCKISTS_SETTING_KEY} LIMIT 1\`;
+    await sql`SELECT value FROM public.site_settings WHERE key = ${STOCKISTS_SETTING_KEY} LIMIT 1`;
   const existing = normalizeStockists(rows[0]?.value);
   const id = input.id?.trim() || crypto.randomUUID();
   const next = orderStockists([
@@ -363,22 +363,22 @@ export async function upsertLocation(input: LocationUpdate) {
     },
   ]);
 
-  await sql\`
+  await sql`
     INSERT INTO public.site_settings (key, value, description)
     VALUES (
-      \${STOCKISTS_SETTING_KEY},
-      \${JSON.stringify(next)}::jsonb,
+      ${STOCKISTS_SETTING_KEY},
+      ${JSON.stringify(next)}::jsonb,
       'Locations shown on the public stockist list and map.'
     )
     ON CONFLICT (key) DO UPDATE SET
       value = EXCLUDED.value,
       description = EXCLUDED.description,
       updated_at = now()
-  \`;
-  await sql\`
+  `;
+  await sql`
     INSERT INTO audit_log (actor_email, action, entity_type, entity_id)
-    VALUES (\${admin.email}, 'saved', 'location', \${id})
-  \`;
+    VALUES (${admin.email}, 'saved', 'location', ${id})
+  `;
   return { ok: true, id };
 }
 
@@ -386,29 +386,29 @@ export async function removeLocation(input: { token: string; id: string }) {
   const admin = await requireAdmin(input.token);
   const sql = database();
   const rows =
-    await sql\`SELECT value FROM public.site_settings WHERE key = \${STOCKISTS_SETTING_KEY} LIMIT 1\`;
+    await sql`SELECT value FROM public.site_settings WHERE key = ${STOCKISTS_SETTING_KEY} LIMIT 1`;
   const existing = normalizeStockists(rows[0]?.value);
   if (!existing.some((location) => location.id === input.id)) {
     throw new Error("This location no longer exists. Refresh the dashboard and try again.");
   }
   const next = existing.filter((location) => location.id !== input.id);
 
-  await sql\`
+  await sql`
     INSERT INTO public.site_settings (key, value, description)
     VALUES (
-      \${STOCKISTS_SETTING_KEY},
-      \${JSON.stringify(next)}::jsonb,
+      ${STOCKISTS_SETTING_KEY},
+      ${JSON.stringify(next)}::jsonb,
       'Locations shown on the public stockist list and map.'
     )
     ON CONFLICT (key) DO UPDATE SET
       value = EXCLUDED.value,
       description = EXCLUDED.description,
       updated_at = now()
-  \`;
-  await sql\`
+  `;
+  await sql`
     INSERT INTO audit_log (actor_email, action, entity_type, entity_id)
-    VALUES (\${admin.email}, 'deleted', 'location', \${input.id})
-  \`;
+    VALUES (${admin.email}, 'deleted', 'location', ${input.id})
+  `;
   return { ok: true };
 }
 

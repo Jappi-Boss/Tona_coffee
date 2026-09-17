@@ -18,7 +18,7 @@ export async function loadPublicLocations() {
   if (!process.env.DATABASE_URL) return normalizeStockists(DEFAULT_STOCKISTS);
   const sql = database();
   const rows =
-    await sql\`SELECT value FROM public.site_settings WHERE key = \${STOCKISTS_SETTING_KEY} LIMIT 1\`;
+    await sql`SELECT value FROM public.site_settings WHERE key = ${STOCKISTS_SETTING_KEY} LIMIT 1`;
   return normalizeStockists(rows[0]?.value);
 }
 
