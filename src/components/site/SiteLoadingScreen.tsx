@@ -104,14 +104,13 @@ export function SiteLoadingScreen({ routePending }: SiteLoadingScreenProps) {
       <div className="tona-loader__glow" aria-hidden="true" />
 
       <div className="tona-loader__content">
-        <img
-          src="/tona-logo.png"
-          alt=""
-          width="1024"
-          height="1024"
-          className="tona-loader__cup tona-loader__cup-logo"
-          aria-hidden="true"
-        />
+        <div className="tona-loader__cup" aria-hidden="true">
+          <span className="tona-loader__steam tona-loader__steam--one" />
+          <span className="tona-loader__steam tona-loader__steam--two" />
+          <span className="tona-loader__steam tona-loader__steam--three" />
+          <span className="tona-loader__coffee" />
+          <span className="tona-loader__handle" />
+        </div>
 
         <img
           src="/tona-logo.png"
