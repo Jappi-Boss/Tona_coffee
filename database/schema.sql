@@ -14,6 +14,14 @@ CREATE SEQUENCE IF NOT EXISTS public.tona_order_number_seq
   NO MAXVALUE
   NO CYCLE;
 
+CREATE SEQUENCE IF NOT EXISTS public.tona_quote_number_seq
+  AS bigint
+  START WITH 1
+  INCREMENT BY 1
+  MINVALUE 1
+  NO MAXVALUE
+  NO CYCLE;
+
 CREATE TABLE IF NOT EXISTS public.admin_allowlist (
   email text PRIMARY KEY,
   display_name text,
@@ -128,6 +136,34 @@ CREATE TABLE IF NOT EXISTS public.orders (
     CHECK (status = ANY (ARRAY['new'::text, 'confirmed'::text, 'processing'::text, 'completed'::text, 'cancelled'::text]))
 );
 
+CREATE TABLE IF NOT EXISTS public.quotation_requests (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  quote_number text NOT NULL UNIQUE DEFAULT (
+    'TONA-Q-'::text || to_char(now(), 'YYYY'::text) || '-'::text ||
+    lpad(nextval('public.tona_quote_number_seq'::regclass)::text, 6, '0'::text)
+  ),
+  package_size text NOT NULL,
+  format text NOT NULL,
+  brand_name text,
+  customer_name text NOT NULL,
+  company text,
+  phone text NOT NULL,
+  email text,
+  monthly_volume text,
+  message text,
+  source text NOT NULL DEFAULT 'website',
+  status text NOT NULL DEFAULT 'new',
+  admin_notes text,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT quotation_requests_package_size_check
+    CHECK (package_size = ANY (ARRAY['1kg'::text, '500g'::text, '250g'::text, 'custom'::text])),
+  CONSTRAINT quotation_requests_source_check
+    CHECK (source = ANY (ARRAY['website'::text, 'whatsapp'::text, 'admin'::text])),
+  CONSTRAINT quotation_requests_status_check
+    CHECK (status = ANY (ARRAY['new'::text, 'contacted'::text, 'quoted'::text, 'won'::text, 'lost'::text, 'cancelled'::text]))
+);
+
 CREATE TABLE IF NOT EXISTS public.order_items (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id uuid NOT NULL REFERENCES public.orders(id) ON DELETE CASCADE,
@@ -202,6 +238,9 @@ CREATE INDEX IF NOT EXISTS registrations_event_status_idx
 
 CREATE INDEX IF NOT EXISTS orders_status_created_idx
   ON public.orders (status, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS quotation_requests_status_created_idx
+  ON public.quotation_requests (status, created_at DESC);
 
 CREATE INDEX IF NOT EXISTS order_items_order_idx
   ON public.order_items (order_id);

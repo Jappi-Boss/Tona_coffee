@@ -4,6 +4,7 @@ import {
   ChevronRight,
   ClipboardList,
   Coffee,
+  FileSpreadsheet,
   Inbox,
   KeyRound,
   LayoutDashboard,
@@ -47,7 +48,7 @@ import {
   updateRecordStatus,
 } from "@/lib/admin-api";
 import { adminAuth, getAdminToken } from "@/lib/admin-auth";
-import { TonaLogo } from "@/components/site/TonaLogo";
+import { TonaMark } from "@/components/site/TonaLogo";
 
 export const Route = createFileRoute("/admin")({
   component: AdminDashboard,
@@ -61,6 +62,7 @@ type DashboardData = {
   events: Row[];
   registrations: Row[];
   orders: Row[];
+  quotationRequests: Row[];
   businessInquiries: Row[];
   contactRequests: Row[];
   locations: Row[];
@@ -74,6 +76,7 @@ const navItems = [
   ["locations", "Locations", MapPin],
   ["registrations", "Registrations", Users],
   ["orders", "Orders", PackageCheck],
+  ["quotations", "Quotations", FileSpreadsheet],
   ["business", "Business inquiries", ClipboardList],
   ["contacts", "Contact requests", MessageSquareText],
   ["users", "Users", UserCog],
@@ -138,6 +141,7 @@ function AdminDashboard() {
       events: filter(data.events),
       registrations: filter(data.registrations),
       orders: filter(data.orders),
+      quotationRequests: filter(data.quotationRequests),
       businessInquiries: filter(data.businessInquiries),
       contactRequests: filter(data.contactRequests),
       locations: filter(data.locations),
@@ -155,7 +159,8 @@ function AdminDashboard() {
       | "orders"
       | "event_registrations"
       | "business_inquiries"
-      | "contact_requests",
+      | "contact_requests"
+      | "quotation_requests",
     id: string,
     status: string,
   ) {
@@ -237,9 +242,12 @@ function AdminDashboard() {
       <aside
         className={`${mobileNav ? "flex" : "hidden"} leaf-field fixed inset-0 z-50 flex-col border-r border-white/10 bg-teal-deep text-white lg:sticky lg:top-0 lg:flex lg:h-screen`}
       >
-        <div className="flex h-20 items-center justify-between border-b border-white/10 px-6">
+        <div className="flex h-20 min-h-20 items-center justify-between overflow-hidden border-b border-white/10 px-6">
           <a href="/" aria-label="Tona Coffee website">
-            <TonaLogo tone="light" />
+            <TonaMark
+              tone="light"
+              className="h-14 w-36 object-contain object-left"
+            />
           </a>
           <button
             onClick={() => setMobileNav(false)}
@@ -382,6 +390,19 @@ function AdminDashboard() {
               }
             />
           )}
+          {view === "quotations" && (
+            <Quotations
+              rows={filtered.quotationRequests}
+              onStatus={changeStatus}
+              onDelete={(row) =>
+                removeRecord(
+                  "quotation_requests",
+                  String(row.id),
+                  String(row.quote_number),
+                )
+              }
+            />
+          )}
           {view === "business" && (
             <Business
               rows={filtered.businessInquiries}
@@ -513,6 +534,13 @@ function Overview({
       ClipboardList,
       "bg-blue-50 text-blue-700",
     ],
+    [
+      "New quotations",
+      data.quotationRequests.filter((row) => row.status === "new").length,
+      "quotations",
+      FileSpreadsheet,
+      "bg-amber-50 text-amber-700",
+    ],
   ] as const;
   const activity = [
     ...data.orders.map((row) => ({
@@ -536,6 +564,13 @@ function Overview({
       date: row.created_at,
       view: "business" as View,
     })),
+    ...data.quotationRequests.map((row) => ({
+      type: "Quotation",
+      title: String(row.customer_name),
+      detail: String(row.quote_number),
+      date: row.created_at,
+      view: "quotations" as View,
+    })),
   ]
     .sort((a, b) => +new Date(String(b.date)) - +new Date(String(a.date)))
     .slice(0, 8);
@@ -547,7 +582,7 @@ function Overview({
           A live view of the work that needs attention today.
         </p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {stats.map(([label, value, target, Icon, color]) => (
           <button
             key={label}
@@ -953,6 +988,97 @@ function Orders({
   );
 }
 
+function Quotations({
+  rows,
+  onStatus,
+  onDelete,
+}: {
+  rows: Row[];
+  onStatus: StatusHandler;
+  onDelete: (row: Row) => void;
+}) {
+  return (
+    <Section
+      title="Quotation requests"
+      description="Review House Blend requests submitted through the website."
+      action={
+        <button
+          type="button"
+          onClick={() => downloadQuotationWorkbook(rows)}
+          className="brand-button flex items-center gap-2 bg-primary px-4 py-2.5 text-sm font-bold text-white"
+        >
+          <FileSpreadsheet className="h-4 w-4" /> Export Excel
+        </button>
+      }
+    >
+      {rows.length ? (
+        <RecordTable
+          headers={[
+            "Quote",
+            "Customer",
+            "Package",
+            "Request",
+            "Details",
+            "Received",
+            "Status",
+            "Actions",
+          ]}
+        >
+          {rows.map((row) => (
+            <tr key={String(row.id)} className="border-t">
+              <Cell
+                title={String(row.quote_number)}
+                subtitle={formatDate(row.created_at)}
+              />
+              <Cell
+                title={String(row.customer_name)}
+                subtitle={`${String(row.phone)}${row.email ? ` · ${row.email}` : ""}`}
+              />
+              <Cell
+                title={String(row.package_size)}
+                subtitle={String(row.format)}
+              />
+              <Cell
+                title={String(row.message ?? "No additional message")}
+                subtitle={String(row.source ?? "website")}
+              />
+              <Cell
+                title={String(row.company ?? "Individual request")}
+                subtitle={`${row.brand_name ? `Brand: ${row.brand_name}` : ""}${row.monthly_volume ? ` · ${row.monthly_volume}` : ""}`}
+              />
+              <Cell title={formatDate(row.created_at)} />
+              <td className="p-4">
+                <StatusSelect
+                  value={String(row.status)}
+                  options={[
+                    "new",
+                    "contacted",
+                    "quoted",
+                    "won",
+                    "lost",
+                    "cancelled",
+                  ]}
+                  change={(status) =>
+                    onStatus("quotation_requests", String(row.id), status)
+                  }
+                />
+              </td>
+              <td className="p-4">
+                <DeleteButton
+                  label={`Delete ${String(row.quote_number)}`}
+                  action={() => onDelete(row)}
+                />
+              </td>
+            </tr>
+          ))}
+        </RecordTable>
+      ) : (
+        <Empty text="Quotation requests will appear here as customers ask for pricing." />
+      )}
+    </Section>
+  );
+}
+
 function Business({
   rows,
   onStatus,
@@ -1071,7 +1197,8 @@ type StatusHandler = (
     | "orders"
     | "event_registrations"
     | "business_inquiries"
-    | "contact_requests",
+    | "contact_requests"
+    | "quotation_requests",
   id: string,
   status: string,
 ) => Promise<void>;
@@ -1082,7 +1209,8 @@ type DeleteEntity =
   | "orders"
   | "event_registrations"
   | "business_inquiries"
-  | "contact_requests";
+  | "contact_requests"
+  | "quotation_requests";
 
 function UserManagement({
   rows,
@@ -2074,6 +2202,7 @@ function countFor(view: View, data: DashboardData) {
   if (view === "events") return data.events.length;
   if (view === "registrations") return data.registrations.length;
   if (view === "orders") return data.orders.length;
+  if (view === "quotations") return data.quotationRequests.length;
   if (view === "business") return data.businessInquiries.length;
   if (view === "contacts") return data.contactRequests.length;
   if (view === "locations") return data.locations.length;
@@ -2082,9 +2211,15 @@ function countFor(view: View, data: DashboardData) {
 }
 function statusColor(value: string) {
   if (
-    ["published", "completed", "resolved", "attended", "qualified"].includes(
-      value,
-    )
+    [
+      "published",
+      "completed",
+      "resolved",
+      "attended",
+      "qualified",
+      "quoted",
+      "won",
+    ].includes(value)
   )
     return "bg-emerald-100 text-emerald-800";
   if (
@@ -2093,7 +2228,7 @@ function statusColor(value: string) {
     )
   )
     return "bg-orange-100 text-orange-800";
-  if (["cancelled", "declined", "archived", "closed"].includes(value))
+  if (["cancelled", "declined", "archived", "closed", "lost"].includes(value))
     return "bg-slate-100 text-slate-600";
   return "bg-amber-100 text-amber-800";
 }
@@ -2104,6 +2239,78 @@ function formatDate(value: unknown) {
     ? String(value)
     : date.toLocaleString("en-ET", { dateStyle: "medium", timeStyle: "short" });
 }
+
+function downloadQuotationWorkbook(rows: Row[]) {
+  const headers = [
+    "Quote number",
+    "Customer name",
+    "Company",
+    "Phone",
+    "Email",
+    "Package size",
+    "Format",
+    "Brand name",
+    "Monthly volume",
+    "Message",
+    "Source",
+    "Status",
+    "Created at",
+    "Updated at",
+  ];
+  const values = rows.map((row) => [
+    row.quote_number,
+    row.customer_name,
+    row.company,
+    row.phone,
+    row.email,
+    row.package_size,
+    row.format,
+    row.brand_name,
+    row.monthly_volume,
+    row.message,
+    row.source,
+    row.status,
+    row.created_at,
+    row.updated_at,
+  ]);
+  const spreadsheetRows = [headers, ...values]
+    .map(
+      (cells) =>
+        `<Row>${cells
+          .map(
+            (value) =>
+              `<Cell><Data ss:Type="String">${escapeXml(String(value ?? ""))}</Data></Cell>`,
+          )
+          .join("")}</Row>`,
+    )
+    .join("");
+  const workbook = `<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+  <Worksheet ss:Name="Quotation requests"><Table>${spreadsheetRows}</Table></Worksheet>
+</Workbook>`;
+  const blob = new Blob(["\uFEFF", workbook], {
+    type: "application/vnd.ms-excel;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `Tona_quotations_${new Date().toISOString().slice(0, 10)}.xls`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function escapeXml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
+}
+
 function toLocalDateTime(value: unknown) {
   if (!value) return "";
   const date = new Date(String(value));

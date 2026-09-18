@@ -9,6 +9,7 @@ const statusInput = authInput.extend({
     "event_registrations",
     "business_inquiries",
     "contact_requests",
+    "quotation_requests",
   ]),
   id: z.string().uuid(),
   status: z.string().min(1).max(40),
@@ -44,6 +45,7 @@ const deleteInput = authInput.extend({
     "event_registrations",
     "business_inquiries",
     "contact_requests",
+    "quotation_requests",
   ]),
   id: z.string().uuid(),
 });

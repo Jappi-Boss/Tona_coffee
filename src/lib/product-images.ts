@@ -1,12 +1,11 @@
-// Branded Tona glass-cup visuals used consistently across coffee product cards.
+// Reference-style origin visuals used when an admin product has no custom image.
 export const PRODUCT_IMAGES = {
   yirgacheffe:
-    "https://res.cloudinary.com/tkiiddxu/image/upload/v1788587445/tona-origin-yirgacheffe-glass-cup.webp",
+    "https://tona-coffee-two.vercel.app/assets/origins-v2/yirgacheffe-washed-v3.webp",
   yergachef:
-    "https://res.cloudinary.com/tkiiddxu/image/upload/v1788587445/tona-origin-yirgacheffe-glass-cup.webp",
+    "https://tona-coffee-two.vercel.app/assets/origins-v2/yirgacheffe-washed-v3.webp",
   sidama:
-    "https://res.cloudinary.com/tkiiddxu/image/upload/v1788587524/tona-origin-sidama-glass-cup.webp",
-  guji: "https://res.cloudinary.com/tkiiddxu/image/upload/v1788587601/tona-origin-guji-glass-cup.webp",
-  gesha:
-    "https://res.cloudinary.com/tkiiddxu/image/upload/v1788587662/tona-origin-gesha-glass-cup.webp",
+    "https://tona-coffee-two.vercel.app/assets/origins-v2/sidama-natural-v3.webp",
+  guji: "https://tona-coffee-two.vercel.app/assets/origins-v2/guji-natural-v3.webp",
+  jimma: "https://tona-coffee-two.vercel.app/assets/origins-v2/jimma-natural-v3.webp",
 } as const;

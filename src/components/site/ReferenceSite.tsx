@@ -1,13 +1,23 @@
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { getPublicLocations, type PublicStockist } from "@/lib/public-api";
+import {
+  getPublicCatalog,
+  getPublicLocations,
+  submitBusinessInquiry,
+  submitContactRequest,
+  submitEventRegistration,
+  submitQuotation,
+  type PublicEvent,
+  type PublicProduct,
+  type PublicStockist,
+} from "@/lib/public-api";
 import { DEFAULT_STOCKISTS } from "@/lib/locations";
 import { waLink } from "@/lib/tona";
 
 const REFERENCE_BASE = "https://tona-coffee-two.vercel.app";
 
 export const REFERENCE_IMAGES = {
-  hero: REFERENCE_BASE + "/framer-hero-illustration.png",
+  hero: REFERENCE_BASE + "/framer-hero-illustration-v5.png",
   about: REFERENCE_BASE + "/tona-ceremony-about-v2.webp",
   business: REFERENCE_BASE + "/assets/tona-partnership-support-v3.webp",
   event: REFERENCE_BASE + "/assets/tona-events-v3.webp",
@@ -17,71 +27,44 @@ export const REFERENCE_IMAGES = {
   jimma: REFERENCE_BASE + "/assets/origins-v2/jimma-natural-v3.webp",
 } as const;
 
-export const REFERENCE_ORIGINS = [
-  {
-    name: "Yirgacheffe",
-    image: REFERENCE_IMAGES.yirgacheffe,
-    process: "Washed",
-    region: "Gedeo, Ethiopia",
-    description: "Floral, bright and aromatic Ethiopian coffee.",
-    notes: ["Floral", "Citrus", "Sweet"],
-    altitude: "Altitude 1,750–2,200m",
-  },
-  {
-    name: "Sidama",
-    image: REFERENCE_IMAGES.sidama,
-    process: "Natural",
-    region: "Sidama, Ethiopia",
-    description: "Bright, fruity and expressive Ethiopian coffee.",
-    notes: ["Berry", "Cocoa", "Citrus"],
-    altitude: "Altitude 1,550–2,200m",
-  },
-  {
-    name: "Guji",
-    image: REFERENCE_IMAGES.guji,
-    process: "Natural",
-    region: "Oromia, Ethiopia",
-    description: "Rich, complex and fruit-forward Ethiopian coffee.",
-    notes: ["Stone fruit", "Spice", "Sweet"],
-    altitude: "Altitude 1,800–2,300m",
-  },
-  {
-    name: "Jimma",
-    image: REFERENCE_IMAGES.jimma,
-    process: "Natural",
-    region: "Jimma, Oromia",
-    description: "Full-bodied, earthy and quietly sweet Ethiopian coffee.",
-    notes: ["Cocoa", "Spice", "Winey"],
-    altitude: "Altitude 1,400–2,000m",
-  },
-] as const;
+const REFERENCE_PRODUCT_IMAGES: Record<string, string> = {
+  yirgacheffe: REFERENCE_IMAGES.yirgacheffe,
+  yergachef: REFERENCE_IMAGES.yirgacheffe,
+  sidama: REFERENCE_IMAGES.sidama,
+  guji: REFERENCE_IMAGES.guji,
+  jimma: REFERENCE_IMAGES.jimma,
+};
 
-const REFERENCE_EVENTS = [
-  {
-    title: "Tona Coffee Ceremony Tasting",
-    date: "2026-09-14",
-    month: "Sep",
-    day: "14",
-    location: "Bole, Addis Ababa · 10:00 AM",
-    description: "Traditional ceremony, guided tasting and origin stories.",
-  },
-  {
-    title: "Guji & Jimma Cupping Table",
-    date: "2026-10-05",
-    month: "Oct",
-    day: "05",
-    location: "Addis Ababa · 10:00 AM",
-    description: "A guided comparison of two distinctive Ethiopian origins.",
-  },
-  {
-    title: "Second Round Pop-Up",
-    date: "2026-11-22",
-    month: "Nov",
-    day: "22",
-    location: "Addis Ababa · 10:00 AM",
-    description: "Coffee, conversation and the spirit of Tona.",
-  },
-] as const;
+type OriginCardData = {
+  id: string;
+  name: string;
+  slug: string;
+  image: string;
+  fallbackImage: string;
+  process: string;
+  region: string;
+  description: string;
+  notes: string[];
+  altitude: string | null;
+};
+
+function toOriginCardData(product: PublicProduct): OriginCardData {
+  const fallbackImage =
+    REFERENCE_PRODUCT_IMAGES[product.slug] ?? REFERENCE_IMAGES.yirgacheffe;
+
+  return {
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    image: product.imageUrl ?? fallbackImage,
+    fallbackImage,
+    process: product.process,
+    region: product.region,
+    description: product.description,
+    notes: product.tastingNotes,
+    altitude: product.altitude,
+  };
+}
 
 const PARTNERS = [
   ["Cafés & coffee shops", "Coffee supply, brewing guidance, Ethiopian origin storytelling and barista support.", "cup"],
@@ -107,12 +90,6 @@ const FORMATS = [
 ] as const;
 
 const STOCKISTS = DEFAULT_STOCKISTS;
-
-const HOSTED_EVENTS = [
-  ["Jun 2026", "Second Round Pop-Up", "Bole, Addis Ababa", "Brew bar & sampling"],
-  ["Apr 2026", "Origins Cupping Table", "Addis Ababa", "Guided tasting"],
-  ["Feb 2026", "Coffee Ceremony Morning", "Addis Ababa", "Ceremony experience"],
-] as const;
 
 type SectionHeadingProps = {
   index: string;
@@ -465,17 +442,21 @@ function ReferenceAboutSection() {
 function OriginCard({
   origin,
 }: {
-  origin: (typeof REFERENCE_ORIGINS)[number];
+  origin: OriginCardData;
 }) {
   return (
-    <article className="origin-card reveal motion-card" data-origin={origin.name}>
+    <article className="origin-card reveal motion-card" data-origin={origin.slug}>
       <figure className="parallax-media">
         <img
           src={origin.image}
           width="720"
           height="360"
-          alt={origin.name === "Yirgacheffe" ? "Yirgacheffe washed coffee overlooking Ethiopia’s misty Gedeo highlands" : origin.name === "Sidama" ? "Sidama natural coffee beside raised drying beds in Ethiopia’s highlands" : origin.name === "Guji" ? "Guji natural coffee in a forested Ethiopian coffee landscape" : "Jimma coffee overlooking the forested hills of western Oromia"}
+          alt={`${origin.name} ${origin.process} coffee from ${origin.region}`}
           loading="lazy"
+          onError={(event) => {
+            event.currentTarget.onerror = null;
+            event.currentTarget.src = origin.fallbackImage;
+          }}
         />
       </figure>
       <div className="origin-card-body">
@@ -490,13 +471,46 @@ function OriginCard({
             <li key={note}>{note}</li>
           ))}
         </ul>
-        <p className="altitude">{origin.altitude}</p>
+        {origin.altitude ? (
+          <p className="altitude">
+            {origin.altitude.toLowerCase().startsWith("altitude")
+              ? origin.altitude
+              : `Altitude ${origin.altitude}`}
+          </p>
+        ) : null}
       </div>
     </article>
   );
 }
 
 function ReferenceCoffeeSection() {
+  const [products, setProducts] = useState<OriginCardData[] | null>(null);
+  const [catalogError, setCatalogError] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+
+    void getPublicCatalog()
+      .then((catalog) => {
+        if (mounted) {
+          setProducts(catalog.products.map(toOriginCardData));
+          setCatalogError("");
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setProducts([]);
+          setCatalogError(
+            "The current coffee catalogue could not be loaded. Please try again shortly.",
+          );
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   return (
     <section
       className="origins section section-dark motion-section section-cinema"
@@ -517,10 +531,18 @@ function ReferenceCoffeeSection() {
         intro="We source and export premium Ethiopian green coffee for roasters, importers, and traders worldwide. From regions such as Gedeo, Sidama, Oromia, and Jimma, we source to your quality, profile, and volume requirements—and deliver to your door."
       />
 
-      <div className="origin-grid">
-        {REFERENCE_ORIGINS.map((origin) => (
-          <OriginCard key={origin.name} origin={origin} />
-        ))}
+      <div className="origin-grid" aria-live="polite">
+        {products === null ? (
+          <p className="section-intro">Loading the current coffee catalogue…</p>
+        ) : products.length ? (
+          products.map((product) => (
+            <OriginCard key={product.id} origin={product} />
+          ))
+        ) : (
+          <p className="section-intro">
+            {catalogError || "No published coffees are available right now."}
+          </p>
+        )}
       </div>
 
       <div className="export-rail reveal">
@@ -688,14 +710,294 @@ function openWhatsAppFromForm(
   setStatus("Your WhatsApp message is ready. The Tona team will confirm the details.");
 }
 
+function formText(data: FormData, name: string) {
+  return String(data.get(name) ?? "").trim();
+}
+
+function optionalFormText(data: FormData, name: string) {
+  return formText(data, name) || null;
+}
+
+function prepareWhatsAppWindow() {
+  const popup = window.open("about:blank", "_blank");
+  if (popup) popup.opener = null;
+  return popup;
+}
+
+function finishWhatsAppWindow(
+  popup: Window | null,
+  message: string,
+  close = false,
+) {
+  if (close) {
+    popup?.close();
+    return;
+  }
+  if (popup) {
+    popup.location.href = waLink(message);
+  } else {
+    window.open(waLink(message), "_blank", "noopener,noreferrer");
+  }
+}
+
+async function submitQuotationForm(
+  event: FormEvent<HTMLFormElement>,
+  packageSize: "1kg" | "500g" | "250g" | "custom",
+  setStatus: (message: string) => void,
+) {
+  event.preventDefault();
+  const data = new FormData(event.currentTarget);
+  const format = formText(data, "format-choice");
+  const fallbackMessage = [
+    "Hi Tona, I'd like a House Blend quotation.",
+    `Package: ${packageSize === "custom" ? "250g custom" : packageSize}`,
+    `Format: ${format}`,
+    `Customer brand: ${formText(data, "brand-name")}`,
+    `Name: ${formText(data, "name")}`,
+    `Company: ${formText(data, "company")}`,
+    `Phone: ${formText(data, "phone")}`,
+    `Email: ${formText(data, "email")}`,
+    `Monthly volume: ${formText(data, "volume")}`,
+    `Message: ${formText(data, "message")}`,
+  ].join("\n");
+  const popup = prepareWhatsAppWindow();
+
+  try {
+    const result = await submitQuotation({
+      data: {
+        packageSize,
+        format,
+        brandName: optionalFormText(data, "brand-name"),
+        customerName: formText(data, "name"),
+        company: optionalFormText(data, "company"),
+        phone: formText(data, "phone"),
+        email: optionalFormText(data, "email"),
+        monthlyVolume: optionalFormText(data, "volume"),
+        message: optionalFormText(data, "message"),
+      },
+    });
+    finishWhatsAppWindow(
+      popup,
+      result.whatsappMessage,
+      Boolean(result.whatsappSent),
+    );
+    setStatus(
+      `Quotation ${result.quoteNumber} saved. ${result.emailSent ? "Email sent. " : ""}${result.whatsappSent ? "WhatsApp notification sent." : "WhatsApp message is ready for you to send."}`,
+    );
+  } catch (error) {
+    finishWhatsAppWindow(popup, fallbackMessage);
+    setStatus(
+      error instanceof Error && /required|valid/i.test(error.message)
+        ? error.message
+        : "We could not save the quotation online. WhatsApp is ready—please send the message so Tona can help.",
+    );
+  }
+}
+
+async function submitRequestForm(
+  event: FormEvent<HTMLFormElement>,
+  setStatus: (message: string) => void,
+) {
+  event.preventDefault();
+  const data = new FormData(event.currentTarget);
+  const requestType = formText(data, "request-type");
+  const coffeeInterest = formText(data, "coffee-interest");
+  const message = formText(data, "message");
+  const whatsappMessage = [
+    "Hi Tona, I have a request.",
+    `Name: ${formText(data, "full-name")}`,
+    `Organization: ${formText(data, "organization")}`,
+    `Phone: ${formText(data, "phone")}`,
+    `Email: ${formText(data, "email")}`,
+    `Request type: ${requestType}`,
+    `Coffee interest: ${coffeeInterest}`,
+    `Message: ${message}`,
+  ].join("\n");
+  const popup = prepareWhatsAppWindow();
+
+  try {
+    const result = await submitContactRequest({
+      data: {
+        fullName: formText(data, "full-name"),
+        organization: optionalFormText(data, "organization"),
+        phone: formText(data, "phone"),
+        email: optionalFormText(data, "email"),
+        requestType,
+        message: message || "No additional message.",
+      },
+    });
+    finishWhatsAppWindow(popup, whatsappMessage, Boolean(result.whatsappSent));
+    setStatus(
+      `Request saved. ${result.emailSent ? "Email sent. " : ""}${result.whatsappSent ? "WhatsApp notification sent." : "WhatsApp message is ready for you to send."}`,
+    );
+  } catch (error) {
+    finishWhatsAppWindow(popup, whatsappMessage);
+    setStatus(
+      error instanceof Error && /required|valid/i.test(error.message)
+        ? error.message
+        : "We could not save the request online. WhatsApp is ready—please send the message so Tona can help.",
+    );
+  }
+}
+
+async function submitHostedEventForm(
+  event: FormEvent<HTMLFormElement>,
+  setStatus: (message: string) => void,
+) {
+  event.preventDefault();
+  const data = new FormData(event.currentTarget);
+  const eventName = formText(data, "event-name");
+  const eventType = formText(data, "event-type");
+  const eventDate = formText(data, "event-date");
+  const eventGuests = formText(data, "event-guests");
+  const eventLocation = formText(data, "event-location");
+  const serviceFormat = formText(data, "event-service");
+  const contactName = formText(data, "event-contact");
+  const phone = formText(data, "event-phone");
+  const notes = formText(data, "event-notes");
+  const message = [
+    `Event date: ${eventDate}`,
+    `Expected guests: ${eventGuests}`,
+    `Location: ${eventLocation}`,
+    `Service format: ${serviceFormat}`,
+    `Additional details: ${notes}`,
+  ].join("\n");
+  const whatsappMessage = [
+    "Hi Tona, I'd like to submit an event for Tona to host or join.",
+    `Event name: ${eventName}`,
+    `Event type: ${eventType}`,
+    `Date: ${eventDate}`,
+    `Expected guests: ${eventGuests}`,
+    `Location: ${eventLocation}`,
+    `Service format: ${serviceFormat}`,
+    `Name: ${contactName}`,
+    `Phone: ${phone}`,
+    `Notes: ${notes}`,
+  ].join("\n");
+  const popup = prepareWhatsAppWindow();
+
+  try {
+    const result = await submitBusinessInquiry({
+      data: {
+        organization: eventName,
+        contactPerson: contactName,
+        phone,
+        email: null,
+        businessType: eventType,
+        coffeeInterest: serviceFormat,
+        estimatedQuantity: eventGuests || null,
+        message,
+      },
+    });
+    finishWhatsAppWindow(popup, whatsappMessage, Boolean(result.whatsappSent));
+    setStatus(
+      `Event request saved. ${result.emailSent ? "Email sent. " : ""}${result.whatsappSent ? "WhatsApp notification sent." : "WhatsApp message is ready for you to send."}`,
+    );
+  } catch (error) {
+    finishWhatsAppWindow(popup, whatsappMessage);
+    setStatus(
+      error instanceof Error && /required|valid/i.test(error.message)
+        ? error.message
+        : "We could not save the event request online. WhatsApp is ready—please send the message so Tona can help.",
+    );
+  }
+}
+
+function formatEventShortDate(value: string) {
+  return new Date(value).toLocaleDateString("en-ET", {
+    month: "short",
+    day: "numeric",
+    timeZone: "Africa/Addis_Ababa",
+  });
+}
+
+function formatEventDate(value: string) {
+  return new Date(value).toLocaleDateString("en-ET", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "Africa/Addis_Ababa",
+  });
+}
+
+function formatEventMonth(value: string) {
+  return new Date(value).toLocaleDateString("en-ET", {
+    month: "short",
+    timeZone: "Africa/Addis_Ababa",
+  });
+}
+
+function formatEventDay(value: string) {
+  return new Date(value).toLocaleDateString("en-ET", {
+    day: "2-digit",
+    timeZone: "Africa/Addis_Ababa",
+  });
+}
+
+function formatEventYearMonth(value: string) {
+  return new Date(value).toLocaleDateString("en-ET", {
+    month: "short",
+    year: "numeric",
+    timeZone: "Africa/Addis_Ababa",
+  });
+}
+
 function ReferenceEventDialog({
   selected,
+  events,
   onClose,
 }: {
-  selected: (typeof REFERENCE_EVENTS)[number];
+  selected: PublicEvent;
+  events: PublicEvent[];
   onClose: () => void;
 }) {
   const [status, setStatus] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const eventId = formText(data, "event");
+    const selectedEvent = events.find((item) => item.id === eventId) ?? selected;
+    const whatsappMessage = [
+      "Hi Tona, I'd like to register for a Tona event.",
+      `Event: ${selectedEvent.title}`,
+      `Date: ${formatEventDate(selectedEvent.eventDate)}`,
+      `Name: ${formText(data, "name")}`,
+      `Phone: ${formText(data, "phone")}`,
+      `Email: ${formText(data, "email")}`,
+      `Guests: ${formText(data, "guests")}`,
+      `Note: ${formText(data, "note")}`,
+    ].join("\n");
+    const popup = prepareWhatsAppWindow();
+    setBusy(true);
+
+    try {
+      const result = await submitEventRegistration({
+        data: {
+          eventId,
+          fullName: formText(data, "name"),
+          phone: formText(data, "phone"),
+          email: optionalFormText(data, "email"),
+          guestCount: Number(formText(data, "guests")),
+          notes: optionalFormText(data, "note"),
+        },
+      });
+      finishWhatsAppWindow(popup, whatsappMessage, Boolean(result.whatsappSent));
+      setStatus(
+        `Registration saved. ${result.emailSent ? "Email sent. " : ""}${result.whatsappSent ? "WhatsApp notification sent." : "WhatsApp message is ready for you to send."}`,
+      );
+    } catch (error) {
+      finishWhatsAppWindow(popup, whatsappMessage);
+      setStatus(
+        error instanceof Error && /required|valid|closed|full/i.test(error.message)
+          ? error.message
+          : "We could not save the registration online. WhatsApp is ready—please send the message so Tona can confirm your place.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <div className="event-dialog-backdrop" role="presentation" onMouseDown={(event) => {
@@ -706,16 +1008,16 @@ function ReferenceEventDialog({
           <div>
             <p className="mono-label">Reserve your place</p>
             <h2 id="event-dialog-title">Event registration</h2>
-            <p>Select an event and send your registration directly to Tona on WhatsApp.</p>
+            <p>Your registration is saved in Tona’s event list and sent to the team for confirmation.</p>
           </div>
           <button className="event-dialog-close" type="button" onClick={onClose} aria-label="Close registration form">×</button>
         </div>
-        <form onSubmit={(event) => openWhatsAppFromForm(event, "Hi Tona, I'd like to register for a Tona event.", setStatus)}>
+        <form onSubmit={handleSubmit}>
           <label>
             <span>Choose an event</span>
-            <select name="event" defaultValue={selected.title + " — " + selected.month + " " + selected.day} required>
-              {REFERENCE_EVENTS.map((item) => (
-                <option key={item.title}>{item.title} — {item.month} {item.day}</option>
+            <select name="event" defaultValue={selected.id} required>
+              {events.map((item) => (
+                <option key={item.id} value={item.id}>{item.title} — {formatEventShortDate(item.eventDate)}</option>
               ))}
             </select>
           </label>
@@ -726,7 +1028,7 @@ function ReferenceEventDialog({
             <label><span>Number of guests</span><input name="guests" type="number" min="1" max="10" defaultValue="1" required /></label>
           </div>
           <label className="message-field"><span>Note <small>(optional)</small></span><textarea name="note" rows={3} placeholder="Accessibility, group, or event questions" /></label>
-          <button className="button button-primary" type="submit">Register on WhatsApp <span aria-hidden="true">↗</span></button>
+          <button className="button button-primary" type="submit" disabled={busy}>{busy ? "Saving registration…" : "Register on WhatsApp"} <span aria-hidden="true">↗</span></button>
           <p className="form-status" role="status">{status || "Registration is confirmed by the Tona team."}</p>
         </form>
       </div>
@@ -735,8 +1037,47 @@ function ReferenceEventDialog({
 }
 
 function ReferenceEventsSection() {
-  const [selected, setSelected] = useState<(typeof REFERENCE_EVENTS)[number] | null>(null);
+  const [events, setEvents] = useState<PublicEvent[] | null>(null);
+  const [eventsError, setEventsError] = useState("");
+  const [selected, setSelected] = useState<PublicEvent | null>(null);
   const [status, setStatus] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+
+    void getPublicCatalog()
+      .then((catalog) => {
+        if (mounted) {
+          setEvents(catalog.events);
+          setEventsError("");
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setEvents([]);
+          setEventsError(
+            "The current events catalogue could not be loaded. Please try again shortly.",
+          );
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const publishedEvents = (events ?? []).filter(
+    (event) => event.status === "published",
+  );
+  const completedEvents = (events ?? [])
+    .filter((event) => event.status === "completed")
+    .sort(
+      (left, right) =>
+        new Date(right.eventDate).getTime() - new Date(left.eventDate).getTime(),
+    );
+  const eventImage =
+    events?.find((event) => event.coverImageUrl)?.coverImageUrl ??
+    REFERENCE_IMAGES.event;
 
   return (
     <section className="events section section-dark motion-section section-cinema" id="events" aria-labelledby="events-title">
@@ -757,28 +1098,34 @@ function ReferenceEventsSection() {
       <div className="events-layout">
         <figure className="events-image reveal motion-media parallax-media">
           <img
-            src={REFERENCE_IMAGES.event}
+            src={eventImage}
             width="1400"
             height="900"
             alt="Two women enjoying Tona coffee among ripe Ethiopian coffee cherries"
             loading="lazy"
+            onError={(event) => {
+              event.currentTarget.onerror = null;
+              event.currentTarget.src = REFERENCE_IMAGES.event;
+            }}
           />
         </figure>
         <div className="event-list">
-          {REFERENCE_EVENTS.map((event) => (
-            <article className="event-card reveal motion-card" key={event.title}>
-              <time dateTime={event.date}><span>{event.month}</span><b>{event.day}</b></time>
+          {events === null ? (
+            <p className="section-intro">Loading the current events catalogue…</p>
+          ) : publishedEvents.length ? publishedEvents.map((event) => (
+            <article className="event-card reveal motion-card" key={event.id}>
+              <time dateTime={event.eventDate}><span>{formatEventMonth(event.eventDate)}</span><b>{formatEventDay(event.eventDate)}</b></time>
               <div>
                 <p className="mono-label">{event.location}</p>
                 <CinematicHeading as="h3" text={event.title} />
-                <p>{event.description}</p>
-                <small>Open to the public</small>
+                <p>{event.description || event.summary}</p>
+                <small>{event.registrationOpen ? "Open to the public" : "Registration closed"}</small>
               </div>
-              <button className="button button-light event-register" type="button" onClick={() => setSelected(event)}>
-                Register <span aria-hidden="true">↗</span>
+              <button className="button button-light event-register" type="button" disabled={!event.registrationOpen} onClick={() => setSelected(event)}>
+                {event.registrationOpen ? "Register" : "Closed"} <span aria-hidden="true">↗</span>
               </button>
             </article>
-          ))}
+          )) : <p className="section-intro">{eventsError || "No upcoming events are available right now."}</p>}
         </div>
       </div>
 
@@ -806,7 +1153,7 @@ function ReferenceEventsSection() {
             <li><span>04</span>Final guest count 48 hours ahead</li>
           </ul>
         </div>
-        <form className="event-submit-form reveal" onSubmit={(event) => openWhatsAppFromForm(event, "Hi Tona, I'd like to submit an event for Tona to host or join.", setStatus)}>
+        <form className="event-submit-form reveal" onSubmit={(event) => submitHostedEventForm(event, setStatus)}>
           <div className="field-grid">
             <label><span>Event name</span><input name="event-name" type="text" required /></label>
             <label><span>Event type</span><select name="event-type"><option>Corporate / office</option><option>Product launch</option><option>Conference or expo</option><option>Wedding or private</option><option>Market or pop-up</option><option>Other</option></select></label>
@@ -829,21 +1176,25 @@ function ReferenceEventsSection() {
           <h3 className="display">Where the second<br />round has been.</h3>
         </div>
         <div className="hosted-grid">
-          {HOSTED_EVENTS.map(([date, title, place, format]) => (
-            <article className="hosted-card reveal" key={title}>
-              <time>{date}</time><CinematicHeading as="h4" text={title} /><p>{place}</p><small>{format}</small>
+          {events === null ? (
+            <p className="section-intro">Loading event history…</p>
+          ) : completedEvents.length ? completedEvents.map((event) => (
+            <article className="hosted-card reveal" key={event.id}>
+              <time>{formatEventYearMonth(event.eventDate)}</time><CinematicHeading as="h4" text={event.title} /><p>{event.location}</p><small>{event.summary || event.description}</small>
             </article>
-          ))}
+          )) : <p className="section-intro">{eventsError || "Previously hosted events will appear here."}</p>}
         </div>
       </div>
 
-      {selected ? <ReferenceEventDialog selected={selected} onClose={() => setSelected(null)} /> : null}
+      {selected ? <ReferenceEventDialog events={publishedEvents} selected={selected} onClose={() => setSelected(null)} /> : null}
     </section>
   );
 }
 
 function ReferenceOrdersSection() {
-  const [selectedPackage, setSelectedPackage] = useState("1kg");
+  const [selectedPackage, setSelectedPackage] = useState<
+    "1kg" | "500g" | "250g" | "custom"
+  >("1kg");
   const [quoteStatus, setQuoteStatus] = useState("");
   const [requestStatus, setRequestStatus] = useState("");
 
@@ -897,7 +1248,13 @@ function ReferenceOrdersSection() {
       </div>
 
       <div className="orders-layout">
-        <form className="quote-form reveal motion-card" id="quote-form" onSubmit={(event) => openWhatsAppFromForm(event, "Hi Tona, I'd like a House Blend quotation.", setQuoteStatus)}>
+        <form
+          className="quote-form reveal motion-card"
+          id="quote-form"
+          onSubmit={(event) =>
+            submitQuotationForm(event, selectedPackage, setQuoteStatus)
+          }
+        >
           <p className="form-kicker">House Blend quotation</p>
           <fieldset>
             <legend>01 / Choose a format</legend>
@@ -920,6 +1277,7 @@ function ReferenceOrdersSection() {
             <div className="field-grid">
               <label><span>Name</span><input name="name" type="text" autoComplete="name" required /></label>
               <label><span>Company</span><input name="company" type="text" autoComplete="organization" /></label>
+              <label><span>Phone / WhatsApp</span><input name="phone" type="tel" autoComplete="tel" required /></label>
               <label><span>Email</span><input name="email" type="email" autoComplete="email" /></label>
               <label><span>Monthly volume</span><input name="volume" type="text" placeholder="e.g. 25kg" /></label>
             </div>
@@ -929,7 +1287,10 @@ function ReferenceOrdersSection() {
           <p className="form-status" role="status">{quoteStatus}</p>
         </form>
 
-        <form className="request-form reveal motion-card" onSubmit={(event) => openWhatsAppFromForm(event, "Hi Tona, I have a request.", setRequestStatus)}>
+        <form
+          className="request-form reveal motion-card"
+          onSubmit={(event) => submitRequestForm(event, setRequestStatus)}
+        >
           <p className="form-kicker">How can we help?</p>
           <div className="field-grid">
             <label><span>Full name</span><input name="full-name" type="text" autoComplete="name" required /></label>

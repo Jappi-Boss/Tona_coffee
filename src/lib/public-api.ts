@@ -43,6 +43,18 @@ const orderInput = z.object({
   notes: optionalText,
 });
 
+const quotationInput = z.object({
+  packageSize: z.enum(["1kg", "500g", "250g", "custom"]),
+  format: z.string().trim().min(1).max(120),
+  brandName: optionalText,
+  customerName: z.string().trim().min(2).max(120),
+  company: optionalText,
+  phone: z.string().trim().min(7).max(40),
+  email: z.string().trim().email().max(200).optional().nullable(),
+  monthlyVolume: optionalText,
+  message: optionalText,
+});
+
 export const getPublicCatalog = createServerFn({ method: "GET" }).handler(
   async () => {
     const { loadPublicCatalog } = await import("./public-db.server");
@@ -83,6 +95,13 @@ export const submitOrder = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { createOrder } = await import("./public-db.server");
     return createOrder(data);
+  });
+
+export const submitQuotation = createServerFn({ method: "POST" })
+  .validator(quotationInput)
+  .handler(async ({ data }) => {
+    const { createQuotationRequest } = await import("./public-db.server");
+    return createQuotationRequest(data);
   });
 
 export type PublicCatalog = Awaited<ReturnType<typeof getPublicCatalog>>;

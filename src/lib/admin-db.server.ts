@@ -5,6 +5,7 @@ import {
   normalizeStockists,
   orderStockists,
 } from "./locations";
+import { ensureQuotationSchema } from "./quotation-schema.server";
 
 const AUTH_JWKS_URL =
   process.env.NEON_AUTH_JWKS_URL ??
@@ -72,12 +73,14 @@ function hexDigest(bytes: ArrayBuffer) {
 
 export async function loadDashboard(token: string) {
   const admin = await requireAdmin(token);
+  await ensureQuotationSchema();
   const sql = database();
   const [
     products,
     events,
     registrations,
     orders,
+    quotationRequests,
     businessInquiries,
     contactRequests,
     locationSettings,
@@ -86,6 +89,7 @@ export async function loadDashboard(token: string) {
     sql`SELECT e.*, COUNT(r.id)::int AS registration_count FROM events e LEFT JOIN event_registrations r ON r.event_id = e.id GROUP BY e.id ORDER BY e.event_date DESC`,
     sql`SELECT r.*, e.title AS event_title FROM event_registrations r JOIN events e ON e.id = r.event_id ORDER BY r.created_at DESC LIMIT 200`,
     sql`SELECT o.*, COALESCE(json_agg(json_build_object('productName', i.product_name, 'size', i.size, 'grind', i.grind, 'quantity', i.quantity, 'unitPrice', i.unit_price)) FILTER (WHERE i.id IS NOT NULL), '[]') AS items FROM orders o LEFT JOIN order_items i ON i.order_id = o.id GROUP BY o.id ORDER BY o.created_at DESC LIMIT 200`,
+    sql`SELECT * FROM quotation_requests ORDER BY created_at DESC LIMIT 200`,
     sql`SELECT * FROM business_inquiries ORDER BY created_at DESC LIMIT 200`,
     sql`SELECT * FROM contact_requests ORDER BY created_at DESC LIMIT 200`,
     sql`SELECT value FROM public.site_settings WHERE key = ${STOCKISTS_SETTING_KEY} LIMIT 1`,
@@ -102,6 +106,7 @@ export async function loadDashboard(token: string) {
     events,
     registrations,
     orders,
+    quotationRequests,
     businessInquiries,
     contactRequests,
     locations: normalizeStockists(locationSettings[0]?.value),
@@ -229,7 +234,8 @@ type StatusChange = {
     | "orders"
     | "event_registrations"
     | "business_inquiries"
-    | "contact_requests";
+    | "contact_requests"
+    | "quotation_requests";
   id: string;
   status: string;
 };
@@ -239,6 +245,7 @@ const allowedStatuses: Record<StatusChange["entity"], string[]> = {
   event_registrations: ["new", "confirmed", "attended", "cancelled"],
   business_inquiries: ["new", "contacted", "qualified", "closed", "lost"],
   contact_requests: ["new", "in_progress", "resolved", "spam"],
+  quotation_requests: ["new", "contacted", "quoted", "won", "lost", "cancelled"],
 };
 
 export async function changeRecordStatus(input: StatusChange) {
@@ -253,6 +260,8 @@ export async function changeRecordStatus(input: StatusChange) {
     await sql`UPDATE event_registrations SET status = ${input.status}, updated_at = now() WHERE id = ${input.id}::uuid`;
   } else if (input.entity === "business_inquiries") {
     await sql`UPDATE business_inquiries SET status = ${input.status}, updated_at = now() WHERE id = ${input.id}::uuid`;
+  } else if (input.entity === "quotation_requests") {
+    await sql`UPDATE quotation_requests SET status = ${input.status}, updated_at = now() WHERE id = ${input.id}::uuid`;
   } else {
     await sql`UPDATE contact_requests SET status = ${input.status}, updated_at = now() WHERE id = ${input.id}::uuid`;
   }
@@ -420,7 +429,8 @@ type DeleteInput = {
     | "orders"
     | "event_registrations"
     | "business_inquiries"
-    | "contact_requests";
+    | "contact_requests"
+    | "quotation_requests";
   id: string;
 };
 
@@ -444,6 +454,8 @@ export async function deleteRecord(input: DeleteInput) {
     await sql`DELETE FROM event_registrations WHERE id = ${input.id}::uuid`;
   } else if (input.entity === "business_inquiries") {
     await sql`DELETE FROM business_inquiries WHERE id = ${input.id}::uuid`;
+  } else if (input.entity === "quotation_requests") {
+    await sql`DELETE FROM quotation_requests WHERE id = ${input.id}::uuid`;
   } else {
     await sql`DELETE FROM contact_requests WHERE id = ${input.id}::uuid`;
   }
