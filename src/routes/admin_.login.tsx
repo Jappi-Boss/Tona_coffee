@@ -4,7 +4,6 @@ import { FormEvent, useState } from "react";
 import { toast } from "sonner";
 
 import { adminAuth } from "@/lib/admin-auth";
-import { TonaLogo } from "@/components/site/TonaLogo";
 
 export const Route = createFileRoute("/admin_/login")({
   component: AdminLoginPage,
@@ -71,7 +70,7 @@ function AdminLoginPage() {
   }
 
   return (
-    <main className="grid min-h-screen bg-sand lg:grid-cols-[1.05fr_.95fr]">
+    <main className="tona-admin grid min-h-screen bg-sand lg:grid-cols-[1.05fr_.95fr]">
       <section className="relative hidden overflow-hidden bg-teal px-12 py-14 text-white lg:flex lg:flex-col lg:justify-between">
         <div className="absolute inset-0 leaf-field opacity-60" />
         <Link
@@ -81,7 +80,13 @@ function AdminLoginPage() {
           <ArrowLeft className="h-4 w-4" /> Back to website
         </Link>
         <div className="relative max-w-xl">
-          <TonaLogo tone="light" size="xl" className="mb-10" />
+          <img
+            src="/tona-logo-light.png"
+            alt="Tona Coffee"
+            width={640}
+            height={304}
+            className="mb-10 h-auto w-52 object-contain"
+          />
           <p className="label-mono mb-5 text-primary">Tona operations</p>
           <h1 className="text-7xl font-black uppercase leading-[.82]">
             Everything Tona. One place.

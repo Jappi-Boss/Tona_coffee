@@ -516,3 +516,18 @@
   .findus .stockist-card-details > div { grid-template-columns: 1fr; gap: 2px; }
   .findus .stockist-card-number { font-size: 20px; align-self: start; }
 }
+
+/* Admin is deliberately independent of the public editorial stylesheet. */
+.tona-admin { --border: #e5dfd7; --sand: #f6f3ee; color: #26221f; font-family: "Inter", ui-sans-serif, system-ui, sans-serif; }
+.tona-admin h1, .tona-admin h2, .tona-admin h3, .tona-admin h4 { font-family: "Inter", ui-sans-serif, system-ui, sans-serif; letter-spacing: -.025em; line-height: 1.2; text-transform: none; }
+.tona-admin .admin-sidebar { background: #191715; background-image: radial-gradient(ellipse at top left, #ee492710, transparent 60%); }
+.tona-admin button, .tona-admin input, .tona-admin select, .tona-admin textarea { font-family: inherit; }
+.tona-admin button { cursor: pointer; }
+.tona-admin button:disabled { cursor: wait; }
+.tona-admin :is(button,a,input,select,textarea):focus-visible { outline: 2px solid #ee4927; outline-offset: 3px; }
+.tona-admin input, .tona-admin textarea, .tona-admin select { font-size: 14px; }
+.tona-admin table tbody tr { border-bottom: 1px solid #eee9e2; }
+.tona-admin table tbody tr:last-child { border-bottom: 0; }
+.tona-admin table tbody tr:hover { background-color: #faf8f5; }
+.tona-admin [role="dialog"] { border-radius: 12px; }
+@media (max-width: 639px) { .tona-admin .admin-header h1 { font-size: 23px; } .tona-admin input, .tona-admin textarea, .tona-admin select { font-size: 16px; } }

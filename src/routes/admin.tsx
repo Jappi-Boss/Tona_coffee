@@ -49,7 +49,6 @@ import {
   updateRecordStatus,
 } from "@/lib/admin-api";
 import { adminAuth, getAdminToken } from "@/lib/admin-auth";
-import { TonaMark } from "@/components/site/TonaLogo";
 
 export const Route = createFileRoute("/admin")({
   component: AdminDashboard,
@@ -242,15 +241,18 @@ function AdminDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-sand text-foreground lg:grid lg:grid-cols-[260px_1fr]">
+    <div className="tona-admin min-h-screen bg-sand text-foreground lg:grid lg:grid-cols-[264px_minmax(0,1fr)]">
       <aside
-        className={`${mobileNav ? "flex" : "hidden"} leaf-field fixed inset-0 z-50 flex-col border-r border-white/10 bg-teal-deep text-white lg:sticky lg:top-0 lg:flex lg:h-screen`}
+        className={`${mobileNav ? "flex" : "hidden"} admin-sidebar fixed inset-0 z-50 flex-col border-r border-white/10 bg-teal-deep text-white lg:sticky lg:top-0 lg:flex lg:h-screen`}
       >
-        <div className="flex h-20 min-h-20 items-center justify-between overflow-hidden border-b border-white/10 px-6">
+        <div className="flex h-28 min-h-28 items-center justify-between border-b border-white/10 px-7">
           <a href="/" aria-label="Tona Coffee website">
-            <TonaMark
-              tone="light"
-              className="h-14 w-36 object-contain object-left"
+            <img
+              src="/tona-logo-light.png"
+              alt="Tona Coffee"
+              width={640}
+              height={304}
+              className="block h-20 w-44 object-contain object-left"
             />
           </a>
           <button
@@ -262,7 +264,7 @@ function AdminDashboard() {
           </button>
         </div>
         <nav
-          className="flex-1 space-y-1 overflow-y-auto p-4"
+          className="flex-1 space-y-1 overflow-y-auto px-4 py-5"
           aria-label="Admin navigation"
         >
           {visibleNavItems.map(([id, label, Icon]) => (
@@ -272,10 +274,11 @@ function AdminDashboard() {
                 setView(id);
                 setMobileNav(false);
               }}
-              className={`flex w-full items-center gap-3 rounded-md border-l-4 px-4 py-3 text-left text-sm font-bold uppercase tracking-[.04em] transition ${view === id ? "border-primary bg-primary text-white" : "border-transparent text-white/65 hover:border-primary hover:bg-white/8 hover:text-white"}`}
+              aria-current={view === id ? "page" : undefined}
+              className={`flex min-h-11 w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[13px] font-medium transition ${view === id ? "bg-primary text-white shadow-sm" : "text-white/75 hover:bg-white/8 hover:text-white"}`}
             >
-              <Icon className="h-5 w-5" />
-              {label}
+              <Icon className="h-[18px] w-[18px] shrink-0" />
+              <span className="min-w-0 flex-1">{label}</span>
               {id !== "overview" && (
                 <span
                   className={`ml-auto rounded-sm px-2 py-0.5 text-xs ${view === id ? "bg-black/20 text-white" : "bg-white/10"}`}
@@ -287,7 +290,7 @@ function AdminDashboard() {
           ))}
         </nav>
         <div className="border-t border-white/10 p-4">
-          <div className="mb-3 border-l-4 border-primary bg-white/7 p-3">
+          <div className="mb-3 rounded-lg bg-white/5 p-3">
             <p className="truncate text-sm font-semibold">{data.admin.name}</p>
             <p className="truncate text-xs text-white/55">{data.admin.email}</p>
           </div>
@@ -301,45 +304,47 @@ function AdminDashboard() {
       </aside>
 
       <main className="min-w-0">
-        <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b-4 border-primary bg-teal-deep px-4 text-white sm:px-7 lg:px-10">
+        <header className="admin-header sticky top-0 z-30 flex min-h-24 items-center gap-4 border-b bg-white/95 px-4 py-4 text-teal backdrop-blur-sm sm:px-7 lg:px-9">
           <button
             onClick={() => setMobileNav(true)}
-            className="rounded-md border border-white/20 bg-white/10 p-2.5 text-white lg:hidden"
+            className="rounded-lg border bg-white p-2.5 text-teal lg:hidden"
             aria-label="Open navigation"
           >
             <Menu className="h-5 w-5" />
           </button>
           <div className="min-w-0 flex-1">
-            <p className="label-mono text-primary">Tona operations</p>
-            <h1 className="truncate text-3xl font-black uppercase text-white">
+            <p className="label-mono text-primary">Tona workspace</p>
+            <h1 className="mt-1.5 truncate text-[28px] font-semibold tracking-tight text-teal">
               {activeLabel}
             </h1>
           </div>
           <label className="relative hidden w-full max-w-xs sm:block">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
             <span className="sr-only">Search dashboard</span>
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
+              aria-label="Search dashboard"
               placeholder="Search records…"
-              className="h-10 w-full rounded-md border border-white/15 bg-white/10 pl-10 pr-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-primary"
+              className="h-11 w-full rounded-lg border border-border bg-sand/50 pl-10 pr-3 text-sm text-teal outline-none placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/15"
             />
           </label>
           <button
             onClick={load}
             disabled={busy}
-            className="rounded-md border border-white/20 bg-white/10 p-2.5 text-white hover:border-primary hover:text-primary"
+            className="rounded-lg border border-border bg-white p-3 text-teal transition hover:border-primary hover:text-primary disabled:opacity-50"
             aria-label="Refresh dashboard"
           >
             <RefreshCw className={`h-5 w-5 ${busy ? "animate-spin" : ""}`} />
           </button>
         </header>
 
-        <div className="p-4 sm:p-7 lg:p-10">
+        <div className="p-4 sm:p-7 lg:p-9">
           <div className="mb-5 sm:hidden">
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
+              aria-label="Search dashboard"
               placeholder="Search records…"
               className="h-11 w-full rounded-md border bg-white px-4 text-sm"
             />
@@ -520,14 +525,14 @@ function Overview({
       ).length,
       "events",
       CalendarDays,
-      "bg-teal/10 text-teal",
+      "bg-orange-50 text-primary",
     ],
     [
       "Registrations",
       data.registrations.length,
       "registrations",
       Users,
-      "bg-amber-50 text-amber-700",
+      "bg-orange-50 text-primary",
     ],
     [
       "Open inquiries",
@@ -536,14 +541,14 @@ function Overview({
       ).length,
       "business",
       ClipboardList,
-      "bg-blue-50 text-blue-700",
+      "bg-orange-50 text-primary",
     ],
     [
       "New quotations",
       data.quotationRequests.filter((row) => row.status === "new").length,
       "quotations",
       FileSpreadsheet,
-      "bg-amber-50 text-amber-700",
+      "bg-orange-50 text-primary",
     ],
   ] as const;
   const activity = [
@@ -591,7 +596,7 @@ function Overview({
           <button
             key={label}
             onClick={() => go(target)}
-            className="group border border-border border-t-4 border-t-primary bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            className="group rounded-xl border border-border/60 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
           >
             <div
               className={`mb-5 flex h-11 w-11 items-center justify-center rounded-md ${color}`}
@@ -606,11 +611,9 @@ function Overview({
           </button>
         ))}
       </div>
-      <section className="overflow-hidden border bg-white shadow-sm">
-        <div className="border-b-4 border-primary bg-teal-deep px-5 py-4">
-          <h2 className="text-2xl font-black uppercase text-white">
-            Recent activity
-          </h2>
+      <section className="overflow-hidden rounded-xl border border-border/60 bg-white shadow-sm">
+        <div className="border-b border-border/60 bg-white px-5 py-5">
+          <h2 className="text-xl font-semibold text-teal">Recent activity</h2>
         </div>
         {activity.length ? (
           <div className="divide-y">
@@ -2073,7 +2076,7 @@ function Section({
     <section>
       <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <h2 className="text-4xl font-black uppercase text-teal">{title}</h2>
+          <h2 className="text-3xl font-semibold text-teal">{title}</h2>
           <p className="mt-2 text-sm text-muted-foreground">{description}</p>
         </div>
         {action}
@@ -2095,10 +2098,10 @@ function RecordTable({
   children: ReactNode;
 }) {
   return (
-    <div className="overflow-hidden border bg-white shadow-sm">
+    <div className="overflow-hidden rounded-xl border border-border/60 bg-white shadow-sm">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[780px] text-left">
-          <thead className="border-b-4 border-primary bg-teal-deep text-xs uppercase tracking-wider text-white/70">
+          <thead className="border-b border-border/60 bg-sand/60 text-xs uppercase tracking-wider text-muted-foreground">
             <tr>
               {headers.map((header) => (
                 <th key={header} className="p-4 font-semibold">
@@ -2197,7 +2200,7 @@ function Modal({
 }) {
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-teal/75 p-4 backdrop-blur-sm"
+      className="tona-admin fixed inset-0 z-[70] flex items-center justify-center bg-teal/75 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-label={title}

@@ -122,14 +122,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           href: "https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=IBM+Plex+Mono:wght@500&family=Inter:wght@400;500;600&display=swap",
         },
         {
-          rel: "stylesheet",
-          href: "https://tona-coffee-two.vercel.app/assets/vendor/leaflet.css",
-        },
-        {
-          rel: "stylesheet",
-          href: "https://tona-coffee-two.vercel.app/styles.css",
-        },
-        {
           rel: "icon",
           href: "https://raw.githubusercontent.com/Jappi-Boss/Tona_coffee/7247bf6b0bd5bd8d6d21d08d20fb861eb2aeb612/public/favicon.png",
           type: "image/png",
@@ -144,10 +136,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 );
 
 function RootShell({ children }: { children: ReactNode }) {
+  const isAdmin = useRouterState({
+    select: (state) => state.location.pathname.startsWith("/admin"),
+  });
   return (
     <html lang="en">
       <head>
         <HeadContent />
+        {!isAdmin && (
+          <>
+            <link
+              rel="stylesheet"
+              href="https://tona-coffee-two.vercel.app/assets/vendor/leaflet.css"
+            />
+            <link
+              rel="stylesheet"
+              href="https://tona-coffee-two.vercel.app/styles.css"
+            />
+          </>
+        )}
       </head>
       <body>
         {children}
@@ -242,7 +249,11 @@ function WhatsAppConcierge() {
       <button
         className="whatsapp-launcher"
         type="button"
-        aria-label={open ? "Close Tona Coffee WhatsApp chat" : "Open Tona Coffee WhatsApp chat"}
+        aria-label={
+          open
+            ? "Close Tona Coffee WhatsApp chat"
+            : "Open Tona Coffee WhatsApp chat"
+        }
         aria-expanded={open}
         aria-controls="whatsapp-chat"
         onClick={() => setOpen((value) => !value)}
@@ -297,7 +308,11 @@ function RootComponent() {
       <SiteLoadingScreen routePending={isRoutePending} />
       {!isAdmin && <PageMotion pathname={pathname} />}
       <div className="flex min-h-screen flex-col">
-        {!isAdmin && <a className="skip-link" href="#main-content">Skip to content</a>}
+        {!isAdmin && (
+          <a className="skip-link" href="#main-content">
+            Skip to content
+          </a>
+        )}
         {!isAdmin && <ScrollProgress />}
         {!isAdmin && <SiteHeader />}
         <main id="main-content" className="flex-1">
