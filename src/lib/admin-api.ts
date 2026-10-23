@@ -67,7 +67,13 @@ const locationInput = authInput.extend({
   id: z.string().trim().min(1).max(120).optional(),
   number: z.string().trim().min(1).max(4),
   name: z.string().trim().min(2).max(120),
-  address: z.string().trim().min(2).max(240),
+  address: z.string().trim().max(240),
+  logoUrl: z.string().trim().max(2000).refine((url) => !url || url.startsWith("https://") || /^\/stockists\/[a-z0-9.-]+$/i.test(url), "Use an HTTPS logo URL.").default(""),
+  phone: z.string().trim().max(40).refine((value) => !value || /^[+0-9() .-]{7,40}$/.test(value), "Enter a valid phone number.").default(""),
+  instagram: z.string().trim().max(2000).refine((value) => {
+    if (!value) return true;
+    try { const url = new URL(value); return url.protocol === "https:" && ["instagram.com", "www.instagram.com"].includes(url.hostname); } catch { return false; }
+  }, "Enter an HTTPS Instagram profile URL.").default(""),
   note: z.string().trim().max(240),
   directions: z
     .string()

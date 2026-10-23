@@ -487,3 +487,32 @@
   }
 }
 
+
+/* Stockist cards only: preserve the existing section, heading and map. */
+.findus .stockist-cards { display: grid; grid-auto-rows: 1fr; gap: 12px; padding: 0; list-style: none; }
+.findus .stockist-card { display: grid; grid-template-columns: 30px 90px minmax(0, 1fr); gap: 14px; align-items: center; margin: 0; padding: 18px 16px; border: 1px solid currentColor; border-color: #ffffff30; border-left: 4px solid var(--primary); background: transparent; }
+.findus .stockist-card-number { color: var(--primary); font-family: var(--font-display); font-size: 24px; font-weight: 600; }
+.findus .stockist-card-logo { width: 90px; height: 90px; display: grid; place-items: center; background: white; overflow: hidden; }
+.findus .stockist-card-logo img { width: 100%; height: 100%; object-fit: contain; }
+.findus .stockist-card-content { min-width: 0; }
+.findus .stockist-card-content h3 { margin: 0 0 12px; font-family: var(--font-sans); font-size: 18px; line-height: 1.2; text-transform: none; letter-spacing: normal; }
+.findus .stockist-card-details { display: grid; gap: 8px; margin: 0; font-size: 12px; line-height: 1.45; }
+.findus .stockist-card-details > div { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 8px; }
+.findus .stockist-card-details dt { display: flex; align-items: center; gap: 6px; opacity: .75; }
+.findus .stockist-card-details svg { width: 14px; height: 14px; flex-shrink: 0; }
+.findus .stockist-card-details dd { margin: 0; overflow-wrap: anywhere; }
+.findus .stockist-card a { color: inherit; text-underline-offset: 4px; }
+.findus .stockist-card a:hover { color: var(--primary); }
+.findus .stockist-card a:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; }
+.findus .stockist-card-directions { grid-column: 3; justify-self: start; font-size: 12px; text-decoration: underline; }
+@media (min-width: 1500px) {
+  .findus .stockist-card { grid-template-columns: 30px 90px minmax(0, 1fr) auto; }
+  .findus .stockist-card-directions { grid-column: 4; grid-row: 1; border-left: 1px solid #ffffff30; padding-left: 12px; }
+}
+@media (max-width: 600px) {
+  .findus .stockist-card { grid-template-columns: 24px 64px minmax(0, 1fr); gap: 10px; padding: 16px 12px; }
+  .findus .stockist-card-logo { width: 64px; height: 64px; align-self: start; }
+  .findus .stockist-card-content h3 { font-size: 17px; }
+  .findus .stockist-card-details > div { grid-template-columns: 1fr; gap: 2px; }
+  .findus .stockist-card-number { font-size: 20px; align-self: start; }
+}

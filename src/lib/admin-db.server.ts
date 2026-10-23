@@ -345,12 +345,15 @@ export async function upsertEvent(input: EventUpdate) {
 
 type LocationUpdate = {
   token: string;
-  id?: string;
+  id?: string | undefined;
   number: string;
   name: string;
   address: string;
   note: string;
   directions: string;
+  logoUrl: string;
+  phone: string;
+  instagram: string;
 };
 
 export async function upsertLocation(input: LocationUpdate) {
@@ -369,6 +372,9 @@ export async function upsertLocation(input: LocationUpdate) {
       address: input.address.trim(),
       note: input.note.trim(),
       directions: input.directions.trim(),
+      logoUrl: input.logoUrl.trim(),
+      phone: input.phone.trim(),
+      instagram: input.instagram.trim(),
     },
   ]);
 

@@ -843,6 +843,8 @@ function Locations({
                   <p className="mt-2 text-sm text-muted-foreground">
                     {String(row.note)}
                   </p>
+                  <p className="mt-2 text-sm text-muted-foreground">Phone: {String(row["phone"] || "–")}</p>
+                  <p className="mt-2 break-all text-sm text-muted-foreground">Instagram: {String(row["instagram"] || "–")}</p>
                 </div>
                 <span className="text-xl text-primary" aria-hidden="true">
                   →
@@ -902,7 +904,7 @@ function Registrations({
           <tr key={String(row.id)} className="border-t">
             <Cell
               title={String(row.full_name)}
-              subtitle={`${String(row.phone)}${row.email ? ` · ${row.email}` : ""}`}
+              subtitle={`${String(row["phone"])}${row.email ? ` · ${row.email}` : ""}`}
             />
             <Cell title={String(row.event_title)} />
             <Cell title={String(row.guest_count)} />
@@ -954,7 +956,7 @@ function Orders({
             />
             <Cell
               title={String(row.customer_name)}
-              subtitle={String(row.phone)}
+              subtitle={String(row["phone"])}
             />
             <Cell
               title={`${Array.isArray(row.items) ? row.items.length : 0} item(s)`}
@@ -1032,7 +1034,7 @@ function Quotations({
               />
               <Cell
                 title={String(row.customer_name)}
-                subtitle={`${String(row.phone)}${row.email ? ` · ${row.email}` : ""}`}
+                subtitle={`${String(row["phone"])}${row.email ? ` · ${row.email}` : ""}`}
               />
               <Cell
                 title={String(row.package_size)}
@@ -1111,7 +1113,7 @@ function Business({
             />
             <Cell
               title={String(row.contact_person)}
-              subtitle={String(row.phone)}
+              subtitle={String(row["phone"])}
             />
             <Cell
               title={String(row.coffee_interest ?? "Not specified")}
@@ -1166,7 +1168,7 @@ function Contacts({
       >
         {rows.map((row) => (
           <tr key={String(row.id)} className="border-t">
-            <Cell title={String(row.full_name)} subtitle={String(row.phone)} />
+            <Cell title={String(row.full_name)} subtitle={String(row["phone"])} />
             <Cell title={String(row.request_type).replaceAll("_", " ")} />
             <Cell title={String(row.message)} />
             <Cell title={formatDate(row.created_at)} />
@@ -1460,12 +1462,16 @@ function ProductImageUpload({
   disabled,
   onUploadingChange,
   onUploaded,
+  recordLabel = "product",
+  contain = false,
 }: {
   imageUrl: string;
   productName: string;
   disabled: boolean;
   onUploadingChange: (uploading: boolean) => void;
   onUploaded: (url: string) => void;
+  recordLabel?: string;
+  contain?: boolean;
 }) {
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -1518,7 +1524,7 @@ function ProductImageUpload({
       if (!response.ok || !result?.secure_url)
         throw new Error(result?.error?.message ?? "Cloudinary upload failed.");
       onUploaded(result.secure_url);
-      setMessage("Upload complete. Save the product to apply the image.");
+      setMessage(`Upload complete. Save the ${recordLabel} to apply the image.`);
     } catch (caught) {
       setPreviewUrl("");
       setMessage(
@@ -1551,7 +1557,7 @@ function ProductImageUpload({
           <img
             src={previewUrl || imageUrl}
             alt={`${productName} preview`}
-            className="h-full w-full object-cover"
+            className={`h-full w-full ${contain ? "object-contain" : "object-cover"}`}
           />
         </div>
       )}
@@ -1863,6 +1869,8 @@ function LocationEditor({
 }) {
   const location = row === "new" ? {} : row;
   const [busy, setBusy] = useState(false);
+  const [logoUrl, setLogoUrl] = useState(String(location["logoUrl"] ?? ""));
+  const [imageUploading, setImageUploading] = useState(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -1879,6 +1887,9 @@ function LocationEditor({
           address: String(form.get("address")),
           note: String(form.get("note")),
           directions: String(form.get("directions")),
+          logoUrl,
+          phone: String(form.get("phone")),
+          instagram: String(form.get("instagram")),
         },
       });
       toast.success("Location saved.");
@@ -1914,9 +1925,8 @@ function LocationEditor({
         />
         <EditorField
           name="address"
-          label="Address"
+          label="Address (optional)"
           value={location.address}
-          required
           className="sm:col-span-2"
         />
         <EditorField
@@ -1933,8 +1943,17 @@ function LocationEditor({
           required
           className="sm:col-span-2"
         />
+        <EditorField name="phone" label="Phone (optional)" type="tel" value={location["phone"]} maxLength={40} />
+        <EditorField name="instagram" label="Instagram profile URL (optional)" type="url" value={location["instagram"]} placeholder="https://www.instagram.com/yourstore/" />
+        <div className="sm:col-span-2">
+          <label className="text-sm font-semibold text-teal">Store logo (optional)
+            <input value={logoUrl} onChange={(event) => setLogoUrl(event.target.value)} placeholder="Upload a logo or paste an HTTPS image URL" className="mt-2 h-11 w-full rounded-md border bg-white px-3 font-normal" />
+          </label>
+          <ProductImageUpload imageUrl={logoUrl} productName={String(location.name ?? "Store logo")} disabled={busy} onUploadingChange={setImageUploading} onUploaded={setLogoUrl} recordLabel="location" contain />
+          <p className="mt-2 text-xs text-muted-foreground">Leave unavailable details blank. The website displays –.</p>
+        </div>
         <EditorActions
-          busy={busy}
+          busy={busy || imageUploading}
           close={close}
           submitLabel={row === "new" ? "Create location" : "Save changes"}
         />
@@ -2261,7 +2280,7 @@ function downloadQuotationWorkbook(rows: Row[]) {
     row.quote_number,
     row.customer_name,
     row.company,
-    row.phone,
+    row["phone"],
     row.email,
     row.package_size,
     row.format,

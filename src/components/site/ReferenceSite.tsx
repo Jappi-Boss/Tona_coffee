@@ -1,3 +1,4 @@
+import { MapPin, Phone, Instagram } from "lucide-react";
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import {
@@ -1534,19 +1535,22 @@ function ReferenceFindUsSection() {
       />
 
       <div className="stockist-layout">
-        <ul className="stockist-list">
+        <ul className="stockist-list stockist-cards">
           {stockists.map((stockist) => (
-            <li className="stockist reveal" key={stockist.id}>
-              <button type="button" className="stockist-button">
-                <span className="stockist-no">{stockist.number}</span>
-                <span className="stockist-body">
-                  <span className="stockist-name">{stockist.name}</span>
-                  <span className="stockist-address">{stockist.address}</span>
-                  <span className="stockist-note">{stockist.note}</span>
-                </span>
-                <span className="stockist-mark" aria-hidden="true">→</span>
-              </button>
-              <a className="text-link" href={stockist.directions} target="_blank" rel="noopener noreferrer">
+            <li className="stockist stockist-card reveal" key={stockist.id}>
+              <span className="stockist-card-number">{stockist.number}</span>
+              <div className="stockist-card-logo">
+                {stockist.logoUrl ? <img src={stockist.logoUrl} alt={`${stockist.name} logo`} loading="lazy" onError={(event) => { event.currentTarget.style.display = "none"; }} /> : <span aria-hidden="true">–</span>}
+              </div>
+              <div className="stockist-card-content">
+                <h3>{stockist.name}</h3>
+                <dl className="stockist-card-details">
+                  <div><dt><MapPin aria-hidden="true" />Location</dt><dd>{stockist.address || <a href={stockist.directions} target="_blank" rel="noopener noreferrer">View on Google Maps ↗</a>}</dd></div>
+                  <div><dt><Phone aria-hidden="true" />Phone</dt><dd>{stockist.phone ? <a href={`tel:${stockist.phone.replace(/[^+0-9]/g, "")}`}>{stockist.phone}</a> : "–"}</dd></div>
+                  <div><dt><Instagram aria-hidden="true" />Instagram</dt><dd>{stockist.instagram ? <a href={stockist.instagram} target="_blank" rel="noopener noreferrer">@{new URL(stockist.instagram).pathname.split("/").filter(Boolean)[0]}</a> : "–"}</dd></div>
+                </dl>
+              </div>
+              <a className="stockist-card-directions" href={stockist.directions} target="_blank" rel="noopener noreferrer" aria-label={`Directions to ${stockist.name}`}>
                 Directions <span aria-hidden="true">↗</span>
               </a>
             </li>
@@ -1554,7 +1558,8 @@ function ReferenceFindUsSection() {
         </ul>
 
         <div className="stockist-map reveal">
-          <ReferenceMap stockists={stockists} />
+          {/* Keep existing map pins unchanged; new stores use their Directions links. */}
+          <ReferenceMap stockists={stockists.filter((stockist) => Object.hasOwn(KNOWN_MAP_POSITIONS, stockist.name))} />
         </div>
       </div>
 
