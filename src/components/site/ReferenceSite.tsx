@@ -1324,30 +1324,27 @@ const MAP_TILES = Array.from({ length: 6 }, (_, column) =>
   }),
 ).flat();
 
-const MAP_MARKER_POSITIONS = [
-  { x: 481, y: 84 },
-  { x: 229, y: 330 },
-  { x: 560, y: 250 },
-  { x: 340, y: 180 },
-  { x: 100, y: 260 },
-  { x: 650, y: 180 },
-] as const;
-
-const KNOWN_MAP_POSITIONS: Record<string, { x: number; y: number }> = {
-  "Emawa Mart": { x: 481, y: 84 },
-  Allmart: { x: 229, y: 330 },
-  // Google Maps: 8.9900508, 38.7826172, projected into the zoom-14 tile grid.
-  "MT Super Valu": { x: 943.2401456, y: 292.8711557 },
+// Verified Google Maps store coordinates, not approximate screen positions.
+const VERIFIED_MAP_COORDINATES: Record<string, { latitude: number; longitude: number }> = {
+  "Emawa Mart": { latitude: 9.007352, longitude: 38.7428241 },
+  Allmart: { latitude: 8.986868, longitude: 38.7213186 },
+  "MT Super Valu": { latitude: 8.9900508, longitude: 38.7826172 },
 };
 
-function getStockistMapPosition(stockist: PublicStockist, index: number) {
-  return (
-    KNOWN_MAP_POSITIONS[stockist.name] ??
-    MAP_MARKER_POSITIONS[index % MAP_MARKER_POSITIONS.length] ?? {
-      x: 300,
-      y: 200,
-    }
-  );
+function projectStockist(latitude: number, longitude: number) {
+  const worldSize = 256 * 2 ** 14;
+  return {
+    x: ((longitude + 180) / 360) * worldSize - 9954 * 256 + 165,
+    y: ((1 - Math.asinh(Math.tan(latitude * Math.PI / 180)) / Math.PI) / 2) * worldSize - 7780 * 256 - 5,
+  };
+}
+
+const KNOWN_MAP_POSITIONS = Object.fromEntries(
+  Object.entries(VERIFIED_MAP_COORDINATES).map(([name, point]) => [name, projectStockist(point.latitude, point.longitude)]),
+);
+
+function getStockistMapPosition(stockist: PublicStockist) {
+  return KNOWN_MAP_POSITIONS[stockist.name];
 }
 
 function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
@@ -1413,11 +1410,18 @@ function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
   };
 
   const stockistNames = stockists.map((stockist) => stockist.name).join(", ");
-  const hasThirdStockist = stockists.some((stockist) => stockist.name === "MT Super Valu");
-  const fitScale = hasThirdStockist ? Math.min(1, Math.max(0.2, (mapSize.width - 90) / (943.2401456 - 229))) : 1;
+  const points = stockists.flatMap((stockist) => {
+    const point = getStockistMapPosition(stockist);
+    return point ? [point] : [];
+  });
+  const minX = points.length ? Math.min(...points.map((point) => point.x)) : 0;
+  const maxX = points.length ? Math.max(...points.map((point) => point.x)) : 0;
+  const minY = points.length ? Math.min(...points.map((point) => point.y)) : 0;
+  const maxY = points.length ? Math.max(...points.map((point) => point.y)) : 0;
+  const fitScale = points.length ? Math.max(0.2, Math.min(1, (mapSize.width - 90) / Math.max(1, maxX - minX), (mapSize.height - 90) / Math.max(1, maxY - minY))) : 1;
   const scale = fitScale * Math.pow(2, zoomLevel);
-  const offsetX = hasThirdStockist ? mapSize.width / 2 - 586.1200728 * scale : 0;
-  const offsetY = hasThirdStockist ? mapSize.height / 2 - 207 * scale : 0;
+  const offsetX = points.length ? mapSize.width / 2 - (minX + maxX) / 2 * scale : 0;
+  const offsetY = points.length ? mapSize.height / 2 - (minY + maxY) / 2 * scale : 0;
   const mapPaneTransform = `translate3d(${offsetX + mapOffset.x}px, ${offsetY + mapOffset.y}px, 0px) scale(${scale})`;
 
   return (
@@ -1462,11 +1466,14 @@ function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
         <div className="leaflet-pane leaflet-shadow-pane" />
         <div className="leaflet-pane leaflet-marker-pane">
           {stockists.map((stockist, index) => {
-            const position = getStockistMapPosition(stockist, index);
+            const position = getStockistMapPosition(stockist);
+            if (!position) return null;
             return (
               <div
                 className="leaflet-marker-icon tona-pin-wrap leaflet-zoom-animated leaflet-interactive"
                 title={stockist.name}
+                data-latitude={VERIFIED_MAP_COORDINATES[stockist.name]?.latitude}
+                data-longitude={VERIFIED_MAP_COORDINATES[stockist.name]?.longitude}
                 aria-label={`Open directions to ${stockist.name}`}
                 onClick={() => window.open(stockist.directions, "_blank", "noopener,noreferrer")}
                 onKeyDown={(event) => {

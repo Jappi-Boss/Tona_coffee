@@ -23,7 +23,7 @@ export const DEFAULT_STOCKISTS: Stockist[] = [
     address: "Mexico, Lideta · Addis Ababa",
     note: "Tona House Blend, retail packs.",
     directions:
-      "https://www.google.com/maps/search/?api=1&query=Emawa%20Mart%2C%20Addis%20Ababa%2C%20Ethiopia",
+      "https://www.google.com/maps/dir/?api=1&destination=9.007352,38.7428241&destination_place_id=ChIJsfBmVwCFSxYRelOY9oGmt18",
   },
   {
     id: "stockist-allmart",
@@ -35,7 +35,7 @@ export const DEFAULT_STOCKISTS: Stockist[] = [
     address: "Bisrate Gabriel, Nefas Silk · Addis Ababa",
     note: "Tona House Blend, retail packs.",
     directions:
-      "https://www.google.com/maps/search/?api=1&query=Allmart%20Bisrate%20Gabriel%2C%20Addis%20Ababa%2C%20Ethiopia",
+      "https://www.google.com/maps/dir/?api=1&destination=8.986868,38.7213186&destination_place_id=ChIJ231yVymHSxYRnioIpCNap3Y",
   },
   {
     id: "stockist-mt-super-valu",
