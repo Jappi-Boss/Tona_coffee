@@ -1,5 +1,15 @@
+import genericCoffeeImage from "@/assets/beans.jpg";
 import { MapPin, Phone, Instagram } from "lucide-react";
-import { Fragment, useEffect, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import {
+  Fragment,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FormEvent,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from "react";
 import { Link } from "@tanstack/react-router";
 import {
   getPublicCatalog,
@@ -51,7 +61,7 @@ type OriginCardData = {
 
 function toOriginCardData(product: PublicProduct): OriginCardData {
   const fallbackImage =
-    REFERENCE_PRODUCT_IMAGES[product.slug] ?? REFERENCE_IMAGES.yirgacheffe;
+    REFERENCE_PRODUCT_IMAGES[product.slug] ?? genericCoffeeImage;
 
   return {
     id: product.id,
@@ -68,12 +78,36 @@ function toOriginCardData(product: PublicProduct): OriginCardData {
 }
 
 const PARTNERS = [
-  ["Cafés & coffee shops", "Coffee supply, brewing guidance, Ethiopian origin storytelling and barista support.", "cup"],
-  ["Supermarkets & retailers", "Retail-ready products, promotional and tasting support, and wholesale supply.", "store"],
-  ["Hotels & resorts", "Coffee supply, product selection, brewing guidance and coffee experiences for guests.", "hotel"],
-  ["Distributors & international partners", "Wholesale supply, product information, brand storytelling and long-term development.", "globe"],
-  ["Corporate & office", "Workplace coffee supply, meeting and event solutions, and customized experiences.", "office"],
-  ["Events & collaborations", "Coffee supply, tasting experiences, sampling and co-branded activations.", "calendar"],
+  [
+    "Cafés & coffee shops",
+    "Coffee supply, brewing guidance, Ethiopian origin storytelling and barista support.",
+    "cup",
+  ],
+  [
+    "Supermarkets & retailers",
+    "Retail-ready products, promotional and tasting support, and wholesale supply.",
+    "store",
+  ],
+  [
+    "Hotels & resorts",
+    "Coffee supply, product selection, brewing guidance and coffee experiences for guests.",
+    "hotel",
+  ],
+  [
+    "Distributors & international partners",
+    "Wholesale supply, product information, brand storytelling and long-term development.",
+    "globe",
+  ],
+  [
+    "Corporate & office",
+    "Workplace coffee supply, meeting and event solutions, and customized experiences.",
+    "office",
+  ],
+  [
+    "Events & collaborations",
+    "Coffee supply, tasting experiences, sampling and co-branded activations.",
+    "calendar",
+  ],
 ] as const;
 
 const PACKAGES = [
@@ -93,13 +127,20 @@ const FORMATS = [
 const STOCKISTS = DEFAULT_STOCKISTS;
 
 type SectionHeadingProps = {
+  id: string;
   index: string;
   title: ReactNode;
   intro?: string;
   titleLabel?: string;
 };
 
-function RevealWords({ words, startAt = 0 }: { words: string[]; startAt?: number }) {
+function RevealWords({
+  words,
+  startAt = 0,
+}: {
+  words: string[];
+  startAt?: number;
+}) {
   return (
     <>
       {words.map((word, index) => (
@@ -107,7 +148,9 @@ function RevealWords({ words, startAt = 0 }: { words: string[]; startAt?: number
           <span
             className="reveal-word"
             aria-hidden="true"
-            style={{ "--word-delay": (startAt + index) * 38 + "ms" } as CSSProperties}
+            style={
+              { "--word-delay": (startAt + index) * 38 + "ms" } as CSSProperties
+            }
           >
             {word}
           </span>
@@ -118,13 +161,7 @@ function RevealWords({ words, startAt = 0 }: { words: string[]; startAt?: number
   );
 }
 
-function CinematicHeading({
-  as,
-  text,
-}: {
-  as: "h3" | "h4";
-  text: string;
-}) {
+function CinematicHeading({ as, text }: { as: "h3" | "h4"; text: string }) {
   const Heading = as;
   const words = text.split(" ");
 
@@ -136,7 +173,9 @@ function CinematicHeading({
             <span
               className="cinematic-word"
               aria-hidden="true"
-              style={{ "--cinematic-delay": index * 48 + "ms" } as CSSProperties}
+              style={
+                { "--cinematic-delay": index * 48 + "ms" } as CSSProperties
+              }
             >
               {word}
             </span>
@@ -160,40 +199,91 @@ function AmendIcon({
   if (type === "cup") {
     artwork = (
       <>
-        <path data-draw="" pathLength={1} d="M7 17h25v10a11 11 0 0 1-11 11h-3A11 11 0 0 1 7 27Z" />
-        <path data-draw="" pathLength={1} d="M32 21h4a5 5 0 0 1 0 10h-5M5 42h34M14 12c-2-4 3-5 1-9M23 12c-2-4 3-5 1-9" />
+        <path
+          data-draw=""
+          pathLength={1}
+          d="M7 17h25v10a11 11 0 0 1-11 11h-3A11 11 0 0 1 7 27Z"
+        />
+        <path
+          data-draw=""
+          pathLength={1}
+          d="M32 21h4a5 5 0 0 1 0 10h-5M5 42h34M14 12c-2-4 3-5 1-9M23 12c-2-4 3-5 1-9"
+        />
       </>
     );
   } else if (type === "store") {
     artwork = (
       <>
         <path data-draw="" pathLength={1} d="M6 19h36v23H6ZM9 8h30l4 11H5Z" />
-        <path data-draw="" pathLength={1} d="M15 42V29h9v13M29 28h8v7h-8M5 19c3 4 6 4 9 0 3 4 6 4 9 0 3 4 6 4 9 0 3 4 6 4 11 0" />
+        <path
+          data-draw=""
+          pathLength={1}
+          d="M15 42V29h9v13M29 28h8v7h-8M5 19c3 4 6 4 9 0 3 4 6 4 9 0 3 4 6 4 9 0 3 4 6 4 11 0"
+        />
       </>
     );
   } else if (type === "hotel") {
-    artwork = <path data-draw="" pathLength={1} d="M9 43V8h30v35M4 43h40M16 15h5v5h-5ZM27 15h5v5h-5ZM16 26h5v5h-5ZM27 26h5v5h-5ZM21 43V35h6v8" />;
+    artwork = (
+      <path
+        data-draw=""
+        pathLength={1}
+        d="M9 43V8h30v35M4 43h40M16 15h5v5h-5ZM27 15h5v5h-5ZM16 26h5v5h-5ZM27 26h5v5h-5ZM21 43V35h6v8"
+      />
+    );
   } else if (type === "globe") {
     artwork = (
       <>
         <circle data-draw="" pathLength={1} cx="24" cy="24" r="19" />
-        <path data-draw="" pathLength={1} d="M5 24h38M24 5c6 6 9 12 9 19s-3 13-9 19c-6-6-9-12-9-19s3-13 9-19ZM8 15h32M8 33h32" />
+        <path
+          data-draw=""
+          pathLength={1}
+          d="M5 24h38M24 5c6 6 9 12 9 19s-3 13-9 19c-6-6-9-12-9-19s3-13 9-19ZM8 15h32M8 33h32"
+        />
       </>
     );
   } else if (type === "office") {
-    artwork = <path data-draw="" pathLength={1} d="M7 43V13h22v30M29 22h12v21M3 43h42M13 20h5M13 27h5M13 34h5M23 20h1M23 27h1M23 34h1M34 29h3M34 35h3" />;
+    artwork = (
+      <path
+        data-draw=""
+        pathLength={1}
+        d="M7 43V13h22v30M29 22h12v21M3 43h42M13 20h5M13 27h5M13 34h5M23 20h1M23 27h1M23 34h1M34 29h3M34 35h3"
+      />
+    );
   } else {
     artwork = (
       <>
-        <rect data-draw="" pathLength={1} x="6" y="10" width="29" height="32" rx="2" />
-        <path data-draw="" pathLength={1} d="M13 5v10M28 5v10M6 20h29M39 28v12M33 34h12" />
+        <rect
+          data-draw=""
+          pathLength={1}
+          x="6"
+          y="10"
+          width="29"
+          height="32"
+          rx="2"
+        />
+        <path
+          data-draw=""
+          pathLength={1}
+          d="M13 5v10M28 5v10M6 20h29M39 28v12M33 34h12"
+        />
       </>
     );
   }
 
   return (
-    <span className="amend-icon" aria-hidden="true" style={{ "--icon-delay": delay + "ms" } as CSSProperties}>
-      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <span
+      className="amend-icon"
+      aria-hidden="true"
+      style={{ "--icon-delay": delay + "ms" } as CSSProperties}
+    >
+      <svg
+        viewBox="0 0 48 48"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         {artwork}
       </svg>
     </span>
@@ -213,48 +303,105 @@ function MomentIcon({
       <>
         <circle data-draw="" pathLength={1} cx="17" cy="17" r="5" />
         <circle data-draw="" pathLength={1} cx="31" cy="18" r="4" />
-        <path data-draw="" pathLength={1} d="M7 38c1.6-7.2 5-10 10-10s8.4 2.8 10 10M27 29c5.7-1.3 10.7 1.7 13 8" />
+        <path
+          data-draw=""
+          pathLength={1}
+          d="M7 38c1.6-7.2 5-10 10-10s8.4 2.8 10 10M27 29c5.7-1.3 10.7 1.7 13 8"
+        />
       </>
     );
   } else if (type === "briefcase") {
     artwork = (
       <>
-        <rect data-draw="" pathLength={1} x="7" y="15" width="34" height="24" rx="2" />
-        <path data-draw="" pathLength={1} d="M17 15v-4h14v4M7 24h34M20 24v4h8v-4" />
+        <rect
+          data-draw=""
+          pathLength={1}
+          x="7"
+          y="15"
+          width="34"
+          height="24"
+          rx="2"
+        />
+        <path
+          data-draw=""
+          pathLength={1}
+          d="M17 15v-4h14v4M7 24h34M20 24v4h8v-4"
+        />
       </>
     );
   } else if (type === "handshake") {
-    artwork = <path data-draw="" pathLength={1} d="m5 18 8-6 8 6-5 4a3 3 0 0 0 4 4.5l6-4.5 9-10 8 6M6 31l9 8a3 3 0 0 0 4 0l2-2M42 31l-9 8a3 3 0 0 1-4 0L20 31" />;
+    artwork = (
+      <path
+        data-draw=""
+        pathLength={1}
+        d="m5 18 8-6 8 6-5 4a3 3 0 0 0 4 4.5l6-4.5 9-10 8 6M6 31l9 8a3 3 0 0 0 4 0l2-2M42 31l-9 8a3 3 0 0 1-4 0L20 31"
+      />
+    );
   } else if (type === "family") {
     artwork = (
       <>
         <path data-draw="" pathLength={1} d="M6 23 24 8l18 15v18H6Z" />
-        <path data-draw="" pathLength={1} d="M17 41V28h14v13M24 25c-5-5-10 2 0 9 10-7 5-14 0-9Z" />
+        <path
+          data-draw=""
+          pathLength={1}
+          d="M17 41V28h14v13M24 25c-5-5-10 2 0 9 10-7 5-14 0-9Z"
+        />
       </>
     );
   } else {
     artwork = (
       <>
-        <path data-draw="" pathLength={1} d="M9 20h25v9a10 10 0 0 1-10 10h-5A10 10 0 0 1 9 29Z" />
-        <path data-draw="" pathLength={1} d="M34 23h4a5 5 0 0 1 0 10h-5M6 42h33M17 14c-3-4 3-5 0-9M26 14c-3-4 3-5 0-9" />
+        <path
+          data-draw=""
+          pathLength={1}
+          d="M9 20h25v9a10 10 0 0 1-10 10h-5A10 10 0 0 1 9 29Z"
+        />
+        <path
+          data-draw=""
+          pathLength={1}
+          d="M34 23h4a5 5 0 0 1 0 10h-5M6 42h33M17 14c-3-4 3-5 0-9M26 14c-3-4 3-5 0-9"
+        />
       </>
     );
   }
 
   return (
-    <span className="amend-icon" aria-hidden="true" style={{ "--icon-delay": delay + "ms" } as CSSProperties}>
-      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <span
+      className="amend-icon"
+      aria-hidden="true"
+      style={{ "--icon-delay": delay + "ms" } as CSSProperties}
+    >
+      <svg
+        viewBox="0 0 48 48"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         {artwork}
       </svg>
     </span>
   );
 }
 
-function SectionHeading({ id, index, title, intro, titleLabel }: SectionHeadingProps) {
+function SectionHeading({
+  id,
+  index,
+  title,
+  intro,
+  titleLabel,
+}: SectionHeadingProps) {
   return (
     <div className="section-heading reveal">
       <p className="section-index">{index}</p>
-      <h2 id={id} className="display word-reveal motion-heading" aria-label={titleLabel}>{title}</h2>
+      <h2
+        id={id}
+        className="display word-reveal motion-heading"
+        aria-label={titleLabel}
+      >
+        {title}
+      </h2>
       {intro ? <p className="section-intro motion-copy">{intro}</p> : null}
     </div>
   );
@@ -280,9 +427,9 @@ function ReferenceHero() {
               <span>[Noun]</span>
             </p>
             <p className="meaning">
-              <b>01/</b>A. The second cup of coffee in Ethiopian coffee ceremony.
-              B. A unique coffee brand with the essence of community and bringing
-              people together.
+              <b>01/</b>A. The second cup of coffee in Ethiopian coffee
+              ceremony. B. A unique coffee brand with the essence of community
+              and bringing people together.
             </p>
           </div>
           <div className="hero-intro">
@@ -336,7 +483,11 @@ function ReferenceHero() {
 
 function ReferenceAboutSection() {
   return (
-    <section className="about section motion-section section-cinema" id="story" aria-labelledby="story-title">
+    <section
+      className="about section motion-section section-cinema"
+      id="story"
+      aria-labelledby="story-title"
+    >
       <SectionHeading
         id="story-title"
         index="01 / About Tona"
@@ -389,25 +540,60 @@ function ReferenceAboutSection() {
       <div className="moment-block">
         <div className="moment-intro reveal">
           <p className="mono-label">A moment for everyone</p>
-          <h3 className="display word-reveal motion-heading" aria-label="Around the cup,we come closer.">
+          <h3
+            className="display word-reveal motion-heading"
+            aria-label="Around the cup,we come closer."
+          >
             <RevealWords words={["Around", "the", "cup"]} />
             <br />
             <RevealWords words={["we", "come", "closer."]} startAt={3} />
           </h3>
           <p className="section-intro motion-copy">
-            Five reasons people stay for the second round—and what Tona brings to
-            each of them.
+            Five reasons people stay for the second round—and what Tona brings
+            to each of them.
           </p>
         </div>
 
         <div className="moment-grid">
-          {([
-            ["01", "For friends", "Another round is how an evening keeps going.", "Connection", "people"],
-            ["02", "For colleagues", "Where a discussion moves past the agenda.", "Quality", "briefcase"],
-            ["03", "For partners", "Space for ideas, decisions and the trust behind them.", "Origin", "handshake"],
-            ["04", "For families", "The oldest reason to gather, poured not explained.", "Culture", "family"],
-            ["05", "For yourself", "A deliberate pause, and a cup worth the time.", "Craft", "cup"],
-          ] as const).map(([number, title, text, tag, icon], index) => (
+          {(
+            [
+              [
+                "01",
+                "For friends",
+                "Another round is how an evening keeps going.",
+                "Connection",
+                "people",
+              ],
+              [
+                "02",
+                "For colleagues",
+                "Where a discussion moves past the agenda.",
+                "Quality",
+                "briefcase",
+              ],
+              [
+                "03",
+                "For partners",
+                "Space for ideas, decisions and the trust behind them.",
+                "Origin",
+                "handshake",
+              ],
+              [
+                "04",
+                "For families",
+                "The oldest reason to gather, poured not explained.",
+                "Culture",
+                "family",
+              ],
+              [
+                "05",
+                "For yourself",
+                "A deliberate pause, and a cup worth the time.",
+                "Craft",
+                "cup",
+              ],
+            ] as const
+          ).map(([number, title, text, tag, icon], index) => (
             <article className="moment-card reveal" key={number}>
               <span className="moment-no">{number}</span>
               <MomentIcon type={icon} delay={index * 80} />
@@ -440,13 +626,12 @@ function ReferenceAboutSection() {
   );
 }
 
-function OriginCard({
-  origin,
-}: {
-  origin: OriginCardData;
-}) {
+function OriginCard({ origin }: { origin: OriginCardData }) {
   return (
-    <article className="origin-card reveal motion-card" data-origin={origin.slug}>
+    <article
+      className="origin-card reveal motion-card"
+      data-origin={origin.slug}
+    >
       <figure className="parallax-media">
         <img
           src={origin.image}
@@ -467,7 +652,10 @@ function OriginCard({
         </div>
         <CinematicHeading as="h3" text={origin.name} />
         <p>{origin.description}</p>
-        <ul className="tasting-notes" aria-label={origin.name + " tasting notes"}>
+        <ul
+          className="tasting-notes"
+          aria-label={origin.name + " tasting notes"}
+        >
           {origin.notes.map((note) => (
             <li key={note}>{note}</li>
           ))}
@@ -491,24 +679,28 @@ function ReferenceCoffeeSection() {
   useEffect(() => {
     let mounted = true;
 
-    void getPublicCatalog()
-      .then((catalog) => {
-        if (mounted) {
-          setProducts(catalog.products.map(toOriginCardData));
-          setCatalogError("");
-        }
-      })
-      .catch(() => {
-        if (mounted) {
-          setProducts([]);
-          setCatalogError(
-            "The current coffee catalogue could not be loaded. Please try again shortly.",
-          );
-        }
-      });
-
+    const refresh = () => {
+      void getPublicCatalog()
+        .then((catalog) => {
+          if (mounted) {
+            setProducts(catalog.products.map(toOriginCardData));
+            setCatalogError("");
+          }
+        })
+        .catch(() => {
+          if (mounted) {
+            setProducts([]);
+            setCatalogError(
+              "The current coffee catalogue could not be loaded. Please try again shortly.",
+            );
+          }
+        });
+    };
+    refresh();
+    window.addEventListener("focus", refresh);
     return () => {
       mounted = false;
+      window.removeEventListener("focus", refresh);
     };
   }, []);
 
@@ -526,7 +718,9 @@ function ReferenceCoffeeSection() {
           <>
             <RevealWords words={["Ethiopian", "coffee."]} />
             <br />
-            <span className="ember"><RevealWords words={["Sourced", "for", "export."]} startAt={2} /></span>
+            <span className="ember">
+              <RevealWords words={["Sourced", "for", "export."]} startAt={2} />
+            </span>
           </>
         }
         intro="We source and export premium Ethiopian green coffee for roasters, importers, and traders worldwide. From regions such as Gedeo, Sidama, Oromia, and Jimma, we source to your quality, profile, and volume requirements—and deliver to your door."
@@ -549,15 +743,21 @@ function ReferenceCoffeeSection() {
       <div className="export-rail reveal">
         <div>
           <p className="mono-label">Sample first</p>
-          <p>Any origin ships as a 100g sample before a single bag is committed.</p>
+          <p>
+            Any origin ships as a 100g sample before a single bag is committed.
+          </p>
         </div>
         <div>
           <p className="mono-label">Lot documents</p>
-          <p>Origin, process, altitude and cupping notes travel with every offer.</p>
+          <p>
+            Origin, process, altitude and cupping notes travel with every offer.
+          </p>
         </div>
         <div>
           <p className="mono-label">Volume</p>
-          <p>Quoted per contract, against your shipping window and destination.</p>
+          <p>
+            Quoted per contract, against your shipping window and destination.
+          </p>
         </div>
         <a className="button button-primary" href="#orders">
           Start an export request <span aria-hidden="true">↓</span>
@@ -570,7 +770,12 @@ function ReferenceCoffeeSection() {
 function PrincipleIcon({ type }: { type: "handshake" | "eye" | "link" }) {
   if (type === "eye") {
     return (
-      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="2">
+      <svg
+        viewBox="0 0 64 64"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
         <path d="M6 32s9-14 26-14 26 14 26 14-9 14-26 14S6 32 6 32Z" />
         <circle cx="32" cy="32" r="7" />
       </svg>
@@ -579,7 +784,13 @@ function PrincipleIcon({ type }: { type: "handshake" | "eye" | "link" }) {
 
   if (type === "link") {
     return (
-      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <svg
+        viewBox="0 0 64 64"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      >
         <path d="m27 39-5 5a10 10 0 0 1-14-14l9-9a10 10 0 0 1 14 0" />
         <path d="m37 25 5-5a10 10 0 0 1 14 14l-9 9a10 10 0 0 1-14 0M23 41l18-18" />
       </svg>
@@ -587,7 +798,14 @@ function PrincipleIcon({ type }: { type: "handshake" | "eye" | "link" }) {
   }
 
   return (
-    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      viewBox="0 0 64 64"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M7 19l10-7 10 7-6 5a4 4 0 0 0 5.5 5.8L34 24l13-12 10 7" />
       <path d="M8 37l12 12a4 4 0 0 0 5.5 0l1.5-1.5M56 37 45 48a4 4 0 0 1-5.5 0L27 36" />
     </svg>
@@ -596,13 +814,32 @@ function PrincipleIcon({ type }: { type: "handshake" | "eye" | "link" }) {
 
 function ReferenceDifferenceSection() {
   const principles = [
-    ["01", "handshake", "Dignity in every handshake.", "We build relationships that recognise the knowledge, labour and ambition behind every coffee."],
-    ["02", "eye", "Radical transparency.", "Clear conversations, traceable Ethiopian origins, consistent roast profiles and a shared understanding of quality."],
-    ["03", "link", "Partnership, not transaction.", "We commit to the relationship before the order — and everything below comes with it."],
+    [
+      "01",
+      "handshake",
+      "Dignity in every handshake.",
+      "We build relationships that recognise the knowledge, labour and ambition behind every coffee.",
+    ],
+    [
+      "02",
+      "eye",
+      "Radical transparency.",
+      "Clear conversations, traceable Ethiopian origins, consistent roast profiles and a shared understanding of quality.",
+    ],
+    [
+      "03",
+      "link",
+      "Partnership, not transaction.",
+      "We commit to the relationship before the order — and everything below comes with it.",
+    ],
   ] as const;
 
   return (
-    <section className="difference section motion-section section-cinema" id="difference" aria-labelledby="difference-title">
+    <section
+      className="difference section motion-section section-cinema"
+      id="difference"
+      aria-labelledby="difference-title"
+    >
       <SectionHeading
         id="difference-title"
         index="03 / The difference"
@@ -633,7 +870,11 @@ function ReferenceDifferenceSection() {
 
 function ReferenceBusinessSection() {
   return (
-    <section className="business section motion-section section-cinema" id="business" aria-labelledby="business-title">
+    <section
+      className="business section motion-section section-cinema"
+      id="business"
+      aria-labelledby="business-title"
+    >
       <SectionHeading
         id="business-title"
         index="04 / For business"
@@ -679,9 +920,9 @@ function ReferenceBusinessSection() {
           </h3>
           <p>
             Every Tona coffee—each export origin and the House Blend—ships as a
-            <strong> 100g sample</strong> before anything is committed. Enough for
-            a full cupping, a staff tasting and a second opinion. Tell us which
-            one, and it is on its way.
+            <strong> 100g sample</strong> before anything is committed. Enough
+            for a full cupping, a staff tasting and a second opinion. Tell us
+            which one, and it is on its way.
           </p>
           <a
             className="button button-primary"
@@ -707,8 +948,14 @@ function openWhatsAppFromForm(
   const details = Array.from(data.entries())
     .filter(([, value]) => String(value).trim())
     .map(([key, value]) => key + ": " + String(value).trim());
-  window.open(waLink([subject, ...details].join("\n")), "_blank", "noopener,noreferrer");
-  setStatus("Your WhatsApp message is ready. The Tona team will confirm the details.");
+  window.open(
+    waLink([subject, ...details].join("\n")),
+    "_blank",
+    "noopener,noreferrer",
+  );
+  setStatus(
+    "Your WhatsApp message is ready. The Tona team will confirm the details.",
+  );
 }
 
 function formText(data: FormData, name: string) {
@@ -824,6 +1071,7 @@ async function submitRequestForm(
         phone: formText(data, "phone"),
         email: optionalFormText(data, "email"),
         requestType,
+        coffeeInterest,
         message: message || "No additional message.",
       },
     });
@@ -954,12 +1202,24 @@ function ReferenceEventDialog({
 }) {
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [eventChoice, setEventChoice] = useState(selected.id);
+  const chosenEvent =
+    events.find((event) => event.id === eventChoice) ?? selected;
+  const maxGuests = Math.min(
+    10,
+    chosenEvent.capacity === null
+      ? 10
+      : Math.max(1, chosenEvent.capacity - chosenEvent.registrationCount),
+  );
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy || saved) return;
     const data = new FormData(event.currentTarget);
     const eventId = formText(data, "event");
-    const selectedEvent = events.find((item) => item.id === eventId) ?? selected;
+    const selectedEvent =
+      events.find((item) => item.id === eventId) ?? selected;
     const whatsappMessage = [
       "Hi Tona, I'd like to register for a Tona event.",
       `Event: ${selectedEvent.title}`,
@@ -984,14 +1244,20 @@ function ReferenceEventDialog({
           notes: optionalFormText(data, "note"),
         },
       });
-      finishWhatsAppWindow(popup, whatsappMessage, Boolean(result.whatsappSent));
+      setSaved(true);
+      finishWhatsAppWindow(
+        popup,
+        whatsappMessage,
+        Boolean(result.whatsappSent),
+      );
       setStatus(
         `Registration saved. ${result.emailSent ? "Email sent. " : ""}${result.whatsappSent ? "WhatsApp notification sent." : "WhatsApp message is ready for you to send."}`,
       );
     } catch (error) {
       finishWhatsAppWindow(popup, whatsappMessage);
       setStatus(
-        error instanceof Error && /required|valid|closed|full/i.test(error.message)
+        error instanceof Error &&
+          /required|valid|closed|full/i.test(error.message)
           ? error.message
           : "We could not save the registration online. WhatsApp is ready—please send the message so Tona can confirm your place.",
       );
@@ -1001,36 +1267,122 @@ function ReferenceEventDialog({
   }
 
   return (
-    <div className="event-dialog-backdrop" role="presentation" onMouseDown={(event) => {
-      if (event.target === event.currentTarget) onClose();
-    }}>
-      <div className="event-dialog" role="dialog" aria-modal="true" aria-labelledby="event-dialog-title">
+    <div
+      className="event-dialog-backdrop"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="event-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="event-dialog-title"
+      >
         <div className="event-dialog-head">
           <div>
             <p className="mono-label">Reserve your place</p>
             <h2 id="event-dialog-title">Event registration</h2>
-            <p>Your registration is saved in Tona’s event list and sent to the team for confirmation.</p>
+            <p>
+              Your registration is saved in Tona’s event list and sent to the
+              team for confirmation.
+            </p>
           </div>
-          <button className="event-dialog-close" type="button" onClick={onClose} aria-label="Close registration form">×</button>
+          <button
+            className="event-dialog-close"
+            type="button"
+            onClick={onClose}
+            aria-label="Close registration form"
+          >
+            ×
+          </button>
         </div>
         <form onSubmit={handleSubmit}>
           <label>
             <span>Choose an event</span>
-            <select name="event" defaultValue={selected.id} required>
+            <select
+              name="event"
+              value={eventChoice}
+              onChange={(event) => {
+                setEventChoice(event.target.value);
+                setSaved(false);
+              }}
+              required
+            >
               {events.map((item) => (
-                <option key={item.id} value={item.id}>{item.title} — {formatEventShortDate(item.eventDate)}</option>
+                <option key={item.id} value={item.id}>
+                  {item.title} — {formatEventShortDate(item.eventDate)}
+                </option>
               ))}
             </select>
           </label>
           <div className="field-grid">
-            <label><span>Full name</span><input name="name" type="text" autoComplete="name" required /></label>
-            <label><span>Phone / WhatsApp</span><input name="phone" type="tel" autoComplete="tel" required /></label>
-            <label><span>Email <small>(optional)</small></span><input name="email" type="email" autoComplete="email" /></label>
-            <label><span>Number of guests</span><input name="guests" type="number" min="1" max="10" defaultValue="1" required /></label>
+            <label>
+              <span>Full name</span>
+              <input
+                name="name"
+                minLength={2}
+                maxLength={120}
+                type="text"
+                autoComplete="name"
+                required
+              />
+            </label>
+            <label>
+              <span>Phone / WhatsApp</span>
+              <input
+                name="phone"
+                type="tel"
+                autoComplete="tel"
+                minLength={7}
+                maxLength={40}
+                required
+              />
+            </label>
+            <label>
+              <span>
+                Email <small>(optional)</small>
+              </span>
+              <input name="email" type="email" autoComplete="email" />
+            </label>
+            <label>
+              <span>Number of guests</span>
+              <input
+                name="guests"
+                type="number"
+                min="1"
+                max={maxGuests}
+                defaultValue="1"
+                required
+              />
+            </label>
           </div>
-          <label className="message-field"><span>Note <small>(optional)</small></span><textarea name="note" rows={3} placeholder="Accessibility, group, or event questions" /></label>
-          <button className="button button-primary" type="submit" disabled={busy}>{busy ? "Saving registration…" : "Register on WhatsApp"} <span aria-hidden="true">↗</span></button>
-          <p className="form-status" role="status">{status || "Registration is confirmed by the Tona team."}</p>
+          <label className="message-field">
+            <span>
+              Note <small>(optional)</small>
+            </span>
+            <textarea
+              name="note"
+              rows={3}
+              placeholder="Accessibility, group, or event questions"
+            />
+          </label>
+          <button
+            className="button button-primary"
+            type="submit"
+            disabled={busy || saved}
+          >
+            {saved
+              ? "Registration saved"
+              : busy
+                ? "Saving registration…"
+                : "Register on WhatsApp"}{" "}
+            <span aria-hidden="true">↗</span>
+          </button>
+          <p className="form-status" role="status">
+            {status || "Registration is confirmed by the Tona team."}
+          </p>
         </form>
       </div>
     </div>
@@ -1042,28 +1394,33 @@ function ReferenceEventsSection() {
   const [eventsError, setEventsError] = useState("");
   const [selected, setSelected] = useState<PublicEvent | null>(null);
   const [status, setStatus] = useState("");
+  const [hostBusy, setHostBusy] = useState(false);
 
   useEffect(() => {
     let mounted = true;
 
-    void getPublicCatalog()
-      .then((catalog) => {
-        if (mounted) {
-          setEvents(catalog.events);
-          setEventsError("");
-        }
-      })
-      .catch(() => {
-        if (mounted) {
-          setEvents([]);
-          setEventsError(
-            "The current events catalogue could not be loaded. Please try again shortly.",
-          );
-        }
-      });
-
+    const refresh = () => {
+      void getPublicCatalog()
+        .then((catalog) => {
+          if (mounted) {
+            setEvents(catalog.events);
+            setEventsError("");
+          }
+        })
+        .catch(() => {
+          if (mounted) {
+            setEvents([]);
+            setEventsError(
+              "The current events catalogue could not be loaded. Please try again shortly.",
+            );
+          }
+        });
+    };
+    refresh();
+    window.addEventListener("focus", refresh);
     return () => {
       mounted = false;
+      window.removeEventListener("focus", refresh);
     };
   }, []);
 
@@ -1074,14 +1431,19 @@ function ReferenceEventsSection() {
     .filter((event) => event.status === "completed")
     .sort(
       (left, right) =>
-        new Date(right.eventDate).getTime() - new Date(left.eventDate).getTime(),
+        new Date(right.eventDate).getTime() -
+        new Date(left.eventDate).getTime(),
     );
   const eventImage =
     events?.find((event) => event.coverImageUrl)?.coverImageUrl ??
     REFERENCE_IMAGES.event;
 
   return (
-    <section className="events section section-dark motion-section section-cinema" id="events" aria-labelledby="events-title">
+    <section
+      className="events section section-dark motion-section section-cinema"
+      id="events"
+      aria-labelledby="events-title"
+    >
       <SectionHeading
         id="events-title"
         index="05 / Events"
@@ -1090,7 +1452,9 @@ function ReferenceEventsSection() {
           <>
             <RevealWords words={["Meet", "us"]} />
             <br />
-            <span className="ember"><RevealWords words={["in", "person."]} startAt={2} /></span>
+            <span className="ember">
+              <RevealWords words={["in", "person."]} startAt={2} />
+            </span>
           </>
         }
         intro="Tastings, pop-ups and coffee-ceremony demonstrations across Addis Ababa—plus Tona experiences hosted at your own event."
@@ -1112,82 +1476,265 @@ function ReferenceEventsSection() {
         </figure>
         <div className="event-list">
           {events === null ? (
-            <p className="section-intro">Loading the current events catalogue…</p>
-          ) : publishedEvents.length ? publishedEvents.map((event) => (
-            <article className="event-card reveal motion-card" key={event.id}>
-              <time dateTime={event.eventDate}><span>{formatEventMonth(event.eventDate)}</span><b>{formatEventDay(event.eventDate)}</b></time>
-              <div>
-                <p className="mono-label">{event.location}</p>
-                <CinematicHeading as="h3" text={event.title} />
-                <p>{event.description || event.summary}</p>
-                <small>{event.registrationOpen ? "Open to the public" : "Registration closed"}</small>
-              </div>
-              <button className="button button-light event-register" type="button" disabled={!event.registrationOpen} onClick={() => setSelected(event)}>
-                {event.registrationOpen ? "Register" : "Closed"} <span aria-hidden="true">↗</span>
-              </button>
-            </article>
-          )) : <p className="section-intro">{eventsError || "No upcoming events are available right now."}</p>}
+            <p className="section-intro">
+              Loading the current events catalogue…
+            </p>
+          ) : publishedEvents.length ? (
+            publishedEvents.map((event) => (
+              <article className="event-card reveal motion-card" key={event.id}>
+                <time dateTime={event.eventDate}>
+                  <span>{formatEventMonth(event.eventDate)}</span>
+                  <b>{formatEventDay(event.eventDate)}</b>
+                </time>
+                <div>
+                  <p className="mono-label">{event.location}</p>
+                  <CinematicHeading as="h3" text={event.title} />
+                  <p>{event.description || event.summary}</p>
+                  <p>
+                    {new Date(event.eventDate).toLocaleTimeString("en-ET", {
+                      hour: "numeric",
+                      minute: "2-digit",
+                      timeZone: "Africa/Addis_Ababa",
+                    })}{" "}
+                    EAT
+                    {event.capacity !== null
+                      ? ` · ${Math.max(0, event.capacity - event.registrationCount)} places remaining`
+                      : ""}
+                  </p>
+                  <small>
+                    {event.registrationOpen
+                      ? "Open to the public"
+                      : "Registration closed"}
+                  </small>
+                </div>
+                <button
+                  className="button button-light event-register"
+                  type="button"
+                  disabled={!event.registrationOpen}
+                  onClick={() => setSelected(event)}
+                >
+                  {event.registrationOpen ? "Register" : "Closed"}{" "}
+                  <span aria-hidden="true">↗</span>
+                </button>
+              </article>
+            ))
+          ) : (
+            <p className="section-intro">
+              {eventsError || "No upcoming events are available right now."}
+            </p>
+          )}
         </div>
       </div>
 
       <div className="host-tona reveal motion-media">
         <div className="host-heading">
           <p className="mono-label">Host Tona</p>
-          <h3 className="display word-reveal motion-heading" aria-label="Bring the second roundto your event."><RevealWords words={["Bring", "the", "second", "round"]} /><br /><RevealWords words={["to", "your", "event."]} startAt={4} /></h3>
+          <h3
+            className="display word-reveal motion-heading"
+            aria-label="Bring the second roundto your event."
+          >
+            <RevealWords words={["Bring", "the", "second", "round"]} />
+            <br />
+            <RevealWords words={["to", "your", "event."]} startAt={4} />
+          </h3>
         </div>
         <div className="host-services">
-          <article><CinematicHeading as="h4" text="Coffee ceremony experience" /><p>A trained host, jebena service and origin storytelling for your guests.</p></article>
-          <article><CinematicHeading as="h4" text="Brew bar & sampling" /><p>Filter and espresso service for launches, conferences and markets.</p></article>
-          <article><CinematicHeading as="h4" text="Co-branded activation" /><p>Custom bags, signage and tasting flights built around your brand.</p></article>
+          <article>
+            <CinematicHeading as="h4" text="Coffee ceremony experience" />
+            <p>
+              A trained host, jebena service and origin storytelling for your
+              guests.
+            </p>
+          </article>
+          <article>
+            <CinematicHeading as="h4" text="Brew bar & sampling" />
+            <p>
+              Filter and espresso service for launches, conferences and markets.
+            </p>
+          </article>
+          <article>
+            <CinematicHeading as="h4" text="Co-branded activation" />
+            <p>
+              Custom bags, signage and tasting flights built around your brand.
+            </p>
+          </article>
         </div>
       </div>
 
       <div className="event-submit-layout">
         <div className="event-submit-intro reveal">
           <p className="mono-label">Add an event</p>
-          <h3 className="display">Tell us what<br />you’re planning.</h3>
-          <p>Send the details and Tona’s events team confirms availability, service format and what the space needs.</p>
+          <h3 className="display">
+            Tell us what
+            <br />
+            you’re planning.
+          </h3>
+          <p>
+            Send the details and Tona’s events team confirms availability,
+            service format and what the space needs.
+          </p>
           <ul className="host-requirements">
-            <li><span>01</span>A 2×2m service area, near a power point</li>
-            <li><span>02</span>Access one hour before guests arrive</li>
-            <li><span>03</span>Water access, or we bring our own supply</li>
-            <li><span>04</span>Final guest count 48 hours ahead</li>
+            <li>
+              <span>01</span>A 2×2m service area, near a power point
+            </li>
+            <li>
+              <span>02</span>Access one hour before guests arrive
+            </li>
+            <li>
+              <span>03</span>Water access, or we bring our own supply
+            </li>
+            <li>
+              <span>04</span>Final guest count 48 hours ahead
+            </li>
           </ul>
         </div>
-        <form className="event-submit-form reveal" onSubmit={(event) => submitHostedEventForm(event, setStatus)}>
+        <form
+          className="event-submit-form reveal"
+          onSubmit={async (event) => {
+            event.preventDefault();
+            if (hostBusy) return;
+            setHostBusy(true);
+            try {
+              await submitHostedEventForm(event, setStatus);
+            } finally {
+              setHostBusy(false);
+            }
+          }}
+        >
           <div className="field-grid">
-            <label><span>Event name</span><input name="event-name" type="text" required /></label>
-            <label><span>Event type</span><select name="event-type"><option>Corporate / office</option><option>Product launch</option><option>Conference or expo</option><option>Wedding or private</option><option>Market or pop-up</option><option>Other</option></select></label>
-            <label><span>Date</span><input name="event-date" type="date" required /></label>
-            <label><span>Expected guests</span><input name="event-guests" type="number" min="1" step="1" placeholder="e.g. 80" /></label>
-            <label><span>Location</span><input name="event-location" type="text" placeholder="Venue, Addis Ababa" required /></label>
-            <label><span>Service format</span><select name="event-service"><option>Coffee ceremony experience</option><option>Brew bar &amp; sampling</option><option>Co-branded activation</option><option>Not sure yet</option></select></label>
-            <label><span>Your name</span><input name="event-contact" type="text" autoComplete="name" required /></label>
-            <label><span>Phone / WhatsApp</span><input name="event-phone" type="tel" autoComplete="tel" required /></label>
+            <label>
+              <span>Event name</span>
+              <input
+                name="event-name"
+                minLength={2}
+                maxLength={120}
+                type="text"
+                required
+              />
+            </label>
+            <label>
+              <span>Event type</span>
+              <select name="event-type">
+                <option>Corporate / office</option>
+                <option>Product launch</option>
+                <option>Conference or expo</option>
+                <option>Wedding or private</option>
+                <option>Market or pop-up</option>
+                <option>Other</option>
+              </select>
+            </label>
+            <label>
+              <span>Date</span>
+              <input name="event-date" type="date" required />
+            </label>
+            <label>
+              <span>Expected guests</span>
+              <input
+                name="event-guests"
+                type="number"
+                min="1"
+                step="1"
+                placeholder="e.g. 80"
+              />
+            </label>
+            <label>
+              <span>Location</span>
+              <input
+                name="event-location"
+                type="text"
+                placeholder="Venue, Addis Ababa"
+                required
+              />
+            </label>
+            <label>
+              <span>Service format</span>
+              <select name="event-service">
+                <option>Coffee ceremony experience</option>
+                <option>Brew bar &amp; sampling</option>
+                <option>Co-branded activation</option>
+                <option>Not sure yet</option>
+              </select>
+            </label>
+            <label>
+              <span>Your name</span>
+              <input
+                name="event-contact"
+                minLength={2}
+                maxLength={120}
+                type="text"
+                autoComplete="name"
+                required
+              />
+            </label>
+            <label>
+              <span>Phone / WhatsApp</span>
+              <input
+                name="event-phone"
+                type="tel"
+                autoComplete="tel"
+                minLength={7}
+                maxLength={40}
+                required
+              />
+            </label>
           </div>
-          <label className="message-field"><span>Anything else about the event?</span><textarea name="event-notes" rows={3} placeholder="Space, timings, brand requirements or guest profile." /></label>
-          <button className="button button-primary" type="submit">Submit event on WhatsApp <span aria-hidden="true">↗</span></button>
-          <p className="form-status" role="status">{status}</p>
+          <label className="message-field">
+            <span>Anything else about the event?</span>
+            <textarea
+              name="event-notes"
+              rows={3}
+              placeholder="Space, timings, brand requirements or guest profile."
+            />
+          </label>
+          <button
+            className="button button-primary"
+            type="submit"
+            disabled={hostBusy}
+          >
+            Submit event on WhatsApp <span aria-hidden="true">↗</span>
+          </button>
+          <p className="form-status" role="status">
+            {status}
+          </p>
         </form>
       </div>
 
       <div className="hosted-block">
         <div className="hosted-heading reveal">
           <p className="mono-label">Previously hosted</p>
-          <h3 className="display">Where the second<br />round has been.</h3>
+          <h3 className="display">
+            Where the second
+            <br />
+            round has been.
+          </h3>
         </div>
         <div className="hosted-grid">
           {events === null ? (
             <p className="section-intro">Loading event history…</p>
-          ) : completedEvents.length ? completedEvents.map((event) => (
-            <article className="hosted-card reveal" key={event.id}>
-              <time>{formatEventYearMonth(event.eventDate)}</time><CinematicHeading as="h4" text={event.title} /><p>{event.location}</p><small>{event.summary || event.description}</small>
-            </article>
-          )) : <p className="section-intro">{eventsError || "Previously hosted events will appear here."}</p>}
+          ) : completedEvents.length ? (
+            completedEvents.map((event) => (
+              <article className="hosted-card reveal" key={event.id}>
+                <time>{formatEventYearMonth(event.eventDate)}</time>
+                <CinematicHeading as="h4" text={event.title} />
+                <p>{event.location}</p>
+                <small>{event.summary || event.description}</small>
+              </article>
+            ))
+          ) : (
+            <p className="section-intro">
+              {eventsError || "Previously hosted events will appear here."}
+            </p>
+          )}
         </div>
       </div>
 
-      {selected ? <ReferenceEventDialog events={publishedEvents} selected={selected} onClose={() => setSelected(null)} /> : null}
+      {selected ? (
+        <ReferenceEventDialog
+          events={publishedEvents.filter((event) => event.registrationOpen)}
+          selected={selected}
+          onClose={() => setSelected(null)}
+        />
+      ) : null}
     </section>
   );
 }
@@ -1196,20 +1743,34 @@ function ReferenceOrdersSection() {
   const [selectedPackage, setSelectedPackage] = useState<
     "1kg" | "500g" | "250g" | "custom"
   >("1kg");
+  const [quoteBusy, setQuoteBusy] = useState(false);
+  const [requestBusy, setRequestBusy] = useState(false);
   const [quoteStatus, setQuoteStatus] = useState("");
   const [requestStatus, setRequestStatus] = useState("");
 
   return (
-    <section className="quotation section section-ember motion-section section-cinema" id="orders" aria-labelledby="orders-title">
+    <section
+      className="quotation section section-ember motion-section section-cinema"
+      id="orders"
+      aria-labelledby="orders-title"
+    >
       <div className="quotation-intro reveal">
         <p className="section-index">06 / Order &amp; enquire</p>
-        <h2 id="orders-title" className="display word-reveal motion-heading" aria-label="Tell us whatyou’re pouring."><RevealWords words={["Tell", "us", "what"]} /><br /><RevealWords words={["you’re", "pouring."]} startAt={3} /></h2>
+        <h2
+          id="orders-title"
+          className="display word-reveal motion-heading"
+          aria-label="Tell us whatyou’re pouring."
+        >
+          <RevealWords words={["Tell", "us", "what"]} />
+          <br />
+          <RevealWords words={["you’re", "pouring."]} startAt={3} />
+        </h2>
         <p>
           The House Blend is our local-market coffee: one consistent Ethiopian
           blend, in the formats your bar, shelf or hospitality programme needs.
           Pick a package below and build a quotation, or send any other
-          request—export, samples, events or feedback—on the right. Pricing is by
-          quotation.
+          request—export, samples, events or feedback—on the right. Pricing is
+          by quotation.
         </p>
       </div>
 
@@ -1219,13 +1780,27 @@ function ReferenceOrdersSection() {
           {PACKAGES.map(([size, description], index) => (
             <article className="pack-card reveal motion-card" key={size}>
               <label className="pack-choice">
-                <input type="radio" name="package" form="quote-form" value={size + " Tona package"} checked={selectedPackage === size} onChange={() => setSelectedPackage(size)} />
+                <input
+                  type="radio"
+                  name="package"
+                  form="quote-form"
+                  value={size + " Tona package"}
+                  checked={selectedPackage === size}
+                  onChange={() => setSelectedPackage(size)}
+                />
                 <span className="pack-choice-body">
-                  <span className="pack-card-head"><span className="pack-no">0{index + 1}</span><span>Tona package</span></span>
+                  <span className="pack-card-head">
+                    <span className="pack-no">0{index + 1}</span>
+                    <span>Tona package</span>
+                  </span>
                   <CinematicHeading as="h3" text={size} />
                   <p>{description}</p>
                   <ul aria-label={"Available " + size + " formats"}>
-                    {FORMATS.map(([short, label]) => <li key={short}>{short} <span>{label}</span></li>)}
+                    {FORMATS.map(([short, label]) => (
+                      <li key={short}>
+                        {short} <span>{label}</span>
+                      </li>
+                    ))}
                   </ul>
                 </span>
               </label>
@@ -1233,15 +1808,31 @@ function ReferenceOrdersSection() {
           ))}
           <article className="pack-card pack-card-custom reveal motion-card">
             <label className="pack-choice">
-              <input type="radio" name="package" form="quote-form" value="250g custom package" checked={selectedPackage === "custom"} onChange={() => setSelectedPackage("custom")} />
+              <input
+                type="radio"
+                name="package"
+                form="quote-form"
+                value="250g custom package"
+                checked={selectedPackage === "custom"}
+                onChange={() => setSelectedPackage("custom")}
+              />
               <span className="pack-choice-body">
-                <span className="pack-card-head"><span className="pack-no">04</span><span>Custom package</span></span>
+                <span className="pack-card-head">
+                  <span className="pack-no">04</span>
+                  <span>Custom package</span>
+                </span>
                 <CinematicHeading as="h3" text="250g" />
                 <p>Tona coffee presented with your customer-facing logo.</p>
                 <ul aria-label="Available custom 250 gram formats">
-                  {FORMATS.map(([short, label]) => <li key={short}>{short} <span>{label}</span></li>)}
+                  {FORMATS.map(([short, label]) => (
+                    <li key={short}>
+                      {short} <span>{label}</span>
+                    </li>
+                  ))}
                 </ul>
-                <span className="custom-badge">Customer logo / Customisable</span>
+                <span className="custom-badge">
+                  Customer logo / Customisable
+                </span>
               </span>
             </label>
           </article>
@@ -1252,99 +1843,224 @@ function ReferenceOrdersSection() {
         <form
           className="quote-form reveal motion-card"
           id="quote-form"
-          onSubmit={(event) =>
-            submitQuotationForm(event, selectedPackage, setQuoteStatus)
-          }
+          onSubmit={async (event) => {
+            event.preventDefault();
+            if (quoteBusy) return;
+            setQuoteBusy(true);
+            try {
+              await submitQuotationForm(event, selectedPackage, setQuoteStatus);
+            } finally {
+              setQuoteBusy(false);
+            }
+          }}
         >
           <p className="form-kicker">House Blend quotation</p>
           <fieldset>
             <legend>01 / Choose a format</legend>
-            <div className="choice-grid format-choices" id="format-options" aria-live="polite">
+            <div
+              className="choice-grid format-choices"
+              id="format-options"
+              aria-live="polite"
+            >
               {FORMATS.map(([short, label], index) => (
                 <label key={short}>
-                  <input type="radio" name="format-choice" value={label} defaultChecked={index === 0} />
-                  <span>{short} — {label}</span>
+                  <input
+                    type="radio"
+                    name="format-choice"
+                    value={label}
+                    defaultChecked={index === 0}
+                  />
+                  <span>
+                    {short} — {label}
+                  </span>
                 </label>
               ))}
             </div>
             <input type="hidden" id="format-name" name="format" />
           </fieldset>
-          <div className="logo-field" id="logo-field" hidden={selectedPackage !== "custom"}>
+          <div
+            className="logo-field"
+            id="logo-field"
+            hidden={selectedPackage !== "custom"}
+          >
             <label htmlFor="brand-name">Customer brand or logo name</label>
-            <input id="brand-name" name="brand-name" type="text" autoComplete="organization" placeholder="Your brand name" />
+            <input
+              id="brand-name"
+              name="brand-name"
+              type="text"
+              autoComplete="organization"
+              placeholder="Your brand name"
+            />
           </div>
           <fieldset className="contact-fields">
             <legend>02 / Your details</legend>
             <div className="field-grid">
-              <label><span>Name</span><input name="name" type="text" autoComplete="name" required /></label>
-              <label><span>Company</span><input name="company" type="text" autoComplete="organization" /></label>
-              <label><span>Phone / WhatsApp</span><input name="phone" type="tel" autoComplete="tel" required /></label>
-              <label><span>Email</span><input name="email" type="email" autoComplete="email" /></label>
-              <label><span>Monthly volume</span><input name="volume" type="text" placeholder="e.g. 25kg" /></label>
+              <label>
+                <span>Name</span>
+                <input
+                  name="name"
+                  minLength={2}
+                  maxLength={120}
+                  type="text"
+                  autoComplete="name"
+                  required
+                />
+              </label>
+              <label>
+                <span>Company</span>
+                <input name="company" type="text" autoComplete="organization" />
+              </label>
+              <label>
+                <span>Phone / WhatsApp</span>
+                <input
+                  name="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  minLength={7}
+                  maxLength={40}
+                  required
+                />
+              </label>
+              <label>
+                <span>Email</span>
+                <input name="email" type="email" autoComplete="email" />
+              </label>
+              <label>
+                <span>Monthly volume</span>
+                <input name="volume" type="text" placeholder="e.g. 25kg" />
+              </label>
             </div>
           </fieldset>
-          <label className="message-field"><span>Anything else we should know?</span><textarea name="message" rows={4} placeholder="Tell us about your café, hotel, office or retail programme." /></label>
-          <button className="button button-dark submit-button" type="submit">Prepare WhatsApp quotation <span aria-hidden="true">↗</span></button>
-          <p className="form-status" role="status">{quoteStatus}</p>
+          <label className="message-field">
+            <span>Anything else we should know?</span>
+            <textarea
+              name="message"
+              rows={4}
+              placeholder="Tell us about your café, hotel, office or retail programme."
+            />
+          </label>
+          <button
+            className="button button-dark submit-button"
+            type="submit"
+            disabled={quoteBusy}
+          >
+            {quoteBusy ? "Saving quotation…" : "Prepare WhatsApp quotation"}{" "}
+            <span aria-hidden="true">↗</span>
+          </button>
+          <p className="form-status" role="status">
+            {quoteStatus}
+          </p>
         </form>
 
         <form
           className="request-form reveal motion-card"
-          onSubmit={(event) => submitRequestForm(event, setRequestStatus)}
+          onSubmit={async (event) => {
+            event.preventDefault();
+            if (requestBusy) return;
+            setRequestBusy(true);
+            try {
+              await submitRequestForm(event, setRequestStatus);
+            } finally {
+              setRequestBusy(false);
+            }
+          }}
         >
           <p className="form-kicker">How can we help?</p>
           <div className="field-grid">
-            <label><span>Full name</span><input name="full-name" type="text" autoComplete="name" required /></label>
-            <label><span>Phone</span><input name="phone" type="tel" autoComplete="tel" required /></label>
-            <label><span>Email</span><input name="email" type="email" autoComplete="email" /></label>
-            <label><span>Organization</span><input name="organization" type="text" autoComplete="organization" /></label>
+            <label>
+              <span>Full name</span>
+              <input
+                name="full-name"
+                minLength={2}
+                maxLength={120}
+                type="text"
+                autoComplete="name"
+                required
+              />
+            </label>
+            <label>
+              <span>Phone</span>
+              <input
+                name="phone"
+                type="tel"
+                autoComplete="tel"
+                minLength={7}
+                maxLength={40}
+                required
+              />
+            </label>
+            <label>
+              <span>Email</span>
+              <input name="email" type="email" autoComplete="email" />
+            </label>
+            <label>
+              <span>Organization</span>
+              <input
+                name="organization"
+                type="text"
+                autoComplete="organization"
+              />
+            </label>
           </div>
           <div className="field-grid">
-            <label><span>Request type</span><select name="request-type"><option>Retail order</option><option>Export enquiry</option><option>Wholesale / business supply</option><option>Sample request (100g)</option><option>Event or collaboration</option><option>Feedback</option><option>Something else</option></select></label>
-            <label><span>Coffee interest</span><select name="coffee-interest"><option>House Blend</option><option>Export</option></select></label>
+            <label>
+              <span>Request type</span>
+              <select name="request-type">
+                <option>Retail order</option>
+                <option>Export enquiry</option>
+                <option>Wholesale / business supply</option>
+                <option>Sample request (100g)</option>
+                <option>Event or collaboration</option>
+                <option>Feedback</option>
+                <option>Something else</option>
+              </select>
+            </label>
+            <label>
+              <span>Coffee interest</span>
+              <select name="coffee-interest">
+                <option>House Blend</option>
+                <option>Export</option>
+              </select>
+            </label>
           </div>
-          <label className="message-field"><span>Message</span><textarea name="message" rows={4} placeholder="How can we help?" /></label>
-          <button className="button button-primary" type="submit">Send request on WhatsApp <span aria-hidden="true">↗</span></button>
-          <p className="form-status" role="status">{requestStatus}</p>
+          <label className="message-field">
+            <span>Message</span>
+            <textarea name="message" rows={4} placeholder="How can we help?" />
+          </label>
+          <button
+            className="button button-primary"
+            type="submit"
+            disabled={requestBusy}
+          >
+            {requestBusy ? "Saving request…" : "Send request on WhatsApp"}{" "}
+            <span aria-hidden="true">↗</span>
+          </button>
+          <p className="form-status" role="status">
+            {requestStatus}
+          </p>
         </form>
       </div>
     </section>
   );
 }
 
-// Keep the existing tile coordinate origin; extend coverage for the third stockist.
-const MAP_TILES = Array.from({ length: 6 }, (_, column) =>
-  Array.from({ length: 8 }, (_, row) => {
-    const x = 9952 + column;
-    const y = 7777 + row;
-    return [
-      `https://tile.openstreetmap.org/14/${x}/${y}.png`,
-      `translate3d(${165 + (x - 9954) * 256}px, ${-5 + (y - 7780) * 256}px, 0px)`,
-    ] as const;
-  }),
-).flat();
-
-// Verified Google Maps store coordinates, not approximate screen positions.
-const VERIFIED_MAP_COORDINATES: Record<string, { latitude: number; longitude: number }> = {
-  "Emawa Mart": { latitude: 9.007352, longitude: 38.7428241 },
-  Allmart: { latitude: 8.986868, longitude: 38.7213186 },
-  "MT Super Valu": { latitude: 8.9900508, longitude: 38.7826172 },
-};
-
+// Store coordinates use the existing map's Web Mercator tile origin.
 function projectStockist(latitude: number, longitude: number) {
   const worldSize = 256 * 2 ** 14;
   return {
     x: ((longitude + 180) / 360) * worldSize - 9954 * 256 + 165,
-    y: ((1 - Math.asinh(Math.tan(latitude * Math.PI / 180)) / Math.PI) / 2) * worldSize - 7780 * 256 - 5,
+    y:
+      ((1 - Math.asinh(Math.tan((latitude * Math.PI) / 180)) / Math.PI) / 2) *
+        worldSize -
+      7780 * 256 -
+      5,
   };
 }
 
-const KNOWN_MAP_POSITIONS = Object.fromEntries(
-  Object.entries(VERIFIED_MAP_COORDINATES).map(([name, point]) => [name, projectStockist(point.latitude, point.longitude)]),
-);
-
 function getStockistMapPosition(stockist: PublicStockist) {
-  return KNOWN_MAP_POSITIONS[stockist.name];
+  return stockist.latitude !== null && stockist.longitude !== null
+    ? projectStockist(stockist.latitude, stockist.longitude)
+    : null;
 }
 
 function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
@@ -1361,7 +2077,11 @@ function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
     const element = mapRef.current;
     if (!element) return;
     const observer = new ResizeObserver(([entry]) => {
-      if (entry) setMapSize({ width: entry.contentRect.width, height: entry.contentRect.height });
+      if (entry)
+        setMapSize({
+          width: entry.contentRect.width,
+          height: entry.contentRect.height,
+        });
     });
     observer.observe(element);
     return () => observer.disconnect();
@@ -1377,7 +2097,11 @@ function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return;
     const target = event.target;
-    if (target instanceof Element && target.closest(".leaflet-control, .tona-pin-wrap")) return;
+    if (
+      target instanceof Element &&
+      target.closest(".leaflet-control, .tona-pin-wrap")
+    )
+      return;
 
     dragRef.current = {
       pointerId: event.pointerId,
@@ -1401,7 +2125,8 @@ function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
   };
 
   const finishPointerDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!dragRef.current || dragRef.current.pointerId !== event.pointerId) return;
+    if (!dragRef.current || dragRef.current.pointerId !== event.pointerId)
+      return;
     if (mapRef.current?.hasPointerCapture(event.pointerId)) {
       mapRef.current.releasePointerCapture(event.pointerId);
     }
@@ -1418,19 +2143,64 @@ function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
   const maxX = points.length ? Math.max(...points.map((point) => point.x)) : 0;
   const minY = points.length ? Math.min(...points.map((point) => point.y)) : 0;
   const maxY = points.length ? Math.max(...points.map((point) => point.y)) : 0;
-  const fitScale = points.length ? Math.max(0.2, Math.min(1, (mapSize.width - 90) / Math.max(1, maxX - minX), (mapSize.height - 90) / Math.max(1, maxY - minY))) : 1;
+  const fitScale = points.length
+    ? Math.max(
+        0.000001,
+        Math.min(
+          1,
+          (mapSize.width - 90) / Math.max(1, maxX - minX),
+          (mapSize.height - 90) / Math.max(1, maxY - minY),
+        ),
+      )
+    : 1;
   const scale = fitScale * Math.pow(2, zoomLevel);
-  const offsetX = points.length ? mapSize.width / 2 - (minX + maxX) / 2 * scale : 0;
-  const offsetY = points.length ? mapSize.height / 2 - (minY + maxY) / 2 * scale : 0;
+  const offsetX = points.length
+    ? mapSize.width / 2 - ((minX + maxX) / 2) * scale
+    : 0;
+  const offsetY = points.length
+    ? mapSize.height / 2 - ((minY + maxY) / 2) * scale
+    : 0;
   const mapPaneTransform = `translate3d(${offsetX + mapOffset.x}px, ${offsetY + mapOffset.y}px, 0px) scale(${scale})`;
+  const tileZoom = Math.max(1, Math.min(18, 14 + Math.round(Math.log2(scale))));
+  const tileSize = 256 * 2 ** (14 - tileZoom);
+  const worldOriginX = 9954 * 256 - 165;
+  const worldOriginY = 7780 * 256 + 5;
+  const firstTileX = Math.floor(
+    (worldOriginX - (offsetX + mapOffset.x) / scale) / tileSize,
+  );
+  const firstTileY = Math.floor(
+    (worldOriginY - (offsetY + mapOffset.y) / scale) / tileSize,
+  );
+  const tiles = Array.from(
+    { length: Math.ceil(mapSize.width / scale / tileSize) + 1 },
+    (_, column) =>
+      Array.from(
+        { length: Math.ceil(mapSize.height / scale / tileSize) + 1 },
+        (_, row) => {
+          const x = firstTileX + column,
+            y = firstTileY + row;
+          return {
+            src: `https://tile.openstreetmap.org/${tileZoom}/${x}/${y}.png`,
+            x: x * tileSize - worldOriginX,
+            y: y * tileSize - worldOriginY,
+          };
+        },
+      ),
+  ).flat();
 
   return (
     <div
       ref={mapRef}
       id="tona-map"
       role="img"
-      aria-label={"Map of Addis Ababa showing Tona Coffee stockists: " + (stockistNames || "none listed")}
-      className={"leaflet-container leaflet-touch leaflet-fade-anim leaflet-grab leaflet-touch-drag leaflet-touch-zoom" + (dragging ? " leaflet-dragging" : "")}
+      aria-label={
+        "Map of Addis Ababa showing Tona Coffee stockists: " +
+        (stockistNames || "none listed")
+      }
+      className={
+        "leaflet-container leaflet-touch leaflet-fade-anim leaflet-grab leaflet-touch-drag leaflet-touch-zoom" +
+        (dragging ? " leaflet-dragging" : "")
+      }
       tabIndex={0}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -1455,9 +2225,25 @@ function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
       >
         <div className="leaflet-pane leaflet-tile-pane">
           <div className="leaflet-layer" style={{ zIndex: 1, opacity: 1 }}>
-            <div className="leaflet-tile-container leaflet-zoom-animated" style={{ zIndex: 19, transform: "translate3d(0px, 0px, 0px) scale(1)" }}>
-              {MAP_TILES.map(([src, transform]) => (
-                <img key={src} alt="" src={src} className="leaflet-tile leaflet-tile-loaded" style={{ width: "256px", height: "256px", transform }} />
+            <div
+              className="leaflet-tile-container leaflet-zoom-animated"
+              style={{
+                zIndex: 19,
+                transform: "translate3d(0px, 0px, 0px) scale(1)",
+              }}
+            >
+              {tiles.map((tile) => (
+                <img
+                  key={tile.src}
+                  alt=""
+                  src={tile.src}
+                  className="leaflet-tile leaflet-tile-loaded"
+                  style={{
+                    width: tileSize,
+                    height: tileSize,
+                    transform: `translate3d(${tile.x}px, ${tile.y}px, 0px)`,
+                  }}
+                />
               ))}
             </div>
           </div>
@@ -1472,14 +2258,24 @@ function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
               <div
                 className="leaflet-marker-icon tona-pin-wrap leaflet-zoom-animated leaflet-interactive"
                 title={stockist.name}
-                data-latitude={VERIFIED_MAP_COORDINATES[stockist.name]?.latitude}
-                data-longitude={VERIFIED_MAP_COORDINATES[stockist.name]?.longitude}
+                data-latitude={stockist.latitude}
+                data-longitude={stockist.longitude}
                 aria-label={`Open directions to ${stockist.name}`}
-                onClick={() => window.open(stockist.directions, "_blank", "noopener,noreferrer")}
+                onClick={() =>
+                  window.open(
+                    stockist.directions,
+                    "_blank",
+                    "noopener,noreferrer",
+                  )
+                }
                 onKeyDown={(event) => {
                   if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
-                    window.open(stockist.directions, "_blank", "noopener,noreferrer");
+                    window.open(
+                      stockist.directions,
+                      "_blank",
+                      "noopener,noreferrer",
+                    );
                   }
                 }}
                 tabIndex={0}
@@ -1495,7 +2291,8 @@ function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
                     position.x +
                     "px, " +
                     position.y +
-                    "px, 0px)",
+                    `px, 0px) scale(${1 / scale})`,
+                  transformOrigin: "17px 44px",
                   zIndex: position.y,
                 }}
               >
@@ -1508,20 +2305,59 @@ function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
         </div>
         <div className="leaflet-pane leaflet-tooltip-pane" />
         <div className="leaflet-pane leaflet-popup-pane" />
-        <div className="leaflet-proxy leaflet-zoom-animated" style={{ transform: "translate3d(2548410px, 1991890px, 0px) scale(8192)" }} />
+        <div
+          className="leaflet-proxy leaflet-zoom-animated"
+          style={{
+            transform: "translate3d(2548410px, 1991890px, 0px) scale(8192)",
+          }}
+        />
       </div>
       <div className="leaflet-control-container">
         <div className="leaflet-top leaflet-left">
           <div className="leaflet-control-zoom leaflet-bar leaflet-control">
-            <a className="leaflet-control-zoom-in" href="#" title="Zoom in" role="button" aria-label="Zoom in" aria-disabled={zoomLevel >= 2 ? "true" : "false"} onClick={(event) => { event.preventDefault(); changeZoom(1); }}>+</a>
-            <a className="leaflet-control-zoom-out" href="#" title="Zoom out" role="button" aria-label="Zoom out" aria-disabled={zoomLevel <= -1 ? "true" : "false"} onClick={(event) => { event.preventDefault(); changeZoom(-1); }}>−</a>
+            <a
+              className="leaflet-control-zoom-in"
+              href="#"
+              title="Zoom in"
+              role="button"
+              aria-label="Zoom in"
+              aria-disabled={zoomLevel >= 2 ? "true" : "false"}
+              onClick={(event) => {
+                event.preventDefault();
+                changeZoom(1);
+              }}
+            >
+              +
+            </a>
+            <a
+              className="leaflet-control-zoom-out"
+              href="#"
+              title="Zoom out"
+              role="button"
+              aria-label="Zoom out"
+              aria-disabled={zoomLevel <= -1 ? "true" : "false"}
+              onClick={(event) => {
+                event.preventDefault();
+                changeZoom(-1);
+              }}
+            >
+              −
+            </a>
           </div>
         </div>
         <div className="leaflet-top leaflet-right" />
         <div className="leaflet-bottom leaflet-left" />
         <div className="leaflet-bottom leaflet-right">
           <div className="leaflet-control-attribution leaflet-control">
-            <a href="https://leafletjs.com" title="A JavaScript library for interactive maps">Leaflet</a> <span aria-hidden="true">|</span> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors
+            <a
+              href="https://leafletjs.com"
+              title="A JavaScript library for interactive maps"
+            >
+              Leaflet
+            </a>{" "}
+            <span aria-hidden="true">|</span> ©{" "}
+            <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>{" "}
+            contributors
           </div>
         </div>
       </div>
@@ -1533,21 +2369,29 @@ function ReferenceFindUsSection() {
 
   useEffect(() => {
     let mounted = true;
-    void getPublicLocations()
-      .then((locations) => {
-        if (mounted) setStockists(locations);
-      })
-      .catch(() => {
-        // Keep the default locations visible if the database request fails.
-      });
-
+    const refresh = () => {
+      void getPublicLocations()
+        .then((locations) => {
+          if (mounted) setStockists(locations);
+        })
+        .catch(() => {
+          // Keep the default locations visible if the database request fails.
+        });
+    };
+    refresh();
+    window.addEventListener("focus", refresh);
     return () => {
       mounted = false;
+      window.removeEventListener("focus", refresh);
     };
   }, []);
 
   return (
-    <section className="findus section section-dark motion-section section-cinema" id="contact" aria-labelledby="findus-title">
+    <section
+      className="findus section section-dark motion-section section-cinema"
+      id="contact"
+      aria-labelledby="findus-title"
+    >
       <SectionHeading
         id="findus-title"
         index="07 / Where to find us"
@@ -1556,7 +2400,9 @@ function ReferenceFindUsSection() {
           <>
             <RevealWords words={["Tona", "is", "already"]} />
             <br />
-            <span className="ember"><RevealWords words={["on", "the", "shelf."]} startAt={3} /></span>
+            <span className="ember">
+              <RevealWords words={["on", "the", "shelf."]} startAt={3} />
+            </span>
           </>
         }
         intro="Retail stockists across Addis Ababa. More locations are added as they open—ask us on WhatsApp if you want Tona nearer to you."
@@ -1568,17 +2414,89 @@ function ReferenceFindUsSection() {
             <li className="stockist stockist-card reveal" key={stockist.id}>
               <span className="stockist-card-number">{stockist.number}</span>
               <div className="stockist-card-logo">
-                {stockist.logoUrl ? <img src={stockist.logoUrl} alt={`${stockist.name} logo`} loading="lazy" onError={(event) => { event.currentTarget.style.display = "none"; }} /> : <span aria-hidden="true">–</span>}
+                {stockist.logoUrl ? (
+                  <img
+                    src={stockist.logoUrl}
+                    alt={`${stockist.name} logo`}
+                    loading="lazy"
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <span aria-hidden="true">–</span>
+                )}
               </div>
               <div className="stockist-card-content">
                 <h3>{stockist.name}</h3>
                 <dl className="stockist-card-details">
-                  <div><dt><MapPin aria-hidden="true" />Location</dt><dd>{stockist.address || <a href={stockist.directions} target="_blank" rel="noopener noreferrer">View on Google Maps ↗</a>}</dd></div>
-                  <div><dt><Phone aria-hidden="true" />Phone</dt><dd>{stockist.phone ? <a href={`tel:${stockist.phone.replace(/[^+0-9]/g, "")}`}>{stockist.phone}</a> : "–"}</dd></div>
-                  <div><dt><Instagram aria-hidden="true" />Instagram</dt><dd>{stockist.instagram ? <a href={stockist.instagram} target="_blank" rel="noopener noreferrer">@{new URL(stockist.instagram).pathname.split("/").filter(Boolean)[0]}</a> : "–"}</dd></div>
+                  <div>
+                    <dt>
+                      <MapPin aria-hidden="true" />
+                      Location
+                    </dt>
+                    <dd>
+                      {stockist.address || (
+                        <a
+                          href={stockist.directions}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          View on Google Maps ↗
+                        </a>
+                      )}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>
+                      <Phone aria-hidden="true" />
+                      Phone
+                    </dt>
+                    <dd>
+                      {stockist.phone ? (
+                        <a
+                          href={`tel:${stockist.phone.replace(/[^+0-9]/g, "")}`}
+                        >
+                          {stockist.phone}
+                        </a>
+                      ) : (
+                        "–"
+                      )}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>
+                      <Instagram aria-hidden="true" />
+                      Instagram
+                    </dt>
+                    <dd>
+                      {stockist.instagram ? (
+                        <a
+                          href={stockist.instagram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          @
+                          {
+                            new URL(stockist.instagram).pathname
+                              .split("/")
+                              .filter(Boolean)[0]
+                          }
+                        </a>
+                      ) : (
+                        "–"
+                      )}
+                    </dd>
+                  </div>
                 </dl>
               </div>
-              <a className="stockist-card-directions" href={stockist.directions} target="_blank" rel="noopener noreferrer" aria-label={`Directions to ${stockist.name}`}>
+              <a
+                className="stockist-card-directions"
+                href={stockist.directions}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Directions to ${stockist.name}`}
+              >
                 Directions <span aria-hidden="true">↗</span>
               </a>
             </li>
@@ -1587,21 +2505,87 @@ function ReferenceFindUsSection() {
 
         <div className="stockist-map reveal">
           {/* Show verified store locations in the existing map style. */}
-          <ReferenceMap stockists={stockists.filter((stockist) => Object.hasOwn(KNOWN_MAP_POSITIONS, stockist.name))} />
+          <ReferenceMap
+            stockists={stockists.filter(
+              (stockist) =>
+                stockist.latitude !== null && stockist.longitude !== null,
+            )}
+          />
         </div>
       </div>
 
       <div className="contact-details contact-details-expanded reveal">
-        <div className="motion-copy"><p className="mono-label">WhatsApp</p><a href={waLink("Hi Tona, I have an enquiry.")} target="_blank" rel="noopener noreferrer">+251 98 621 2224</a><small>Fastest way to order or ask a question.</small></div>
-        <div className="motion-copy"><p className="mono-label">Email</p><a href="mailto:hello@tonacoffee.com">hello@tonacoffee.com</a></div>
-        <div className="motion-copy"><p className="mono-label">Roastery</p><p>Addis Ababa, Ethiopia</p></div>
-        <div className="motion-copy"><p className="mono-label">Hours</p><p>Mon – Sat, 8:00 AM – 6:00 PM (EAT)</p></div>
+        <div className="motion-copy">
+          <p className="mono-label">WhatsApp</p>
+          <a
+            href={waLink("Hi Tona, I have an enquiry.")}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            +251 98 621 2224
+          </a>
+          <small>Fastest way to order or ask a question.</small>
+        </div>
+        <div className="motion-copy">
+          <p className="mono-label">Email</p>
+          <a href="mailto:hello@tonacoffee.com">hello@tonacoffee.com</a>
+        </div>
+        <div className="motion-copy">
+          <p className="mono-label">Roastery</p>
+          <p>Addis Ababa, Ethiopia</p>
+        </div>
+        <div className="motion-copy">
+          <p className="mono-label">Hours</p>
+          <p>Mon – Sat, 8:00 AM – 6:00 PM (EAT)</p>
+        </div>
       </div>
 
-      <nav className="contact-social-band reveal" aria-label="Follow Tona Coffee">
-        <a href="https://www.instagram.com/tona.coffee/" target="_blank" rel="noopener noreferrer" aria-label="Instagram: @tona.coffee (opens in a new tab)"><span className="social-link-top"><span className="social-icon" aria-hidden="true">◎</span><span className="social-name">Instagram</span></span><span className="social-handle">@tona.coffee</span></a>
-        <a href="https://www.facebook.com/Tonacoffee" target="_blank" rel="noopener noreferrer" aria-label="Facebook: Tona Coffee (opens in a new tab)"><span className="social-link-top"><span className="social-icon" aria-hidden="true">f</span><span className="social-name">Facebook</span></span><span className="social-handle">Tona Coffee</span></a>
-        <a href="https://www.tiktok.com/@tona.coffee4" target="_blank" rel="noopener noreferrer" aria-label="TikTok: @tona.coffee4 (opens in a new tab)"><span className="social-link-top"><span className="social-icon" aria-hidden="true">♪</span><span className="social-name">TikTok</span></span><span className="social-handle">@tona.coffee4</span></a>
+      <nav
+        className="contact-social-band reveal"
+        aria-label="Follow Tona Coffee"
+      >
+        <a
+          href="https://www.instagram.com/tona.coffee/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram: @tona.coffee (opens in a new tab)"
+        >
+          <span className="social-link-top">
+            <span className="social-icon" aria-hidden="true">
+              ◎
+            </span>
+            <span className="social-name">Instagram</span>
+          </span>
+          <span className="social-handle">@tona.coffee</span>
+        </a>
+        <a
+          href="https://www.facebook.com/Tonacoffee"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Facebook: Tona Coffee (opens in a new tab)"
+        >
+          <span className="social-link-top">
+            <span className="social-icon" aria-hidden="true">
+              f
+            </span>
+            <span className="social-name">Facebook</span>
+          </span>
+          <span className="social-handle">Tona Coffee</span>
+        </a>
+        <a
+          href="https://www.tiktok.com/@tona.coffee4"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="TikTok: @tona.coffee4 (opens in a new tab)"
+        >
+          <span className="social-link-top">
+            <span className="social-icon" aria-hidden="true">
+              ♪
+            </span>
+            <span className="social-name">TikTok</span>
+          </span>
+          <span className="social-handle">@tona.coffee4</span>
+        </a>
       </nav>
     </section>
   );
@@ -1613,7 +2597,11 @@ function ReferenceFeedbackSection() {
   const [status, setStatus] = useState("");
 
   return (
-    <section className="feedback section motion-section section-cinema" id="feedback" aria-labelledby="feedback-title">
+    <section
+      className="feedback section motion-section section-cinema"
+      id="feedback"
+      aria-labelledby="feedback-title"
+    >
       <SectionHeading
         id="feedback-title"
         index="08 / Feedback"
@@ -1629,54 +2617,142 @@ function ReferenceFeedbackSection() {
       />
       <div className="feedback-layout">
         <div className="feedback-choices">
-          {["Rate your coffee", "General feedback", "Report a problem"].map((choice) => (
-            <button
-              className={"feedback-choice reveal" + (feedbackType === choice ? " is-selected" : "")}
-              type="button"
-              key={choice}
-              aria-pressed={feedbackType === choice}
-              onClick={() => setFeedbackType(choice)}
-            >
-              <span className="feedback-choice-body">
-                <span className="feedback-choice-title">{choice === "Rate your coffee" ? "Rate Your Coffee" : choice === "General feedback" ? "Give General Feedback" : "Report a Problem"}</span>
-                {choice === "Rate your coffee" ? (
-                  <span className="feedback-stars" role="radiogroup" aria-label="Rating out of five">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <span
-                        className={"feedback-star" + (rating >= star ? " is-rated" : "")}
-                        data-star={star}
-                        role="radio"
-                        aria-label={star + (star === 1 ? " star" : " stars")}
-                        aria-checked={rating === star}
-                        tabIndex={rating === star || (rating === 0 && star === 1) ? 0 : -1}
-                        key={star}
-                        onClick={(event) => { event.stopPropagation(); setRating(star); }}
-                        onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setRating(star); } }}
-                      >★</span>
-                    ))}
+          {["Rate your coffee", "General feedback", "Report a problem"].map(
+            (choice) => (
+              <button
+                className={
+                  "feedback-choice reveal" +
+                  (feedbackType === choice ? " is-selected" : "")
+                }
+                type="button"
+                key={choice}
+                aria-pressed={feedbackType === choice}
+                onClick={() => setFeedbackType(choice)}
+              >
+                <span className="feedback-choice-body">
+                  <span className="feedback-choice-title">
+                    {choice === "Rate your coffee"
+                      ? "Rate Your Coffee"
+                      : choice === "General feedback"
+                        ? "Give General Feedback"
+                        : "Report a Problem"}
                   </span>
-                ) : null}
-              </span>
-              <span className="feedback-choice-mark" aria-hidden="true">→</span>
-            </button>
-          ))}
+                  {choice === "Rate your coffee" ? (
+                    <span
+                      className="feedback-stars"
+                      role="radiogroup"
+                      aria-label="Rating out of five"
+                    >
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span
+                          className={
+                            "feedback-star" +
+                            (rating >= star ? " is-rated" : "")
+                          }
+                          data-star={star}
+                          role="radio"
+                          aria-label={star + (star === 1 ? " star" : " stars")}
+                          aria-checked={rating === star}
+                          tabIndex={
+                            rating === star || (rating === 0 && star === 1)
+                              ? 0
+                              : -1
+                          }
+                          key={star}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setRating(star);
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              setRating(star);
+                            }
+                          }}
+                        >
+                          ★
+                        </span>
+                      ))}
+                    </span>
+                  ) : null}
+                </span>
+                <span className="feedback-choice-mark" aria-hidden="true">
+                  →
+                </span>
+              </button>
+            ),
+          )}
         </div>
 
-        <form className="feedback-form reveal" onSubmit={(event) => openWhatsAppFromForm(event, "Hi Tona, I would like to share feedback.", setStatus)}>
+        <form
+          className="feedback-form reveal"
+          onSubmit={(event) =>
+            openWhatsAppFromForm(
+              event,
+              "Hi Tona, I would like to share feedback.",
+              setStatus,
+            )
+          }
+        >
           <p className="form-kicker">Tell us more</p>
           <input type="hidden" name="feedback-type" value={feedbackType} />
           <input type="hidden" name="feedback-rating" value={rating || ""} />
           <div className="field-grid">
-            <label><span className="sr-only">Product</span><input name="product" type="text" placeholder="Product" /></label>
-            <label><span className="sr-only">Purchase location</span><input name="purchase-location" type="text" placeholder="Purchase location" /></label>
+            <label>
+              <span className="sr-only">Product</span>
+              <input name="product" type="text" placeholder="Product" />
+            </label>
+            <label>
+              <span className="sr-only">Purchase location</span>
+              <input
+                name="purchase-location"
+                type="text"
+                placeholder="Purchase location"
+              />
+            </label>
           </div>
-          <label className="message-field"><span className="sr-only">Comment or suggestion</span><textarea name="comment" rows={4} placeholder="Comment or suggestion" required /></label>
+          <label className="message-field">
+            <span className="sr-only">Comment or suggestion</span>
+            <textarea
+              name="comment"
+              rows={4}
+              placeholder="Comment or suggestion"
+              required
+            />
+          </label>
           <div className="field-grid">
-            <label><span className="sr-only">Full name</span><input name="full-name" type="text" autoComplete="name" placeholder="Full name" required /></label>
-            <label><span className="sr-only">Phone or email</span><input name="contact" type="text" autoComplete="email" placeholder="Phone or email" required /></label>
+            <label>
+              <span className="sr-only">Full name</span>
+              <input
+                name="full-name"
+                minLength={2}
+                maxLength={120}
+                type="text"
+                autoComplete="name"
+                placeholder="Full name"
+                required
+              />
+            </label>
+            <label>
+              <span className="sr-only">Phone or email</span>
+              <input
+                name="contact"
+                type="text"
+                autoComplete="email"
+                placeholder="Phone or email"
+                required
+              />
+            </label>
           </div>
-          <button className="button button-primary feedback-submit" type="submit">Send feedback <span aria-hidden="true">↗</span></button>
-          <p className="form-status" role="status">{status}</p>
+          <button
+            className="button button-primary feedback-submit"
+            type="submit"
+          >
+            Send feedback <span aria-hidden="true">↗</span>
+          </button>
+          <p className="form-status" role="status">
+            {status}
+          </p>
         </form>
       </div>
     </section>
@@ -1700,21 +2776,45 @@ export function ReferenceHome() {
 }
 
 export function ReferenceAboutPage() {
-  return <ReferencePage><ReferenceAboutSection /><ReferenceDifferenceSection /></ReferencePage>;
+  return (
+    <ReferencePage>
+      <ReferenceAboutSection />
+      <ReferenceDifferenceSection />
+    </ReferencePage>
+  );
 }
 
 export function ReferenceCoffeePage() {
-  return <ReferencePage><ReferenceOrdersSection /><ReferenceCoffeeSection /></ReferencePage>;
+  return (
+    <ReferencePage>
+      <ReferenceOrdersSection />
+      <ReferenceCoffeeSection />
+    </ReferencePage>
+  );
 }
 
 export function ReferenceBusinessPage() {
-  return <ReferencePage><ReferenceBusinessSection /></ReferencePage>;
+  return (
+    <ReferencePage>
+      <ReferenceBusinessSection />
+    </ReferencePage>
+  );
 }
 
 export function ReferenceEventsPage() {
-  return <ReferencePage><ReferenceEventsSection /></ReferencePage>;
+  return (
+    <ReferencePage>
+      <ReferenceEventsSection />
+    </ReferencePage>
+  );
 }
 
 export function ReferenceContactPage() {
-  return <ReferencePage><ReferenceOrdersSection /><ReferenceFindUsSection /><ReferenceFeedbackSection /></ReferencePage>;
+  return (
+    <ReferencePage>
+      <ReferenceOrdersSection />
+      <ReferenceFindUsSection />
+      <ReferenceFeedbackSection />
+    </ReferencePage>
+  );
 }

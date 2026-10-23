@@ -55,34 +55,82 @@ const eventInput = authInput.extend({
   title: z.string().min(2).max(160),
   summary: z.string().max(500),
   description: z.string().max(3000),
-  eventDate: z.string().min(1),
+  eventDate: z.string().datetime({ offset: true }),
   location: z.string().min(2).max(240),
   capacity: z.number().int().positive().nullable(),
-  coverImageUrl: z.string().max(2000).nullable(),
+  coverImageUrl: z
+    .string()
+    .trim()
+    .max(2000)
+    .url()
+    .refine((url) => url.startsWith("https://"), "Use an HTTPS image URL.")
+    .nullable(),
   status: z.enum(["draft", "published", "cancelled", "completed"]),
   registrationOpen: z.boolean(),
 });
 
-const locationInput = authInput.extend({
-  id: z.string().trim().min(1).max(120).optional(),
-  number: z.string().trim().min(1).max(4),
-  name: z.string().trim().min(2).max(120),
-  address: z.string().trim().max(240),
-  logoUrl: z.string().trim().max(2000).refine((url) => !url || url.startsWith("https://") || /^\/stockists\/[a-z0-9.-]+$/i.test(url), "Use an HTTPS logo URL.").default(""),
-  phone: z.string().trim().max(40).refine((value) => !value || /^[+0-9() .-]{7,40}$/.test(value), "Enter a valid phone number.").default(""),
-  instagram: z.string().trim().max(2000).refine((value) => {
-    if (!value) return true;
-    try { const url = new URL(value); return url.protocol === "https:" && ["instagram.com", "www.instagram.com"].includes(url.hostname); } catch { return false; }
-  }, "Enter an HTTPS Instagram profile URL.").default(""),
-  note: z.string().trim().max(240),
-  directions: z
-    .string()
-    .trim()
-    .url("Enter a valid directions URL.")
-    .refine((url) => url.startsWith("https://"), {
-      message: "The directions link must use HTTPS.",
-    }),
-});
+const locationInput = authInput
+  .extend({
+    id: z.string().trim().min(1).max(120).optional(),
+    number: z
+      .string()
+      .trim()
+      .regex(/^\d{1,4}$/, "Use a numeric location number."),
+    latitude: z.number().min(-85).max(85).nullable().default(null),
+    longitude: z.number().min(-180).max(180).nullable().default(null),
+    name: z.string().trim().min(2).max(120),
+    address: z.string().trim().max(240),
+    logoUrl: z
+      .string()
+      .trim()
+      .max(2000)
+      .refine(
+        (url) =>
+          !url ||
+          url.startsWith("https://") ||
+          /^\/stockists\/[a-z0-9.-]+$/i.test(url),
+        "Use an HTTPS logo URL.",
+      )
+      .default(""),
+    phone: z
+      .string()
+      .trim()
+      .max(40)
+      .refine(
+        (value) => !value || /^[+0-9() .-]{7,40}$/.test(value),
+        "Enter a valid phone number.",
+      )
+      .default(""),
+    instagram: z
+      .string()
+      .trim()
+      .max(2000)
+      .refine((value) => {
+        if (!value) return true;
+        try {
+          const url = new URL(value);
+          return (
+            url.protocol === "https:" &&
+            ["instagram.com", "www.instagram.com"].includes(url.hostname)
+          );
+        } catch {
+          return false;
+        }
+      }, "Enter an HTTPS Instagram profile URL.")
+      .default(""),
+    note: z.string().trim().max(240),
+    directions: z
+      .string()
+      .trim()
+      .url("Enter a valid directions URL.")
+      .refine((url) => url.startsWith("https://"), {
+        message: "The directions link must use HTTPS.",
+      }),
+  })
+  .refine(
+    (value) => (value.latitude === null) === (value.longitude === null),
+    "Enter both latitude and longitude, or leave both blank.",
+  );
 
 const locationDeleteInput = authInput.extend({
   id: z.string().trim().min(1).max(120),
@@ -170,10 +218,15 @@ export const recordAdminUserPasswordReset = createServerFn({ method: "POST" })
     return recordManagedUserPasswordReset(data);
   });
 
-export const getCloudinaryUploadSignature = createServerFn({ method: "POST" })
-  .validator(authInput)
+export const uploadAdminImage = createServerFn({ method: "POST" })
+  .validator(
+    z.object({
+      token: z.string().min(20),
+      contentType: z.enum(["image/jpeg", "image/png", "image/webp"]),
+      base64: z.string().min(4).max(2_800_000),
+    }),
+  )
   .handler(async ({ data }) => {
-    const { createCloudinaryUploadSignature } =
-      await import("./admin-db.server");
-    return createCloudinaryUploadSignature(data.token);
+    const { storeAdminImage } = await import("./admin-db.server");
+    return storeAdminImage(data);
   });

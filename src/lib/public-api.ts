@@ -1,13 +1,19 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-const optionalText = z.string().trim().max(2000).optional().nullable();
+const optionalText = z
+  .string()
+  .trim()
+  .max(2000)
+  .optional()
+  .nullable()
+  .default(null);
 
 const registrationInput = z.object({
   eventId: z.string().uuid(),
   fullName: z.string().trim().min(2).max(120),
   phone: z.string().trim().min(7).max(40),
-  email: z.string().trim().email().max(200).optional().nullable(),
+  email: z.string().trim().email().max(200).optional().nullable().default(null),
   guestCount: z.number().int().min(1).max(10),
   notes: optionalText,
 });
@@ -16,7 +22,7 @@ const businessInput = z.object({
   organization: z.string().trim().min(2).max(180),
   contactPerson: z.string().trim().min(2).max(120),
   phone: z.string().trim().min(7).max(40),
-  email: z.string().trim().email().max(200).optional().nullable(),
+  email: z.string().trim().email().max(200).optional().nullable().default(null),
   businessType: optionalText,
   coffeeInterest: optionalText,
   estimatedQuantity: optionalText,
@@ -27,8 +33,9 @@ const contactInput = z.object({
   fullName: z.string().trim().min(2).max(120),
   organization: optionalText,
   phone: z.string().trim().min(7).max(40),
-  email: z.string().trim().email().max(200).optional().nullable(),
+  email: z.string().trim().email().max(200).optional().nullable().default(null),
   requestType: z.string().trim().min(2).max(120),
+  coffeeInterest: optionalText,
   message: z.string().trim().min(3).max(3000),
 });
 
@@ -36,7 +43,7 @@ const orderInput = z.object({
   productId: z.string().uuid(),
   customerName: z.string().trim().min(2).max(120),
   phone: z.string().trim().min(7).max(40),
-  email: z.string().trim().email().max(200).optional().nullable(),
+  email: z.string().trim().email().max(200).optional().nullable().default(null),
   size: z.string().trim().min(1).max(40),
   grind: z.string().trim().min(1).max(80),
   quantity: z.number().int().min(1).max(50),
@@ -50,7 +57,7 @@ const quotationInput = z.object({
   customerName: z.string().trim().min(2).max(120),
   company: optionalText,
   phone: z.string().trim().min(7).max(40),
-  email: z.string().trim().email().max(200).optional().nullable(),
+  email: z.string().trim().email().max(200).optional().nullable().default(null),
   monthlyVolume: optionalText,
   message: optionalText,
 });

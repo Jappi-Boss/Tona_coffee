@@ -24,3 +24,20 @@ npm run dev
 ```
 
 <!-- production redeploy trigger: 2026-09-05 12:20 Africa/Addis_Ababa -->
+
+
+## Admin data connections
+
+Products, events, registrations, stockists, quotations, contact requests and hosted-event inquiries share Neon data with the public site. Public catalogues refresh on page focus. Draft/archived products and unavailable coffee stay hidden. Registration capacity counts guests, excludes cancellations and is checked in a transaction. Admin event dates are entered in East Africa Time (UTC+03:00).
+
+Apply `database/migrations/004_contact_coffee_interest.sql` before deploying contact interest support. This adds a nullable column without changing existing submissions.
+
+Image uploads require server-only `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_ENDPOINT_URL_S3` and `AWS_REGION` for a Neon `admin-media` bucket with public reads and authenticated writes. Uploaded images use unique keys, retain HTTPS URLs in records, and are resized in Admin before upload. Credentials must never use a public/VITE prefix. Existing Cloudinary image URLs continue to display.
+
+Run `node tests/ui-contracts.mjs` for form/schema checks. For database integration checks, create an isolated branch, supply its connection string in a private file, and run:
+
+```sh
+TONA_QA_DATABASE_URL_FILE=/path/to/private-qa-url node tests/admin-connections.mjs --isolated-database
+```
+
+Integration tests create and delete only test records on that isolated database. They stub the authenticated actor and outgoing notifications in temporary compiled modules, so a real signed-in browser check is still required. To include upload/download checks, supply `TONA_QA_STORAGE_FILE` pointing to a private JSON file containing the isolated branch's AWS storage variables. Never point these tests at production.

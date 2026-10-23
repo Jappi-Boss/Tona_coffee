@@ -202,6 +202,7 @@ CREATE TABLE IF NOT EXISTS public.contact_requests (
   phone text NOT NULL,
   email text,
   request_type text NOT NULL,
+  coffee_interest text,
   message text NOT NULL,
   status text NOT NULL DEFAULT 'new',
   admin_notes text,

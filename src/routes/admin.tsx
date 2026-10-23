@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import {
   FormEvent,
+  Children,
   ReactNode,
   useCallback,
   useEffect,
@@ -39,7 +40,7 @@ import {
   deleteLocation,
   createAdminUser,
   getAdminDashboard,
-  getCloudinaryUploadSignature,
+  uploadAdminImage,
   recordAdminUserPasswordReset,
   resetAdminUserPassword,
   saveEvent,
@@ -96,7 +97,9 @@ function AdminDashboard() {
     null,
   );
   const [editingEvent, setEditingEvent] = useState<Row | "new" | null>(null);
-  const [editingLocation, setEditingLocation] = useState<Row | "new" | null>(null);
+  const [editingLocation, setEditingLocation] = useState<Row | "new" | null>(
+    null,
+  );
   const [editingUser, setEditingUser] = useState<"new" | null>(null);
   const [resettingUser, setResettingUser] = useState<Row | null>(null);
 
@@ -191,7 +194,6 @@ function AdminDashboard() {
     }
   }
 
-
   async function removeLocation(id: string, label: string) {
     if (!window.confirm("Delete " + label + "? This action cannot be undone."))
       return;
@@ -202,7 +204,9 @@ function AdminDashboard() {
       await load();
     } catch (caught) {
       toast.error(
-        caught instanceof Error ? caught.message : "Could not delete " + label + ".",
+        caught instanceof Error
+          ? caught.message
+          : "Could not delete " + label + ".",
       );
     }
   }
@@ -777,7 +781,8 @@ function Events({
               </div>
               <p className="mt-1 text-sm text-muted-foreground">
                 {formatDate(row.event_date)} · {String(row.location)} ·{" "}
-                {String(row.registration_count)} registrations
+                {String(row.registration_count)} registrations ·{" "}
+                {String(row["guest_count"] ?? 0)} guests
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -798,7 +803,6 @@ function Events({
     </Section>
   );
 }
-
 
 function Locations({
   rows,
@@ -843,8 +847,12 @@ function Locations({
                   <p className="mt-2 text-sm text-muted-foreground">
                     {String(row.note)}
                   </p>
-                  <p className="mt-2 text-sm text-muted-foreground">Phone: {String(row["phone"] || "–")}</p>
-                  <p className="mt-2 break-all text-sm text-muted-foreground">Instagram: {String(row["instagram"] || "–")}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Phone: {String(row["phone"] || "–")}
+                  </p>
+                  <p className="mt-2 break-all text-sm text-muted-foreground">
+                    Instagram: {String(row["instagram"] || "–")}
+                  </p>
                 </div>
                 <span className="text-xl text-primary" aria-hidden="true">
                   →
@@ -919,6 +927,7 @@ function Registrations({
               />
             </td>
             <td className="p-4">
+              <RecordDetailsButton row={row} />
               <DeleteButton
                 label={`Delete registration for ${String(row.full_name)}`}
                 action={() => onDelete(row)}
@@ -1066,6 +1075,7 @@ function Quotations({
                 />
               </td>
               <td className="p-4">
+                <RecordDetailsButton row={row} />
                 <DeleteButton
                   label={`Delete ${String(row.quote_number)}`}
                   action={() => onDelete(row)}
@@ -1130,6 +1140,7 @@ function Business({
               />
             </td>
             <td className="p-4">
+              <RecordDetailsButton row={row} />
               <DeleteButton
                 label={`Delete ${String(row.organization)}`}
                 action={() => onDelete(row)}
@@ -1168,7 +1179,10 @@ function Contacts({
       >
         {rows.map((row) => (
           <tr key={String(row.id)} className="border-t">
-            <Cell title={String(row.full_name)} subtitle={String(row["phone"])} />
+            <Cell
+              title={String(row.full_name)}
+              subtitle={String(row["phone"])}
+            />
             <Cell title={String(row.request_type).replaceAll("_", " ")} />
             <Cell title={String(row.message)} />
             <Cell title={formatDate(row.created_at)} />
@@ -1182,6 +1196,7 @@ function Contacts({
               />
             </td>
             <td className="p-4">
+              <RecordDetailsButton row={row} />
               <DeleteButton
                 label={`Delete request from ${String(row.full_name)}`}
                 action={() => onDelete(row)}
@@ -1504,27 +1519,26 @@ function ProductImageUpload({
     setMessage("Uploading image…");
     try {
       const token = await getAdminToken();
-      const signature = await getCloudinaryUploadSignature({
-        data: { token },
+      const image = await createImageBitmap(file);
+      const scale = Math.min(1, 2000 / Math.max(image.width, image.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.width * scale));
+      canvas.height = Math.max(1, Math.round(image.height * scale));
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Could not prepare image.");
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      image.close();
+      const dataUrl = canvas.toDataURL("image/webp", 0.85);
+      const base64 = dataUrl.split(",")[1];
+      if (!base64 || base64.length > 2_796_204)
+        throw new Error("Image is too detailed. Choose a smaller image.");
+      const result = await uploadAdminImage({
+        data: { token, contentType: "image/webp", base64 },
       });
-      const body = new FormData();
-      body.append("file", file);
-      body.append("api_key", signature.apiKey);
-      body.append("timestamp", String(signature.timestamp));
-      body.append("signature", signature.signature);
-      body.append("folder", signature.folder);
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${signature.cloudName}/image/upload`,
-        { method: "POST", body },
+      onUploaded(result.url);
+      setMessage(
+        `Upload complete. Save the ${recordLabel} to apply the image.`,
       );
-      const result = (await response.json().catch(() => null)) as {
-        secure_url?: string;
-        error?: { message?: string };
-      } | null;
-      if (!response.ok || !result?.secure_url)
-        throw new Error(result?.error?.message ?? "Cloudinary upload failed.");
-      onUploaded(result.secure_url);
-      setMessage(`Upload complete. Save the ${recordLabel} to apply the image.`);
     } catch (caught) {
       setPreviewUrl("");
       setMessage(
@@ -1586,6 +1600,7 @@ function ProductEditor({
   const [imageUrl, setImageUrl] = useState(String(product.image_url ?? ""));
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy) return;
     if (imageUploading) {
       toast.error("Wait for the product image upload to finish.");
       return;
@@ -1741,8 +1756,13 @@ function EventEditor({
 }) {
   const event = row === "new" ? {} : row;
   const [busy, setBusy] = useState(false);
+  const [coverImageUrl, setCoverImageUrl] = useState(
+    String(event.cover_image_url ?? ""),
+  );
+  const [imageUploading, setImageUploading] = useState(false);
   async function submit(submitEvent: FormEvent<HTMLFormElement>) {
     submitEvent.preventDefault();
+    if (busy || imageUploading) return;
     const form = new FormData(submitEvent.currentTarget);
     setBusy(true);
     try {
@@ -1755,10 +1775,12 @@ function EventEditor({
           title: String(form.get("title")),
           summary: String(form.get("summary")),
           description: String(form.get("description")),
-          eventDate: new Date(String(form.get("eventDate"))).toISOString(),
+          eventDate: new Date(
+            String(form.get("eventDate")) + "+03:00",
+          ).toISOString(),
           location: String(form.get("location")),
           capacity: capacity ? Number(capacity) : null,
-          coverImageUrl: nullable(form.get("coverImageUrl")),
+          coverImageUrl: coverImageUrl.trim() || null,
           status: String(form.get("status")) as
             "draft" | "published" | "cancelled" | "completed",
           registrationOpen: form.get("registrationOpen") === "on",
@@ -1786,7 +1808,7 @@ function EventEditor({
         />
         <EditorField
           name="eventDate"
-          label="Date and time"
+          label="Date and time (Addis Ababa / EAT)"
           type="datetime-local"
           value={toLocalDateTime(event.event_date)}
           required
@@ -1802,12 +1824,28 @@ function EventEditor({
           label="Capacity"
           type="number"
           value={event.capacity}
+          min={1}
+          step={1}
         />
-        <EditorField
-          name="coverImageUrl"
-          label="Cover image URL"
-          value={event.cover_image_url}
-        />
+        <div className="sm:col-span-2">
+          <label className="text-sm font-semibold text-teal">
+            Event cover image
+            <input
+              value={coverImageUrl}
+              onChange={(e) => setCoverImageUrl(e.target.value)}
+              placeholder="Upload an image or paste an HTTPS URL"
+              className="mt-2 h-11 w-full rounded-md border bg-white px-3 font-normal"
+            />
+          </label>
+          <ProductImageUpload
+            imageUrl={coverImageUrl}
+            productName={String(event.title ?? "Event cover")}
+            disabled={busy}
+            onUploadingChange={setImageUploading}
+            onUploaded={setCoverImageUrl}
+            recordLabel="event"
+          />
+        </div>
         <EditorField
           name="summary"
           label="Short summary"
@@ -1848,7 +1886,7 @@ function EventEditor({
           />
         </div>
         <EditorActions
-          busy={busy}
+          busy={busy || imageUploading}
           close={close}
           submitLabel={row === "new" ? "Create event" : "Save changes"}
         />
@@ -1856,7 +1894,6 @@ function EventEditor({
     </Modal>
   );
 }
-
 
 function LocationEditor({
   row,
@@ -1874,6 +1911,7 @@ function LocationEditor({
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy || imageUploading) return;
     const form = new FormData(event.currentTarget);
     setBusy(true);
     try {
@@ -1888,6 +1926,14 @@ function LocationEditor({
           note: String(form.get("note")),
           directions: String(form.get("directions")),
           logoUrl,
+          latitude:
+            nullable(form.get("latitude")) === null
+              ? null
+              : Number(form.get("latitude")),
+          longitude:
+            nullable(form.get("longitude")) === null
+              ? null
+              : Number(form.get("longitude")),
           phone: String(form.get("phone")),
           instagram: String(form.get("instagram")),
         },
@@ -1943,14 +1989,64 @@ function LocationEditor({
           required
           className="sm:col-span-2"
         />
-        <EditorField name="phone" label="Phone (optional)" type="tel" value={location["phone"]} maxLength={40} />
-        <EditorField name="instagram" label="Instagram profile URL (optional)" type="url" value={location["instagram"]} placeholder="https://www.instagram.com/yourstore/" />
+        <EditorField
+          name="latitude"
+          label="Map latitude (optional)"
+          type="number"
+          min={-85}
+          max={85}
+          step="any"
+          value={location["latitude"]}
+        />
+        <EditorField
+          name="longitude"
+          label="Map longitude (optional)"
+          type="number"
+          min={-180}
+          max={180}
+          step="any"
+          value={location["longitude"]}
+        />
+        <p className="sm:col-span-2 text-xs text-muted-foreground">
+          Enter the exact Google Maps coordinates to display a pin. Leave both
+          blank until the location is verified.
+        </p>
+        <EditorField
+          name="phone"
+          label="Phone (optional)"
+          type="tel"
+          value={location["phone"]}
+          maxLength={40}
+        />
+        <EditorField
+          name="instagram"
+          label="Instagram profile URL (optional)"
+          type="url"
+          value={location["instagram"]}
+          placeholder="https://www.instagram.com/yourstore/"
+        />
         <div className="sm:col-span-2">
-          <label className="text-sm font-semibold text-teal">Store logo (optional)
-            <input value={logoUrl} onChange={(event) => setLogoUrl(event.target.value)} placeholder="Upload a logo or paste an HTTPS image URL" className="mt-2 h-11 w-full rounded-md border bg-white px-3 font-normal" />
+          <label className="text-sm font-semibold text-teal">
+            Store logo (optional)
+            <input
+              value={logoUrl}
+              onChange={(event) => setLogoUrl(event.target.value)}
+              placeholder="Upload a logo or paste an HTTPS image URL"
+              className="mt-2 h-11 w-full rounded-md border bg-white px-3 font-normal"
+            />
           </label>
-          <ProductImageUpload imageUrl={logoUrl} productName={String(location.name ?? "Store logo")} disabled={busy} onUploadingChange={setImageUploading} onUploaded={setLogoUrl} recordLabel="location" contain />
-          <p className="mt-2 text-xs text-muted-foreground">Leave unavailable details blank. The website displays –.</p>
+          <ProductImageUpload
+            imageUrl={logoUrl}
+            productName={String(location.name ?? "Store logo")}
+            disabled={busy}
+            onUploadingChange={setImageUploading}
+            onUploaded={setLogoUrl}
+            recordLabel="location"
+            contain
+          />
+          <p className="mt-2 text-xs text-muted-foreground">
+            Leave unavailable details blank. The website displays –.
+          </p>
         </div>
         <EditorActions
           busy={busy || imageUploading}
@@ -2011,7 +2107,20 @@ function RecordTable({
               ))}
             </tr>
           </thead>
-          <tbody>{children}</tbody>
+          <tbody>
+            {Children.count(children) ? (
+              children
+            ) : (
+              <tr>
+                <td
+                  colSpan={headers.length}
+                  className="p-10 text-center text-sm text-muted-foreground"
+                >
+                  No records to display.
+                </td>
+              </tr>
+            )}
+          </tbody>
         </table>
       </div>
     </div>
@@ -2045,12 +2154,23 @@ function StatusSelect({
 }: {
   value: string;
   options: string[];
-  change: (status: string) => void;
+  change: (status: string) => void | Promise<void>;
 }) {
+  const [saving, setSaving] = useState(false);
   return (
     <select
       value={value}
-      onChange={(event) => change(event.target.value)}
+      disabled={saving}
+      aria-busy={saving}
+      onChange={async (event) => {
+        const status = event.target.value;
+        setSaving(true);
+        try {
+          await change(status);
+        } finally {
+          setSaving(false);
+        }
+      }}
       className={`rounded-sm border-0 px-2.5 py-1.5 text-xs font-bold capitalize outline-none ring-1 ring-inset ring-black/5 ${statusColor(value)}`}
     >
       {options.map((option) => (
@@ -2168,6 +2288,45 @@ function EditorActions({
   );
 }
 
+function RecordDetailsButton({ row }: { row: Row }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="mr-2 rounded-md border px-3 py-2 text-xs font-bold text-teal"
+      >
+        View details
+      </button>
+      {open && (
+        <Modal title="Request details" close={() => setOpen(false)}>
+          <dl className="grid gap-4">
+            {Object.entries(row)
+              .filter(([key]) => !["id", "event_id"].includes(key))
+              .map(([key, value]) => (
+                <div key={key} className="border-b pb-3">
+                  <dt className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                    {key.replaceAll("_", " ")}
+                  </dt>
+                  <dd className="mt-1 whitespace-pre-wrap break-words text-sm text-teal">
+                    {key.endsWith("_at")
+                      ? formatDate(value)
+                      : value == null || value === ""
+                        ? "–"
+                        : typeof value === "object"
+                          ? JSON.stringify(value, null, 2)
+                          : String(value)}
+                  </dd>
+                </div>
+              ))}
+          </dl>
+        </Modal>
+      )}
+    </>
+  );
+}
+
 function DeleteButton({
   label,
   action,
@@ -2256,7 +2415,11 @@ function formatDate(value: unknown) {
   const date = new Date(String(value));
   return Number.isNaN(date.getTime())
     ? String(value)
-    : date.toLocaleString("en-ET", { dateStyle: "medium", timeStyle: "short" });
+    : date.toLocaleString("en-ET", {
+        dateStyle: "medium",
+        timeStyle: "short",
+        timeZone: "Africa/Addis_Ababa",
+      });
 }
 
 function downloadQuotationWorkbook(rows: Row[]) {
@@ -2333,9 +2496,11 @@ function escapeXml(value: string) {
 function toLocalDateTime(value: unknown) {
   if (!value) return "";
   const date = new Date(String(value));
-  const offset = date.getTimezoneOffset();
-  return new Date(date.getTime() - offset * 60_000).toISOString().slice(0, 16);
+  return Number.isNaN(date.getTime())
+    ? ""
+    : new Date(date.getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 16);
 }
+
 function nullable(value: FormDataEntryValue | null) {
   const text = String(value ?? "").trim();
   return text || null;

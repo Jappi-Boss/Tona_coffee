@@ -4,6 +4,7 @@ import {
   DEFAULT_STOCKISTS,
   STOCKISTS_SETTING_KEY,
   normalizeStockists,
+  orderStockists,
 } from "./locations";
 import { sendSubmissionNotifications } from "./notifications.server";
 import { ensureQuotationSchema } from "./quotation-schema.server";
@@ -14,13 +15,12 @@ function database() {
   return neon(connectionString);
 }
 
-
 export async function loadPublicLocations() {
   if (!process.env.DATABASE_URL) return normalizeStockists(DEFAULT_STOCKISTS);
   const sql = database();
   const rows =
     await sql`SELECT value FROM public.site_settings WHERE key = ${STOCKISTS_SETTING_KEY} LIMIT 1`;
-  return normalizeStockists(rows[0]?.value);
+  return orderStockists(normalizeStockists(rows[0]?.value));
 }
 
 export async function loadPublicCatalog() {
@@ -72,7 +72,7 @@ export async function loadPublicCatalog() {
         e.capacity,
         e.cover_image_url,
         e.registration_open,
-        COUNT(r.id)::int AS registration_count
+        COALESCE(SUM(r.guest_count), 0)::int AS registration_count
       FROM events e
       LEFT JOIN event_registrations r
         ON r.event_id = e.id AND r.status <> 'cancelled'
@@ -84,29 +84,29 @@ export async function loadPublicCatalog() {
 
   return {
     products: products.map((product) => ({
-        id: String(product.id),
-        slug: String(product.slug),
-        name: String(product.name),
-        region: String(product.region),
-        process: String(product.process),
-        description: String(product.description ?? ""),
-        tastingNotes: Array.isArray(product.tasting_notes)
-          ? product.tasting_notes.map(String)
-          : [],
-        altitude: product.altitude ? String(product.altitude) : null,
-        imageUrl: product.image_url ? String(product.image_url) : null,
-        isAvailable: Boolean(product.is_available),
-        isFeatured: Boolean(product.is_featured),
-        variants: Array.isArray(product.variants)
-          ? product.variants.map((variant: Record<string, unknown>) => ({
-              id: String(variant.id),
-              size: String(variant.size),
-              grind: String(variant.grind),
-              price: variant.price == null ? null : Number(variant.price),
-              stockQuantity: Number(variant.stockQuantity ?? 0),
-            }))
-          : [],
-      })),
+      id: String(product.id),
+      slug: String(product.slug),
+      name: String(product.name),
+      region: String(product.region),
+      process: String(product.process),
+      description: String(product.description ?? ""),
+      tastingNotes: Array.isArray(product.tasting_notes)
+        ? product.tasting_notes.map(String)
+        : [],
+      altitude: product.altitude ? String(product.altitude) : null,
+      imageUrl: product.image_url ? String(product.image_url) : null,
+      isAvailable: Boolean(product.is_available),
+      isFeatured: Boolean(product.is_featured),
+      variants: Array.isArray(product.variants)
+        ? product.variants.map((variant: Record<string, unknown>) => ({
+            id: String(variant.id),
+            size: String(variant.size),
+            grind: String(variant.grind),
+            price: variant.price == null ? null : Number(variant.price),
+            stockQuantity: Number(variant.stockQuantity ?? 0),
+          }))
+        : [],
+    })),
     events: events.map((event) => ({
       id: String(event.id),
       slug: String(event.slug),
@@ -120,7 +120,11 @@ export async function loadPublicCatalog() {
       coverImageUrl: event.cover_image_url
         ? String(event.cover_image_url)
         : null,
-      registrationOpen: Boolean(event.registration_open),
+      registrationOpen:
+        Boolean(event.registration_open) &&
+        new Date(String(event.event_date)).getTime() > Date.now() &&
+        (event.capacity == null ||
+          Number(event.registration_count) < Number(event.capacity)),
       registrationCount: Number(event.registration_count ?? 0),
     })),
   };
@@ -177,7 +181,8 @@ function fallbackCatalog() {
         status: "published",
         title: "Guji & Jimma Cupping Table",
         summary: "A guided comparison of two distinctive Ethiopian origins.",
-        description: "A guided comparison of two distinctive Ethiopian origins.",
+        description:
+          "A guided comparison of two distinctive Ethiopian origins.",
         eventDate: "2026-10-05T07:00:00.000Z",
         location: "Addis Ababa · 10:00 AM",
         capacity: 30,
@@ -254,7 +259,9 @@ export async function createEventRegistration(input: {
   notes: string | null;
 }) {
   const sql = database();
-  const rows = await sql`
+  const [, rows] = await sql.transaction([
+    sql`SELECT id FROM events WHERE id = ${input.eventId}::uuid FOR UPDATE`,
+    sql`
     INSERT INTO event_registrations
       (event_id, full_name, phone, email, guest_count, notes)
     SELECT
@@ -268,6 +275,7 @@ export async function createEventRegistration(input: {
     WHERE e.id = ${input.eventId}::uuid
       AND e.status = 'published'
       AND e.registration_open = true
+      AND e.event_date > now()
       AND (
         e.capacity IS NULL OR
         (SELECT COALESCE(SUM(r.guest_count), 0)
@@ -275,7 +283,8 @@ export async function createEventRegistration(input: {
          WHERE r.event_id = e.id AND r.status <> 'cancelled') + ${input.guestCount} <= e.capacity
       )
     RETURNING id
-  `;
+  `,
+  ]);
   if (!rows[0]) throw new Error("Registration is closed or the event is full.");
   const id = String(rows[0].id);
   const notifications = await sendSubmissionNotifications({
@@ -357,14 +366,15 @@ export async function createContactRequest(input: {
   phone: string;
   email: string | null;
   requestType: string;
+  coffeeInterest?: string | null;
   message: string;
 }) {
   const sql = database();
   const rows = await sql`
     INSERT INTO contact_requests
-      (full_name, organization, phone, email, request_type, message)
+      (full_name, organization, phone, email, request_type, coffee_interest, message)
     VALUES
-      (${input.fullName}, ${input.organization}, ${input.phone}, ${input.email}, ${input.requestType}, ${input.message})
+      (${input.fullName}, ${input.organization}, ${input.phone}, ${input.email}, ${input.requestType}, ${input.coffeeInterest ?? null}, ${input.message})
     RETURNING id
   `;
   const id = String(rows[0].id);
@@ -378,6 +388,7 @@ export async function createContactRequest(input: {
       { label: "Phone", value: input.phone },
       { label: "Email", value: input.email },
       { label: "Request type", value: input.requestType },
+      { label: "Coffee interest", value: input.coffeeInterest },
       { label: "Message", value: input.message },
     ],
     whatsappMessage: [
@@ -387,6 +398,7 @@ export async function createContactRequest(input: {
       `Phone: ${input.phone}`,
       `Email: ${input.email ?? ""}`,
       `Request type: ${input.requestType}`,
+      `Coffee interest: ${input.coffeeInterest ?? ""}`,
       `Message: ${input.message}`,
     ].join("\n"),
   });
