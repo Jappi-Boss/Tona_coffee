@@ -1312,17 +1312,17 @@ function ReferenceOrdersSection() {
   );
 }
 
-const MAP_TILES = [
-  ["https://tile.openstreetmap.org/14/9954/7780.png", "translate3d(165px, -5px, 0px)"],
-  ["https://tile.openstreetmap.org/14/9955/7780.png", "translate3d(421px, -5px, 0px)"],
-  ["https://tile.openstreetmap.org/14/9954/7781.png", "translate3d(165px, 251px, 0px)"],
-  ["https://tile.openstreetmap.org/14/9955/7781.png", "translate3d(421px, 251px, 0px)"],
-  ["https://tile.openstreetmap.org/14/9953/7780.png", "translate3d(-91px, -5px, 0px)"],
-  ["https://tile.openstreetmap.org/14/9956/7780.png", "translate3d(677px, -5px, 0px)"],
-  ["https://tile.openstreetmap.org/14/9953/7781.png", "translate3d(-91px, 251px, 0px)"],
-  ["https://tile.openstreetmap.org/14/9956/7781.png", "translate3d(677px, 251px, 0px)"],
-] as const;
-
+// Keep the existing tile coordinate origin; extend coverage for the third stockist.
+const MAP_TILES = Array.from({ length: 6 }, (_, column) =>
+  Array.from({ length: 8 }, (_, row) => {
+    const x = 9952 + column;
+    const y = 7777 + row;
+    return [
+      `https://tile.openstreetmap.org/14/${x}/${y}.png`,
+      `translate3d(${165 + (x - 9954) * 256}px, ${-5 + (y - 7780) * 256}px, 0px)`,
+    ] as const;
+  }),
+).flat();
 
 const MAP_MARKER_POSITIONS = [
   { x: 481, y: 84 },
@@ -1336,6 +1336,8 @@ const MAP_MARKER_POSITIONS = [
 const KNOWN_MAP_POSITIONS: Record<string, { x: number; y: number }> = {
   "Emawa Mart": { x: 481, y: 84 },
   Allmart: { x: 229, y: 330 },
+  // Google Maps: 8.9900508, 38.7826172, projected into the zoom-14 tile grid.
+  "MT Super Valu": { x: 943.2401456, y: 292.8711557 },
 };
 
 function getStockistMapPosition(stockist: PublicStockist, index: number) {
@@ -1357,6 +1359,16 @@ function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
     offsetX: number;
     offsetY: number;
   } | null>(null);
+  const [mapSize, setMapSize] = useState({ width: 676, height: 500 });
+  useEffect(() => {
+    const element = mapRef.current;
+    if (!element) return;
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) setMapSize({ width: entry.contentRect.width, height: entry.contentRect.height });
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
   const [zoomLevel, setZoomLevel] = useState(0);
   const [mapOffset, setMapOffset] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
@@ -1400,12 +1412,13 @@ function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
     setDragging(false);
   };
 
-  const initialMapTransform = "translate3d(0px, 0px, 0px)";
   const stockistNames = stockists.map((stockist) => stockist.name).join(", ");
-  const mapPaneTransform =
-    zoomLevel === 0 && mapOffset.x === 0 && mapOffset.y === 0
-      ? initialMapTransform
-      : `translate3d(${mapOffset.x}px, ${mapOffset.y}px, 0px) scale(${Math.pow(2, zoomLevel)})`;
+  const hasThirdStockist = stockists.some((stockist) => stockist.name === "MT Super Valu");
+  const fitScale = hasThirdStockist ? Math.min(1, Math.max(0.2, (mapSize.width - 90) / (943.2401456 - 229))) : 1;
+  const scale = fitScale * Math.pow(2, zoomLevel);
+  const offsetX = hasThirdStockist ? mapSize.width / 2 - 586.1200728 * scale : 0;
+  const offsetY = hasThirdStockist ? mapSize.height / 2 - 207 * scale : 0;
+  const mapPaneTransform = `translate3d(${offsetX + mapOffset.x}px, ${offsetY + mapOffset.y}px, 0px) scale(${scale})`;
 
   return (
     <div
@@ -1433,7 +1446,7 @@ function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
         className="leaflet-pane leaflet-map-pane"
         style={{
           transform: mapPaneTransform,
-          ...(mapPaneTransform === initialMapTransform ? {} : { transformOrigin: "center center" }),
+          transformOrigin: "0 0",
         }}
       >
         <div className="leaflet-pane leaflet-tile-pane">
@@ -1454,6 +1467,14 @@ function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
               <div
                 className="leaflet-marker-icon tona-pin-wrap leaflet-zoom-animated leaflet-interactive"
                 title={stockist.name}
+                aria-label={`Open directions to ${stockist.name}`}
+                onClick={() => window.open(stockist.directions, "_blank", "noopener,noreferrer")}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    window.open(stockist.directions, "_blank", "noopener,noreferrer");
+                  }
+                }}
                 tabIndex={0}
                 role="button"
                 key={stockist.id}
@@ -1558,7 +1579,7 @@ function ReferenceFindUsSection() {
         </ul>
 
         <div className="stockist-map reveal">
-          {/* Keep existing map pins unchanged; new stores use their Directions links. */}
+          {/* Show verified store locations in the existing map style. */}
           <ReferenceMap stockists={stockists.filter((stockist) => Object.hasOwn(KNOWN_MAP_POSITIONS, stockist.name))} />
         </div>
       </div>
