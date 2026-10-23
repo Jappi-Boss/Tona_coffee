@@ -225,11 +225,11 @@ export async function storeAdminImage(input: {
           ? "webp"
           : null;
   if (!extension) throw new Error("Choose a valid JPG, PNG, or WebP image.");
-  const endpoint = process.env.AWS_ENDPOINT_URL_S3;
+  const endpoint = process.env["AWS_ENDPOINT_URL_S3"];
   if (
     !endpoint ||
-    !process.env.AWS_ACCESS_KEY_ID ||
-    !process.env.AWS_SECRET_ACCESS_KEY
+    !process.env["AWS_ACCESS_KEY_ID"] ||
+    !process.env["AWS_SECRET_ACCESS_KEY"]
   )
     throw new Error("Image storage is not configured.");
   const { S3Client, PutObjectCommand } = await import("@aws-sdk/client-s3");
@@ -238,7 +238,7 @@ export async function storeAdminImage(input: {
   const { FetchHttpHandler } = await import("@smithy/fetch-http-handler");
   const client = new S3Client({
     endpoint,
-    region: process.env.AWS_REGION ?? "us-east-1",
+    region: process.env["AWS_REGION"] ?? "us-east-1",
     forcePathStyle: true,
     requestHandler: new FetchHttpHandler({ requestTimeout: 20_000 }),
     maxAttempts: 2,
