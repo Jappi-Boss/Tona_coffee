@@ -48,7 +48,7 @@ import {
   saveProduct,
   updateRecordStatus,
 } from "@/lib/admin-api";
-import { adminAuth, getAdminToken } from "@/lib/admin-auth";
+import { getAdminAuth, getAdminToken } from "@/lib/admin-auth";
 
 export const Route = createFileRoute("/admin")({
   component: AdminDashboard,
@@ -152,7 +152,7 @@ function AdminDashboard() {
   }, [data, query]);
 
   async function signOut() {
-    await adminAuth.adapter.signOut();
+    await (await getAdminAuth()).adapter.signOut();
     await navigate({ to: "/admin/login" });
   }
 
@@ -1311,7 +1311,9 @@ function UserEditor({
       const email = String(form.get("email")).trim().toLowerCase();
       const name = String(form.get("name")).trim();
       const role = String(form.get("role")) as "admin" | "editor";
-      const created = await adminAuth.adapter.admin.createUser({
+      const created = await (
+        await getAdminAuth()
+      ).adapter.admin.createUser({
         email,
         name,
         password,
@@ -1333,7 +1335,9 @@ function UserEditor({
           },
         });
       } catch (caught) {
-        await adminAuth.adapter.admin
+        await (
+          await getAdminAuth()
+        ).adapter.admin
           .removeUser({ userId: created.data.user.id })
           .catch(() => undefined);
         throw caught;
@@ -1423,7 +1427,9 @@ function PasswordResetEditor({
       await resetAdminUserPassword({
         data: { token, userId: String(row["id"]) },
       });
-      const reset = await adminAuth.adapter.admin.setUserPassword({
+      const reset = await (
+        await getAdminAuth()
+      ).adapter.admin.setUserPassword({
         userId: String(row["id"]),
         newPassword,
       });

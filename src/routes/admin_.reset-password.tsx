@@ -3,7 +3,7 @@ import { KeyRound } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
 
-import { adminAuth } from "@/lib/admin-auth";
+import { getAdminAuth } from "@/lib/admin-auth";
 import { TonaLogo } from "@/components/site/TonaLogo";
 
 export const Route = createFileRoute("/admin_/reset-password")({
@@ -26,7 +26,9 @@ function ResetPasswordPage() {
     if (!token) return toast.error("This reset link is invalid or expired.");
     setBusy(true);
     try {
-      const result = await adminAuth.adapter.resetPassword({
+      const result = await (
+        await getAdminAuth()
+      ).adapter.resetPassword({
         newPassword,
         token,
       });

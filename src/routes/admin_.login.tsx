@@ -3,7 +3,7 @@ import { ArrowLeft, Eye, EyeOff, LockKeyhole } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
 
-import { adminAuth } from "@/lib/admin-auth";
+import { getAdminAuth } from "@/lib/admin-auth";
 
 export const Route = createFileRoute("/admin_/login")({
   component: AdminLoginPage,
@@ -28,8 +28,12 @@ function AdminLoginPage() {
     try {
       const result =
         mode === "signin"
-          ? await adminAuth.adapter.signIn.email({ email, password })
-          : await adminAuth.adapter.signUp.email({ email, password, name });
+          ? await (
+              await getAdminAuth()
+            ).adapter.signIn.email({ email, password })
+          : await (
+              await getAdminAuth()
+            ).adapter.signUp.email({ email, password, name });
       if (result.error)
         throw new Error(result.error.message ?? "Authentication failed.");
       toast.success(
@@ -53,7 +57,9 @@ function AdminLoginPage() {
     if (!email) return toast.error("Enter your email address first.");
     setBusy(true);
     try {
-      const result = await adminAuth.adapter.requestPasswordReset({
+      const result = await (
+        await getAdminAuth()
+      ).adapter.requestPasswordReset({
         email,
         redirectTo: `${window.location.origin}/admin/reset-password`,
       });
