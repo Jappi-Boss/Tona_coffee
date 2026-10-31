@@ -1,0 +1,408 @@
+/* ============================================================================
+   Round eleven — layout and alignment, 17 Sep 2026.
+
+   1. One page gutter, shared by every section AND the subpage hero, so titles
+      and body copy sit on the same left edge everywhere.
+   2. Real breathing room under a section heading before its first block.
+   3. about.html principles: three columns, one per column, with icons.
+   4. business.html partners: a 3 x 2 grid with a gentle hierarchy.
+
+   Imported last, after pages-v5.css.
+   ========================================================================== */
+
+/* ==========================================================================
+   1 · Page gutter and measure
+
+   Measured before this change at 1512px: every .section sat at padding-inline
+   45px while .page-hero sat at 60px, so on the five subpages the page title
+   was 15px off the left edge of everything beneath it. 45px is also only 3% of
+   a 1512px canvas, which let copy run 1422px wide edge to edge -- and on a
+   1920px monitor, 1830px.
+
+   max() does both jobs in one declaration: a generous proportional gutter on
+   small and medium screens, and on very wide ones whatever is needed to hold
+   the content column at --measure and centre it. No wrapper element required,
+   so no markup churn across six pages.
+   ========================================================================== */
+
+:root {
+  --edge: clamp(1.5rem, 5.2vw, 6.5rem);
+  --measure: 1400px;
+}
+
+main > .section,
+main > section.section,
+.page-hero,
+.site-footer {
+  padding-inline: max(var(--edge), calc((100% - var(--measure)) / 2));
+}
+
+/* The landing hero is full-bleed art and sets its own geometry; leave it. */
+.hero#home { padding-inline: 0; }
+
+/* ==========================================================================
+   2 · Breathing room under a section heading
+
+   `.section-heading` carries no bottom margin; the blocks that follow supply
+   their own top margin, and the ones added in round eight never did. Measured:
+   #coffee heading -> .coffee-split was -30px (overlapping) on the landing page
+   and 0px on coffee.html, against 121px for every sibling block. This matches
+   the value the rest of the site already uses.
+   ========================================================================== */
+
+/* One value for every section heading on the site. Measured across all six
+   pages the gap was 121 / 91 / 64 / 26px depending on which block happened to
+   follow, and -30px in section 02 where the two actually overlapped. */
+.section-heading + * {
+  margin-top: clamp(3.25rem, 6vw, 6rem);
+}
+
+/* The figure bands set their own rhythm and should not be doubled up. */
+.section-heading + .page-figure,
+.section-heading + .figure-duo {
+  margin-top: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+/* `.business .partner-list` carries its own 56px and outranks the rule above,
+   which left a 26px gap under the heading against 61-91px everywhere else. */
+.section .section-heading + .partner-list,
+.section .section-heading + .orders-layout,
+.section .section-heading + .stockist-layout,
+.section .section-heading + .feedback-layout {
+  margin-top: clamp(3.25rem, 6vw, 6rem);
+}
+
+/* Inside section 02 the two halves need the same separation from each other. */
+.coffee-split > .blend-block > .blend-lead { margin-top: 0; }
+
+.blend-lead + .blend-formats,
+.blend-lead + .export-rail,
+.blend-lead + .origin-grid {
+  margin-top: clamp(2rem, 4vw, 3.25rem);
+}
+
+/* ==========================================================================
+   3 · about.html principles — three columns, one each, with an icon
+
+   styles-base.css makes `.principle` a three-column grid
+   (`0.45fr 1.3fr 1fr`) built for the landing page's wide rows, where the
+   middle column holds an icon. about.html had no icon, so the heading fell
+   into that middle column and was squeezed to 83px wide, wrapping to 165px
+   tall and colliding visually with the number and the paragraph either side.
+   Here each principle becomes a single column of its own.
+   ========================================================================== */
+
+.about-principles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 3rem);
+}
+
+.about-principles .principle {
+  display: block;
+  padding: clamp(1.6rem, 2.4vw, 2.2rem) clamp(1.5rem, 2.2vw, 2rem) clamp(1.8rem, 2.6vw, 2.4rem);
+  background: rgba(255, 253, 248, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(255, 253, 248, 0.16);
+  border: 0;
+}
+
+.about-principles .principle::after { content: none; }
+
+.about-principles .principle-icon {
+  display: block;
+  width: clamp(2.4rem, 3.2vw, 3rem);
+  margin-bottom: clamp(1.1rem, 2vw, 1.6rem);
+  color: var(--ember, #ef4a28);
+}
+
+.about-principles .principle-icon svg { width: 100%; height: auto; display: block; }
+
+.about-principles .principle-no {
+  display: block;
+  margin-bottom: 0.6rem;
+  color: var(--ember, #ef4a28);
+  font-family: var(--mono, monospace);
+  font-size: var(--label, 0.75rem);
+  letter-spacing: 0.1em;
+}
+
+.about-principles .principle h3 {
+  margin: 0 0 0.85rem;
+  max-width: none;
+  font-family: var(--display, sans-serif);
+  font-size: clamp(1.45rem, 2vw, 1.9rem);
+  font-weight: 400;
+  line-height: 1.02;
+  text-transform: uppercase;
+}
+
+.about-principles .principle p {
+  margin: 0;
+  max-width: none;
+  font-size: var(--body, 0.9rem);
+  line-height: 1.6;
+  color: rgba(255, 253, 248, 0.78);
+}
+
+@media (max-width: 900px) {
+  .about-principles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 620px) {
+  .about-principles { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ==========================================================================
+   4 · business.html partners — 3 x 2
+
+   Six full-width stacked rows became six tiles. Hierarchy inside a tile runs
+   number (quietest) -> name -> what they get -> the detail line, so the eye
+   lands on the partner type first and can stop there.
+   ========================================================================== */
+
+.business .partner-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.25rem, 2.4vw, 2.25rem);
+}
+
+.business .partner-list .partner-row {
+  display: block;
+  padding: clamp(1.6rem, 2.4vw, 2.2rem) clamp(1.4rem, 2.2vw, 2rem) clamp(1.8rem, 2.6vw, 2.4rem);
+  background: rgba(255, 253, 248, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(255, 253, 248, 0.16);
+  border: 0;
+}
+
+.business .partner-list .partner-row > span {
+  display: block;
+  margin-bottom: 1.1rem;
+  color: var(--ember, #ef4a28);
+  font-family: var(--mono, monospace);
+  font-size: var(--label, 0.75rem);
+  letter-spacing: 0.1em;
+}
+
+.business .partner-list .partner-row h3 {
+  margin: 0 0 0.7rem;
+  font-family: var(--display, sans-serif);
+  font-size: clamp(1.35rem, 1.85vw, 1.75rem);
+  font-weight: 400;
+  line-height: 1.04;
+  text-transform: uppercase;
+}
+
+.business .partner-list .partner-row p {
+  margin: 0;
+  max-width: none;
+  font-size: var(--body, 0.9rem);
+  line-height: 1.6;
+}
+
+.business .partner-list .partner-row .partner-detail {
+  margin-top: 0.6rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid rgba(255, 253, 248, 0.16);
+  font-size: var(--body-sm, 0.835rem);
+  color: rgba(255, 253, 248, 0.7);
+}
+
+@media (max-width: 1000px) {
+  .business .partner-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 620px) {
+  .business .partner-list { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ==========================================================================
+   5 · Editorial imagery
+
+   A single figure used as a full-width band between text blocks, so each page
+   can carry its own artwork without inventing a new layout family for it.
+   ========================================================================== */
+
+.page-figure {
+  margin: clamp(3rem, 6vw, 5.5rem) 0 0;
+  overflow: hidden;
+}
+
+.page-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.page-figure figcaption {
+  margin-top: 0.9rem;
+  font-family: var(--mono, monospace);
+  font-size: var(--label, 0.75rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 253, 248, 0.62);
+}
+
+.figure-duo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 2.2vw, 1.75rem);
+  margin-top: clamp(3rem, 6vw, 5.5rem);
+}
+
+.figure-duo figure { margin: 0; overflow: hidden; }
+.figure-duo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+@media (max-width: 720px) {
+  .figure-duo { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ==========================================================================
+   6 · "Tell us where we should be" (client item 7)
+
+   Sits under the stockist map. Two fields and one button, because a third
+   field is where this kind of ask stops being answered.
+   ========================================================================== */
+
+.area-request {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(1.5rem, 3vw, 3rem);
+  align-items: start;
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+  padding: clamp(1.75rem, 3vw, 2.75rem);
+  background: rgba(255, 253, 248, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(255, 253, 248, 0.16);
+}
+
+.area-request .mono-label { margin: 0 0 0.6rem; }
+
+.area-request h3 {
+  margin: 0 0 0.6rem;
+  font-family: var(--display, sans-serif);
+  font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+  font-weight: 400;
+  line-height: 1.02;
+  text-transform: uppercase;
+}
+
+.area-request .area-request-copy p:last-child {
+  margin: 0;
+  max-width: 34ch;
+  font-size: var(--body, 0.9rem);
+  line-height: 1.6;
+  color: rgba(255, 253, 248, 0.78);
+}
+
+.area-request-fields { display: grid; gap: 0.9rem; }
+
+.area-request-fields label { display: grid; gap: 0.4rem; }
+
+.area-request-fields span {
+  font-family: var(--mono, monospace);
+  font-size: var(--label, 0.75rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 253, 248, 0.72);
+}
+
+.area-request-fields input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  color: var(--black, #000);
+  background: var(--white, #fffdf8);
+  border: 0;
+  font-family: var(--body, sans-serif);
+  font-size: 1rem;
+}
+
+.area-request-fields input::placeholder { color: rgba(0, 0, 0, 0.5); }
+
+.area-request .form-status { grid-column: 1 / -1; margin: 0; }
+
+@media (max-width: 820px) {
+  .area-request { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ==========================================================================
+   7 · Masthead logo (client item 1)
+
+   `original-hero.css` pinned the mark to `width: 5rem` (80px) to match the old
+   Framer header. That is exactly the floor of the brand guidelines' "Digital:
+   80-100px wide" rule, and at 80px the Amharic line ቶና ቡና renders about 7.6px
+   tall, well under any legibility threshold, so it reads as artefacts rather
+   than type. Taking it to ~106px at desktop puts the wordmark comfortably
+   inside the guideline range and lets the Amharic resolve. Aspect is left to
+   the intrinsic 640x304 of the asset so it can never be stretched.
+   ========================================================================== */
+
+.site-header .brand img {
+  width: clamp(5.75rem, 7vw, 7.25rem);
+  max-height: none;
+  height: auto;
+}
+
+@media (max-width: 800px) {
+  .site-header .brand img { width: 5.75rem; }
+}
+
+/* ==========================================================================
+   8 · Section 02's export heading
+
+   The export block now carries a real `.section-heading` of its own. Nested
+   inside `.coffee-split > .export-block` it was sizing to its content (625px
+   in a 1355px column) and centring, which put its eyebrow, headline and body
+   at L=443 against L=79 for everything else on the page. Stretch it like any
+   other heading; the measure stays on the paragraph where it belongs.
+   ========================================================================== */
+
+.coffee-split .section-heading {
+  width: 100%;
+  max-width: none;
+  justify-self: stretch;
+  margin-inline: 0;
+}
+
+.coffee-split .section-heading .section-intro { max-width: 42rem; }
+
+/* ==========================================================================
+   9 · Footer email hit area
+
+   Round ten grew this link's tap target with `padding-block` on an inline
+   element, which by design does not affect the line box. `.footer-meta` is a
+   plain block, so the copyright line below stayed put and the two boxes
+   overlapped by 7px: a click just above the copyright landed on the email.
+   inline-block lets the padding take part in layout instead.
+   ========================================================================== */
+
+.footer-meta a {
+  display: inline-block;
+  padding-block: 0.5rem;
+}
+
+/* ==========================================================================
+   6 · Section subtitle
+
+   Sits between the display title and the body copy: louder than the mono
+   eyebrow above the title, quieter than the title itself, so the order reads
+   index -> title -> subtitle -> body without competing.
+   ========================================================================== */
+
+.section-subtitle {
+  margin: clamp(0.8rem, 1.6vw, 1.2rem) 0 0;
+  max-width: 34ch;
+  /* Parchment, not Harvest Sun: gold on gold made the tagline compete with the
+     title instead of sitting under it. The run now steps ember -> gold ->
+     parchment -> body grey. */
+  color: var(--parchment, #e4d4ba);
+  font-family: var(--display-clean, var(--display, sans-serif));
+  font-size: clamp(1.35rem, 2.1vw, 2rem);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+/* The intro already owns the gap to the body, so don't double it up. */
+.section-subtitle + .section-intro {
+  margin-top: clamp(0.9rem, 1.8vw, 1.35rem);
+}

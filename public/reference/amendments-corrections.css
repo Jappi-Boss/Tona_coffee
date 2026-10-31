@@ -1,0 +1,6 @@
+/* Bounded QA correction: keep both faces visible in the partnership image on narrow screens. */
+@media (max-width: 900px) {
+  .business-feature figure img {
+    object-position: center 8%;
+  }
+}

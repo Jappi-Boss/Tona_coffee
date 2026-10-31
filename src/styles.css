@@ -457,8 +457,6 @@
   }
 }
 
-
-
 /* Route-aware active navigation cue. */
 .primary-navigation a.active,
 .primary-navigation a[data-status="active"] {
@@ -469,65 +467,199 @@
   text-underline-offset: 6px !important;
 }
 
-/* Screenshot-guided hero alignment. */
-/* Match the approved example: one clear line below the yellow headline. */
-@media (min-width: 900px) {
-  .hero .hero-intro {
-    position: absolute !important;
-    top: 72vh !important;
-    right: clamp(1.75rem, 3.6vw, 3rem) !important;
-    width: min(22.5vw, 20rem) !important;
-    bottom: auto !important;
-  }
-
-  /* The reference screenshot places the story control in the open upper-right area. */
-  .hero .original-hero-play {
-    margin-left: clamp(7rem, 14vw, 12rem) !important;
-    margin-top: clamp(-9rem, -10.5vw, -5rem) !important;
-  }
-}
-
-
 /* Stockist cards only: preserve the existing section, heading and map. */
-.findus .stockist-cards { display: grid; grid-auto-rows: 1fr; gap: 12px; padding: 0; list-style: none; }
-.findus .stockist-card { display: grid; grid-template-columns: 30px 90px minmax(0, 1fr); gap: 14px; align-items: center; margin: 0; padding: 18px 16px; border: 1px solid currentColor; border-color: #ffffff30; border-left: 4px solid var(--primary); background: transparent; }
-.findus .stockist-card-number { color: var(--primary); font-family: var(--font-display); font-size: 24px; font-weight: 600; }
-.findus .stockist-card-logo { width: 90px; height: 90px; display: grid; place-items: center; background: white; overflow: hidden; }
-.findus .stockist-card-logo img { width: 100%; height: 100%; object-fit: contain; }
-.findus .stockist-card-content { min-width: 0; }
-.findus .stockist-card-content h3 { margin: 0 0 12px; font-family: var(--font-sans); font-size: 18px; line-height: 1.2; text-transform: none; letter-spacing: normal; }
-.findus .stockist-card-details { display: grid; gap: 8px; margin: 0; font-size: 12px; line-height: 1.45; }
-.findus .stockist-card-details > div { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 8px; }
-.findus .stockist-card-details dt { display: flex; align-items: center; gap: 6px; opacity: .75; }
-.findus .stockist-card-details svg { width: 14px; height: 14px; flex-shrink: 0; }
-.findus .stockist-card-details dd { margin: 0; overflow-wrap: anywhere; }
-.findus .stockist-card a { color: inherit; text-underline-offset: 4px; }
-.findus .stockist-card a:hover { color: var(--primary); }
-.findus .stockist-card a:focus-visible { outline: 2px solid var(--primary); outline-offset: 4px; }
-.findus .stockist-card-directions { grid-column: 3; justify-self: start; font-size: 12px; text-decoration: underline; }
+.findus .stockist-cards {
+  display: grid;
+  grid-auto-rows: 1fr;
+  gap: 12px;
+  padding: 0;
+  list-style: none;
+}
+.findus .stockist-card {
+  display: grid;
+  grid-template-columns: 30px 90px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  margin: 0;
+  padding: 18px 16px;
+  border: 1px solid currentColor;
+  border-color: #ffffff30;
+  border-left: 4px solid var(--primary);
+  background: transparent;
+}
+.findus .stockist-card-number {
+  color: var(--primary);
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+}
+.findus .stockist-card-logo {
+  width: 90px;
+  height: 90px;
+  display: grid;
+  place-items: center;
+  background: white;
+  overflow: hidden;
+}
+.findus .stockist-card-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.findus .stockist-card-content {
+  min-width: 0;
+}
+.findus .stockist-card-content h3 {
+  margin: 0 0 12px;
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 1.2;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.findus .stockist-card-details {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.findus .stockist-card-details > div {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 8px;
+}
+.findus .stockist-card-details dt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.75;
+}
+.findus .stockist-card-details svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+.findus .stockist-card-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.findus .stockist-card a {
+  color: inherit;
+  text-underline-offset: 4px;
+}
+.findus .stockist-card a:hover {
+  color: var(--primary);
+}
+.findus .stockist-card a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+}
+.findus .stockist-card-directions {
+  grid-column: 3;
+  justify-self: start;
+  font-size: 12px;
+  text-decoration: underline;
+}
 @media (min-width: 1500px) {
-  .findus .stockist-card { grid-template-columns: 30px 90px minmax(0, 1fr) auto; }
-  .findus .stockist-card-directions { grid-column: 4; grid-row: 1; border-left: 1px solid #ffffff30; padding-left: 12px; }
+  .findus .stockist-card {
+    grid-template-columns: 30px 90px minmax(0, 1fr) auto;
+  }
+  .findus .stockist-card-directions {
+    grid-column: 4;
+    grid-row: 1;
+    border-left: 1px solid #ffffff30;
+    padding-left: 12px;
+  }
 }
 @media (max-width: 600px) {
-  .findus .stockist-card { grid-template-columns: 24px 64px minmax(0, 1fr); gap: 10px; padding: 16px 12px; }
-  .findus .stockist-card-logo { width: 64px; height: 64px; align-self: start; }
-  .findus .stockist-card-content h3 { font-size: 17px; }
-  .findus .stockist-card-details > div { grid-template-columns: 1fr; gap: 2px; }
-  .findus .stockist-card-number { font-size: 20px; align-self: start; }
+  .findus .stockist-card {
+    grid-template-columns: 24px 64px minmax(0, 1fr);
+    gap: 10px;
+    padding: 16px 12px;
+  }
+  .findus .stockist-card-logo {
+    width: 64px;
+    height: 64px;
+    align-self: start;
+  }
+  .findus .stockist-card-content h3 {
+    font-size: 17px;
+  }
+  .findus .stockist-card-details > div {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+  .findus .stockist-card-number {
+    font-size: 20px;
+    align-self: start;
+  }
 }
 
 /* Admin is deliberately independent of the public editorial stylesheet. */
-.tona-admin { --border: #e5dfd7; --sand: #f6f3ee; color: #26221f; font-family: "Inter", ui-sans-serif, system-ui, sans-serif; }
-.tona-admin h1, .tona-admin h2, .tona-admin h3, .tona-admin h4 { font-family: "Inter", ui-sans-serif, system-ui, sans-serif; letter-spacing: -.025em; line-height: 1.2; text-transform: none; }
-.tona-admin .admin-sidebar { background: #191715; background-image: radial-gradient(ellipse at top left, #ee492710, transparent 60%); }
-.tona-admin button, .tona-admin input, .tona-admin select, .tona-admin textarea { font-family: inherit; }
-.tona-admin button { cursor: pointer; }
-.tona-admin button:disabled { cursor: wait; }
-.tona-admin :is(button,a,input,select,textarea):focus-visible { outline: 2px solid #ee4927; outline-offset: 3px; }
-.tona-admin input, .tona-admin textarea, .tona-admin select { font-size: 14px; }
-.tona-admin table tbody tr { border-bottom: 1px solid #eee9e2; }
-.tona-admin table tbody tr:last-child { border-bottom: 0; }
-.tona-admin table tbody tr:hover { background-color: #faf8f5; }
-.tona-admin [role="dialog"] { border-radius: 12px; }
-@media (max-width: 639px) { .tona-admin .admin-header h1 { font-size: 23px; } .tona-admin input, .tona-admin textarea, .tona-admin select { font-size: 16px; } }
+.tona-admin {
+  --border: #e5dfd7;
+  --sand: #f6f3ee;
+  color: #26221f;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+.tona-admin h1,
+.tona-admin h2,
+.tona-admin h3,
+.tona-admin h4 {
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  text-transform: none;
+}
+.tona-admin .admin-sidebar {
+  background: #191715;
+  background-image: radial-gradient(
+    ellipse at top left,
+    #ee492710,
+    transparent 60%
+  );
+}
+.tona-admin button,
+.tona-admin input,
+.tona-admin select,
+.tona-admin textarea {
+  font-family: inherit;
+}
+.tona-admin button {
+  cursor: pointer;
+}
+.tona-admin button:disabled {
+  cursor: wait;
+}
+.tona-admin :is(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid #ee4927;
+  outline-offset: 3px;
+}
+.tona-admin input,
+.tona-admin textarea,
+.tona-admin select {
+  font-size: 14px;
+}
+.tona-admin table tbody tr {
+  border-bottom: 1px solid #eee9e2;
+}
+.tona-admin table tbody tr:last-child {
+  border-bottom: 0;
+}
+.tona-admin table tbody tr:hover {
+  background-color: #faf8f5;
+}
+.tona-admin [role="dialog"] {
+  border-radius: 12px;
+}
+@media (max-width: 639px) {
+  .tona-admin .admin-header h1 {
+    font-size: 23px;
+  }
+  .tona-admin input,
+  .tona-admin textarea,
+  .tona-admin select {
+    font-size: 16px;
+  }
+}

@@ -50,7 +50,7 @@ import {
 } from "@/lib/admin-api";
 import { getAdminAuth, getAdminToken } from "@/lib/admin-auth";
 
-export const Route = createFileRoute("/admin")({
+export const Route = createFileRoute("/30team-portal-10")({
   component: AdminDashboard,
   head: () => ({ meta: [{ title: "Tona Admin Dashboard" }] }),
 });
@@ -116,7 +116,7 @@ function AdminDashboard() {
           : "Unable to load the dashboard.";
       setError(message);
       if (/session|sign in|token/i.test(message))
-        await navigate({ to: "/admin/login" });
+        await navigate({ to: "/30team-portal-10/login" });
     } finally {
       setBusy(false);
     }
@@ -153,7 +153,7 @@ function AdminDashboard() {
 
   async function signOut() {
     await (await getAdminAuth()).adapter.signOut();
-    await navigate({ to: "/admin/login" });
+    await navigate({ to: "/30team-portal-10/login" });
   }
 
   async function changeStatus(

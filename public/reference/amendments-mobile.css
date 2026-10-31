@@ -1,0 +1,266 @@
+/* ============================================================================
+   Mobile pass — responsiveness and cohesion.
+   ============================================================================ */
+
+@media (max-width: 800px) {
+  /* --- Hero reading order, as specified: -------------------------------------
+       nav bar -> title -> illustration -> body text -> buttons.
+
+       Previously the copy block sat at order 0 and the title at order 1, so the
+       definition and intro paragraph rendered *above* the headline. `.hero-grid`
+       is already `display: contents` here; flattening `.hero-copy` and
+       `.hero-intro` the same way lifts .definition, the intro paragraph and
+       .button-row into the hero's own flex flow, which is what makes them
+       individually orderable. Their own gaps vanish with `display: contents`,
+       so spacing is restored with margins below. ------------------------------ */
+  .hero#home {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero#home .hero-copy,
+  .hero#home .hero-intro {
+    display: contents;
+  }
+
+  .hero#home .display-hero { order: 1; }
+  .hero#home .hero-media   { order: 2; }
+  .hero#home .definition   { order: 3; }
+  .hero#home .hero-intro > p { order: 4; }
+  .hero#home .button-row   { order: 5; }
+  .hero#home .original-hero-play { order: 6; }
+
+  /* Spacing, since `display: contents` drops the parents' own gaps. */
+  .hero#home .display-hero {
+    margin: 0 0 1.6rem;
+  }
+
+  .hero#home .hero-media {
+    margin: 0 0 2rem;
+  }
+
+  .hero#home .definition {
+    margin: 0 0 1.25rem;
+    padding-top: 1rem;
+    width: auto;
+    max-width: none;
+    border-top: 1px solid var(--line-light);
+  }
+
+  .hero#home .hero-intro > p {
+    margin: 0 0 1.5rem;
+  }
+
+  .hero#home .button-row {
+    margin: 0;
+    gap: 0.75rem;
+  }
+
+  .hero#home .original-hero-play {
+    position: relative;
+    inset: auto;
+    align-self: flex-start;
+    margin-top: 1.75rem;
+  }
+
+  /* Buttons read as one family, full width, thumb-sized. */
+  .hero#home .button-row > a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0 1.1rem;
+    border: 1px solid currentColor;
+  }
+
+  /* expanded-landing.css wins this with
+     `.hero#home .hero-intro .button-row .hero-secondary-link` (1,4,0), so the
+     selector below has to match that depth rather than just be later. */
+  .hero#home .hero-intro .button-row a.hero-secondary-link {
+    color: var(--black);
+    background: var(--ember);
+    border-color: var(--ember);
+  }
+}
+
+@media (max-width: 900px) {
+  /* --- One consistent gutter. Sections were on 17.6px; 20px gives the
+         narrow screen a little more air without changing the rhythm. -------- */
+  main > .section,
+  .site-header,
+  .site-footer {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  /* --- Coffee cards were the worst offender on mobile: the grind pills fell
+         to one per row, pushing each card past 800px. Three across matches the
+         size pills directly above them and reclaims ~120px per card. -------- */
+  .option-pills,
+  .option-pills-wide {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+
+  .option-pills span {
+    min-height: 2.75rem;
+    padding: 0.4rem 0.2rem;
+    line-height: 1.15;
+    text-align: center;
+  }
+
+  /* Stepper and Order button share a row again. */
+  .origin-order-action {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .origin-card figure {
+    aspect-ratio: 16 / 10;
+  }
+
+  /* --- Card families share one padding and one gap on mobile. ------------- */
+  .audience-row,
+  .moment-sequence li,
+  .value-item,
+  .origin-card-body,
+  .sample-card,
+  .event-card,
+  .pack-card,
+  .principle,
+  .vision-mission article {
+    padding: 1.15rem;
+  }
+
+  .audience-row,
+  .moment-sequence li,
+  .value-item {
+    min-height: 0;
+  }
+
+  .moment-sequence,
+  .value-rail,
+  .origin-grid,
+  .events-list,
+  .samples-grid,
+  .pack-grid,
+  .audience-list {
+    gap: 0.75rem;
+  }
+
+  /* --- Business rows: the desktop 4-column grid collapses to icon + text. -- */
+  .partner-row {
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+    gap: 0.85rem 1rem;
+    padding: 1.25rem 0;
+  }
+
+  .partner-row > span:first-child {
+    grid-column: 1;
+  }
+
+  .partner-row .amend-icon {
+    grid-column: 1;
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+
+  .partner-row h3,
+  .partner-row p {
+    grid-column: 2;
+  }
+
+  /* --- Event cards stack their date and body cleanly. --------------------- */
+  .event-card {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .event-card time {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .event-card time b {
+    font-size: 2.4rem;
+    line-height: 1;
+  }
+
+  /* --- Forms: full-width fields and comfortable controls. ----------------- */
+  .inquiry-form,
+  .quote-form {
+    grid-template-columns: 1fr;
+    padding: 1.25rem;
+  }
+
+  .inquiry-form input,
+  .inquiry-form select,
+  .inquiry-form textarea,
+  .quote-form input,
+  .quote-form select,
+  .quote-form textarea {
+    min-height: 3rem;
+    font-size: 1rem; /* 16px stops iOS Safari zooming the page on focus */
+  }
+
+  .choice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* --- Tap targets. Seven inline links were under the 44px minimum. ------- */
+  main a:not(.brand):not(.skip-link),
+  main button,
+  footer a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  main p a,
+  main li a {
+    min-height: 0;
+    display: inline;
+  }
+
+  .button,
+  .event-register,
+  .origin-order-action .button {
+    min-height: 3rem;
+    width: 100%;
+  }
+
+  /* --- Media keeps a sane height instead of running off the fold. --------- */
+  .business-feature figure {
+    min-height: 0;
+    aspect-ratio: 4 / 5;
+  }
+
+  .events-image {
+    aspect-ratio: 4 / 3;
+  }
+
+  .about-art img {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (max-width: 560px) {
+  .moment-sequence,
+  .value-rail,
+  .origin-grid,
+  .events-list,
+  .samples-grid,
+  .pack-grid,
+  .audience-list {
+    grid-template-columns: 1fr;
+  }
+
+  /* Two across keeps the pills legible when three would truncate. */
+  .option-pills-wide {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

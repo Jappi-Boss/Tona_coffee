@@ -10,14 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as R30teamPortal10RouteImport } from './routes/30team-portal-10'
 import { Route as AboutRouteImport } from './routes/about'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as ForBusinessRouteImport } from './routes/for-business'
 import { Route as ProductsRouteImport } from './routes/products'
-import { Route as AdminLoginRouteImport } from './routes/admin_.login'
-import { Route as AdminResetPasswordRouteImport } from './routes/admin_.reset-password'
+import { Route as R30teamPortal10LoginRouteImport } from './routes/30team-portal-10_.login'
+import { Route as R30teamPortal10ResetPasswordRouteImport } from './routes/30team-portal-10_.reset-password'
 import { Route as ApiHealthRouteImport } from './routes/api.health'
 
 const IndexRoute = IndexRouteImport.update({
@@ -25,14 +25,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const R30teamPortal10Route = R30teamPortal10RouteImport.update({
+  id: '/30team-portal-10',
+  path: '/30team-portal-10',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -55,16 +55,17 @@ const ProductsRoute = ProductsRouteImport.update({
   path: '/products',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminLoginRoute = AdminLoginRouteImport.update({
-  id: '/admin_/login',
-  path: '/admin/login',
+const R30teamPortal10LoginRoute = R30teamPortal10LoginRouteImport.update({
+  id: '/30team-portal-10_/login',
+  path: '/30team-portal-10/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminResetPasswordRoute = AdminResetPasswordRouteImport.update({
-  id: '/admin_/reset-password',
-  path: '/admin/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const R30teamPortal10ResetPasswordRoute =
+  R30teamPortal10ResetPasswordRouteImport.update({
+    id: '/30team-portal-10_/reset-password',
+    path: '/30team-portal-10/reset-password',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
   id: '/api/health',
   path: '/api/health',
@@ -73,90 +74,90 @@ const ApiHealthRoute = ApiHealthRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/30team-portal-10': typeof R30teamPortal10Route
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/for-business': typeof ForBusinessRoute
   '/products': typeof ProductsRoute
-  '/admin/login': typeof AdminLoginRoute
-  '/admin/reset-password': typeof AdminResetPasswordRoute
+  '/30team-portal-10/login': typeof R30teamPortal10LoginRoute
+  '/30team-portal-10/reset-password': typeof R30teamPortal10ResetPasswordRoute
   '/api/health': typeof ApiHealthRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/30team-portal-10': typeof R30teamPortal10Route
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/for-business': typeof ForBusinessRoute
   '/products': typeof ProductsRoute
-  '/admin/login': typeof AdminLoginRoute
-  '/admin/reset-password': typeof AdminResetPasswordRoute
+  '/30team-portal-10/login': typeof R30teamPortal10LoginRoute
+  '/30team-portal-10/reset-password': typeof R30teamPortal10ResetPasswordRoute
   '/api/health': typeof ApiHealthRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/30team-portal-10': typeof R30teamPortal10Route
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/for-business': typeof ForBusinessRoute
   '/products': typeof ProductsRoute
-  '/admin_/login': typeof AdminLoginRoute
-  '/admin_/reset-password': typeof AdminResetPasswordRoute
+  '/30team-portal-10_/login': typeof R30teamPortal10LoginRoute
+  '/30team-portal-10_/reset-password': typeof R30teamPortal10ResetPasswordRoute
   '/api/health': typeof ApiHealthRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/30team-portal-10'
     | '/about'
-    | '/admin'
     | '/contact'
     | '/events'
     | '/for-business'
     | '/products'
-    | '/admin/login'
-    | '/admin/reset-password'
+    | '/30team-portal-10/login'
+    | '/30team-portal-10/reset-password'
     | '/api/health'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/30team-portal-10'
     | '/about'
-    | '/admin'
     | '/contact'
     | '/events'
     | '/for-business'
     | '/products'
-    | '/admin/login'
-    | '/admin/reset-password'
+    | '/30team-portal-10/login'
+    | '/30team-portal-10/reset-password'
     | '/api/health'
   id:
     | '__root__'
     | '/'
+    | '/30team-portal-10'
     | '/about'
-    | '/admin'
     | '/contact'
     | '/events'
     | '/for-business'
     | '/products'
-    | '/admin_/login'
-    | '/admin_/reset-password'
+    | '/30team-portal-10_/login'
+    | '/30team-portal-10_/reset-password'
     | '/api/health'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  R30teamPortal10Route: typeof R30teamPortal10Route
   AboutRoute: typeof AboutRoute
-  AdminRoute: typeof AdminRoute
   ContactRoute: typeof ContactRoute
   EventsRoute: typeof EventsRoute
   ForBusinessRoute: typeof ForBusinessRoute
   ProductsRoute: typeof ProductsRoute
-  AdminLoginRoute: typeof AdminLoginRoute
-  AdminResetPasswordRoute: typeof AdminResetPasswordRoute
+  R30teamPortal10LoginRoute: typeof R30teamPortal10LoginRoute
+  R30teamPortal10ResetPasswordRoute: typeof R30teamPortal10ResetPasswordRoute
   ApiHealthRoute: typeof ApiHealthRoute
 }
 
@@ -169,18 +170,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/30team-portal-10': {
+      id: '/30team-portal-10'
+      path: '/30team-portal-10'
+      fullPath: '/30team-portal-10'
+      preLoaderRoute: typeof R30teamPortal10RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -211,18 +212,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin_/login': {
-      id: '/admin_/login'
-      path: '/admin/login'
-      fullPath: '/admin/login'
-      preLoaderRoute: typeof AdminLoginRouteImport
+    '/30team-portal-10_/login': {
+      id: '/30team-portal-10_/login'
+      path: '/30team-portal-10/login'
+      fullPath: '/30team-portal-10/login'
+      preLoaderRoute: typeof R30teamPortal10LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin_/reset-password': {
-      id: '/admin_/reset-password'
-      path: '/admin/reset-password'
-      fullPath: '/admin/reset-password'
-      preLoaderRoute: typeof AdminResetPasswordRouteImport
+    '/30team-portal-10_/reset-password': {
+      id: '/30team-portal-10_/reset-password'
+      path: '/30team-portal-10/reset-password'
+      fullPath: '/30team-portal-10/reset-password'
+      preLoaderRoute: typeof R30teamPortal10ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/health': {
@@ -237,14 +238,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  R30teamPortal10Route: R30teamPortal10Route,
   AboutRoute: AboutRoute,
-  AdminRoute: AdminRoute,
   ContactRoute: ContactRoute,
   EventsRoute: EventsRoute,
   ForBusinessRoute: ForBusinessRoute,
   ProductsRoute: ProductsRoute,
-  AdminLoginRoute: AdminLoginRoute,
-  AdminResetPasswordRoute: AdminResetPasswordRoute,
+  R30teamPortal10LoginRoute: R30teamPortal10LoginRoute,
+  R30teamPortal10ResetPasswordRoute: R30teamPortal10ResetPasswordRoute,
   ApiHealthRoute: ApiHealthRoute,
 }
 export const routeTree = rootRouteImport

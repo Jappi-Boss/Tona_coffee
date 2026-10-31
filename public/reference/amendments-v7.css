@@ -1,0 +1,110 @@
+/* ============================================================================
+   Client review amendments — 23 Sep 2026.
+
+   Product-title hierarchy, the landing hero's right rail, exact working-hours
+   formatting, and the Feedback Form are collected here so this round remains
+   easy to audit and can be removed without disturbing earlier layout work.
+   ========================================================================== */
+
+/* House Blend and export use one shared hierarchy: product first, supporting
+   line second. Keeping the two selectors identical prevents the headings from
+   drifting when copy wraps at tablet widths. */
+.coffee-product-title {
+  margin: 0;
+  color: var(--sun, #ffb000);
+  font-size: clamp(3rem, 6vw, 6.5rem);
+  line-height: 0.9;
+}
+
+.coffee-product-subtitle {
+  margin: clamp(0.3rem, 0.7vw, 0.55rem) 0 0;
+  max-width: 18ch;
+  color: var(--ember, #ef4a28);
+  font-family: var(--display, sans-serif);
+  font-size: clamp(1.8rem, 3.8vw, 4.2rem);
+  font-weight: 400;
+  line-height: 0.94;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.coffee-product-subtitle + .section-intro,
+.coffee-product-subtitle + .page-hero-intro {
+  margin-top: clamp(0.8rem, 1.4vw, 1.15rem);
+}
+
+.page-hero .coffee-product-title,
+.page-hero .coffee-product-subtitle {
+  max-width: 15ch;
+}
+
+/* Earlier page/section display rules carry higher specificity, so lock the
+   approved mustard/orange hierarchy at both product-heading locations. */
+.page-hero .coffee-product-title,
+.section-heading .coffee-product-title { color: var(--sun, #ffb000); }
+
+.page-hero .coffee-product-subtitle,
+.section-heading .coffee-product-subtitle { color: var(--ember, #ef4a28); }
+
+/* The desktop hero artwork finishes near the 68% line. Anchor the readable
+   copy to the viewport edge and constrain its measure so it cannot drift back
+   across the illustration. The 801–1100px band is the previous collision
+   range, so the play control is moved into the clear top-right corner there. */
+@media (min-width: 1101px) {
+  .hero#home .hero-intro {
+    right: clamp(1.25rem, 1.8vw, 2rem);
+    left: auto;
+    width: min(27vw, 25rem);
+  }
+}
+
+@media (min-width: 801px) and (max-width: 1100px) {
+  .hero#home .hero-intro {
+    right: 1.25rem;
+    left: auto;
+    width: min(28vw, 18rem);
+  }
+
+  .hero#home .original-hero-play {
+    top: clamp(8.75rem, 20vh, 10.75rem);
+    right: 1.25rem;
+    bottom: auto;
+    left: auto;
+    width: 4.5rem;
+  }
+}
+
+/* Working hours are three explicit rows rather than one ambiguous range. */
+.hours-list {
+  display: grid;
+  gap: 0.22rem;
+}
+
+.hours-list span { display: block; }
+
+/* The Contact form is feedback-only in this round. */
+.feedback-form .message-field textarea { min-height: 9rem; }
+.feedback-form .field-grid { align-items: start; }
+
+@media (max-width: 720px) {
+  .coffee-product-title { font-size: clamp(2.65rem, 13vw, 4.5rem); }
+  .coffee-product-subtitle { font-size: clamp(1.65rem, 8vw, 2.8rem); }
+}
+
+.mobile-break { display: none; }
+
+@media (max-width: 560px) {
+  .hero#home .display-hero {
+    width: 100%;
+    max-width: 100%;
+    font-size: 14.5vw;
+  }
+
+  .hero#home .display-hero span { white-space: normal !important; }
+  .hero#home .mobile-break { display: block; }
+
+  .hero#home .hero-media {
+    width: 110%;
+    margin-left: -5%;
+  }
+}

@@ -1,0 +1,261 @@
+/* ============================================================================
+   Amendment 13 — scroll and text motion across every section.
+
+   Two constraints shape how this file is written.
+
+   1. `final-integration-fixes.css` flattens `.reveal` to
+      `opacity:1; transform:none` as a safety net, so content is never trapped
+      invisible when JavaScript fails. That net is kept: every rule here is
+      gated on `body.motion-ready`, which the motion controller adds only once
+      it is running and the visitor has not asked for reduced motion. No JS, or
+      reduced motion, and the flat fully-visible state stands.
+
+   2. `script.js` bootstraps through a dynamic `import()`, so `motion-ready`
+      lands after first paint. A hidden state that also carries a `transition`
+      would therefore animate 1 -> 0 on load: a visible fade-out before the
+      scroll reveal. So transitions are declared on the destination
+      (`.is-visible`) rule, and an arming guard suppresses transitions until
+      `motion-loaded` arrives 100ms later. The guard covers the pre-existing
+      `.motion-card` / `.motion-media` rules too, which had the same flaw.
+   ============================================================================ */
+
+:root {
+  --reveal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --reveal-dur: 820ms;
+  --reveal-step: 72ms;
+}
+
+/* --- Arming guard: no transitions while the initial state is being set ----- */
+body.motion-ready:not(.motion-loaded) main *,
+body.motion-ready:not(.motion-loaded) main *::before,
+body.motion-ready:not(.motion-loaded) main *::after {
+  transition: none !important;
+}
+
+/* --- Baseline: everything marked .reveal outside the hero rises into place -- */
+body.motion-ready main .section:not(.hero) .reveal {
+  opacity: 0;
+  transform: translate3d(0, 30px, 0);
+}
+
+body.motion-ready main .section:not(.hero) .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(0 0 0 0);
+  transition:
+    opacity var(--reveal-dur) var(--reveal-ease) var(--reveal-delay, 0ms),
+    transform var(--reveal-dur) var(--reveal-ease) var(--reveal-delay, 0ms),
+    clip-path var(--reveal-dur) var(--reveal-ease) var(--reveal-delay, 0ms);
+}
+
+/* --- Card families: a masked rise, so the box builds rather than just fades -- */
+body.motion-ready .audience-row,
+body.motion-ready .moment-sequence li,
+body.motion-ready .value-item,
+body.motion-ready .origin-card,
+body.motion-ready .event-card,
+body.motion-ready .sample-card,
+body.motion-ready .pack-card,
+body.motion-ready .principle,
+body.motion-ready .vision-mission article {
+  opacity: 0;
+  clip-path: inset(14% 0 0 0);
+  transform: translate3d(0, 34px, 0);
+}
+
+body.motion-ready .audience-row.is-visible,
+body.motion-ready .moment-sequence li.is-visible,
+body.motion-ready .value-item.is-visible,
+body.motion-ready .origin-card.is-visible,
+body.motion-ready .event-card.is-visible,
+body.motion-ready .sample-card.is-visible,
+body.motion-ready .pack-card.is-visible,
+body.motion-ready .principle.is-visible,
+body.motion-ready .vision-mission article.is-visible,
+body.motion-ready .vision-mission.is-visible article,
+body.motion-ready .moment-sequence.is-visible li {
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+  transform: none;
+  transition:
+    opacity var(--reveal-dur) var(--reveal-ease) var(--reveal-delay, 0ms),
+    transform var(--reveal-dur) var(--reveal-ease) var(--reveal-delay, 0ms),
+    clip-path var(--reveal-dur) var(--reveal-ease) var(--reveal-delay, 0ms),
+    background 220ms ease,
+    color 220ms ease;
+}
+
+/* --- Business rows enter laterally, matching their icon-then-title reading --- */
+body.motion-ready .partner-row {
+  opacity: 0;
+  transform: translate3d(-28px, 0, 0);
+}
+
+body.motion-ready .partner-row.is-visible {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--reveal-dur) var(--reveal-ease) var(--reveal-delay, 0ms),
+    transform var(--reveal-dur) var(--reveal-ease) var(--reveal-delay, 0ms);
+}
+
+/* --- Media wipes open from the base. The container transform is free here
+       because the parallax controller drives --parallax-y on the <img>. ------- */
+body.motion-ready .about-art,
+body.motion-ready .events-image,
+body.motion-ready .business-feature figure,
+body.motion-ready .collection-feature figure {
+  opacity: 0;
+  clip-path: inset(0 0 22% 0);
+  transform: translate3d(0, 22px, 0);
+}
+
+body.motion-ready .about-art.is-visible,
+body.motion-ready .events-image.is-visible,
+body.motion-ready .business-feature figure.is-visible,
+body.motion-ready .collection-feature figure.is-visible,
+body.motion-ready .business-feature.is-visible figure,
+body.motion-ready .collection-feature.is-visible figure {
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+  transform: none;
+  transition:
+    opacity 900ms var(--reveal-ease),
+    clip-path 1050ms var(--reveal-ease),
+    transform 1050ms var(--reveal-ease);
+}
+
+/* --- Stagger. Each family counts its own children, so a five-across row and a
+       three-across row cascade left to right at the same rhythm. -------------- */
+body.motion-ready .audience-row:nth-child(1),
+body.motion-ready .moment-sequence li:nth-child(1),
+body.motion-ready .value-item:nth-child(1),
+body.motion-ready .origin-card:nth-child(1),
+body.motion-ready .event-card:nth-child(1),
+body.motion-ready .sample-card:nth-child(1),
+body.motion-ready .pack-card:nth-child(1),
+body.motion-ready .principle:nth-child(1),
+body.motion-ready .partner-row:nth-child(1),
+body.motion-ready .vision-mission article:nth-child(1) { --reveal-delay: 0ms; }
+
+body.motion-ready .audience-row:nth-child(2),
+body.motion-ready .moment-sequence li:nth-child(2),
+body.motion-ready .value-item:nth-child(2),
+body.motion-ready .origin-card:nth-child(2),
+body.motion-ready .event-card:nth-child(2),
+body.motion-ready .sample-card:nth-child(2),
+body.motion-ready .pack-card:nth-child(2),
+body.motion-ready .principle:nth-child(2),
+body.motion-ready .partner-row:nth-child(2),
+body.motion-ready .vision-mission article:nth-child(2) { --reveal-delay: calc(var(--reveal-step) * 1); }
+
+body.motion-ready .audience-row:nth-child(3),
+body.motion-ready .moment-sequence li:nth-child(3),
+body.motion-ready .value-item:nth-child(3),
+body.motion-ready .origin-card:nth-child(3),
+body.motion-ready .event-card:nth-child(3),
+body.motion-ready .sample-card:nth-child(3),
+body.motion-ready .pack-card:nth-child(3),
+body.motion-ready .principle:nth-child(3),
+body.motion-ready .partner-row:nth-child(3) { --reveal-delay: calc(var(--reveal-step) * 2); }
+
+body.motion-ready .audience-row:nth-child(4),
+body.motion-ready .moment-sequence li:nth-child(4),
+body.motion-ready .value-item:nth-child(4),
+body.motion-ready .origin-card:nth-child(4),
+body.motion-ready .pack-card:nth-child(4),
+body.motion-ready .partner-row:nth-child(4) { --reveal-delay: calc(var(--reveal-step) * 3); }
+
+body.motion-ready .audience-row:nth-child(5),
+body.motion-ready .partner-row:nth-child(5) { --reveal-delay: calc(var(--reveal-step) * 4); }
+
+body.motion-ready .partner-row:nth-child(6) { --reveal-delay: calc(var(--reveal-step) * 5); }
+
+/* --- Section index labels draw a rule as their section arrives -------------- */
+body.motion-ready .section-index {
+  position: relative;
+}
+
+body.motion-ready .section-index::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.55rem;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  opacity: 0.45;
+}
+
+body.motion-ready .reveal.is-visible .section-index::after,
+body.motion-ready .section-index.is-visible::after {
+  transform: scaleX(1);
+  transition: transform 900ms var(--reveal-ease) 120ms;
+}
+
+/* --- Card numerals count in just behind their card ------------------------- */
+body.motion-ready .audience-row > span:first-child,
+body.motion-ready .value-item > span:first-child,
+body.motion-ready .moment-sequence li > span:first-child,
+body.motion-ready .partner-row > span:first-child,
+body.motion-ready .sample-card > span:first-child {
+  opacity: 0;
+  transform: translateY(-0.5rem);
+}
+
+body.motion-ready .audience-row.is-visible > span:first-child,
+body.motion-ready .value-item.is-visible > span:first-child,
+body.motion-ready .moment-sequence li.is-visible > span:first-child,
+body.motion-ready .moment-sequence.is-visible li > span:first-child,
+body.motion-ready .partner-row.is-visible > span:first-child,
+body.motion-ready .sample-card.is-visible > span:first-child {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 620ms var(--reveal-ease) calc(var(--reveal-delay, 0ms) + 180ms),
+    transform 620ms var(--reveal-ease) calc(var(--reveal-delay, 0ms) + 180ms),
+    color 220ms ease;
+}
+
+/* --- Hover lift for the families that did not already declare one ---------- */
+body.motion-ready .origin-card.is-visible:hover,
+body.motion-ready .sample-card.is-visible:hover,
+body.motion-ready .event-card.is-visible:hover {
+  transform: translateY(-0.35rem);
+}
+
+/* --- Reduced motion hands everything back to the flat, visible state ------- */
+@media (prefers-reduced-motion: reduce) {
+  body.motion-ready main .section:not(.hero) .reveal,
+  body.motion-ready .audience-row,
+  body.motion-ready .moment-sequence li,
+  body.motion-ready .value-item,
+  body.motion-ready .origin-card,
+  body.motion-ready .event-card,
+  body.motion-ready .sample-card,
+  body.motion-ready .pack-card,
+  body.motion-ready .principle,
+  body.motion-ready .partner-row,
+  body.motion-ready .vision-mission article,
+  body.motion-ready .about-art,
+  body.motion-ready .events-image,
+  body.motion-ready .business-feature figure,
+  body.motion-ready .collection-feature figure,
+  body.motion-ready .audience-row > span:first-child,
+  body.motion-ready .value-item > span:first-child,
+  body.motion-ready .moment-sequence li > span:first-child,
+  body.motion-ready .partner-row > span:first-child,
+  body.motion-ready .sample-card > span:first-child {
+    opacity: 1 !important;
+    clip-path: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  body.motion-ready .section-index::after {
+    transform: scaleX(1);
+    transition: none;
+  }
+}

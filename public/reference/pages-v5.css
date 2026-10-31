@@ -1,0 +1,264 @@
+/* ============================================================================
+   The five nav pages — about / coffee / business / events / contact.
+
+   These reuse the landing page's whole vocabulary (.section, .section-heading,
+   .origin-grid, .partner-list, .reveal, ...). Only the furniture that does not
+   exist on the landing page is defined here:
+
+   - .page-hero      the compact masthead band each page opens with
+   - .footer-nav     the page links added to the footer sitewide
+   - .blend-detail   the House Blend package/format pair on coffee.html
+   - .step-list      the four-step "how it starts" on business.html
+   - .page-cta       the closing call to action
+   - .partner-row-deep  the landing partner rows plus a second paragraph
+
+   Imported after amendments-v5.css, so it is last in the cascade.
+
+   Note on grounds: full-page-hero-system.css forces .about / .difference /
+   .quotation / .section-ember / .section-dark to black, and `main > .section`
+   sets white-on-black at (0,1,1). Every surface here is therefore drawn with
+   light rgba rather than dark — a dark separator is invisible on this site.
+   ========================================================================== */
+
+/* ==========================================================================
+   Page masthead
+   ========================================================================== */
+
+.page-hero {
+  padding: calc(var(--header-height, 6rem) + clamp(3.5rem, 9vh, 7rem)) clamp(1.25rem, 4vw, 4.5rem) clamp(3rem, 7vh, 5.5rem);
+  color: var(--white, #fffdf8);
+  background: var(--black, #000);
+  border-bottom: 1px solid rgba(255, 253, 248, 0.16);
+}
+
+.page-hero-inner { max-width: 62rem; }
+
+.page-hero .section-index {
+  margin: 0 0 1.1rem;
+  font-family: var(--mono, monospace);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ember, #ef4a28);
+}
+
+.page-hero .mono-label { margin: 0 0 0.75rem; }
+
+/* The page title has to outrank the section headings underneath it. Section
+   h2s render at 70px / 47px / 41px (1512 / 1024 / 390), and the old ramp
+   -- clamp(2.9rem, 7.2vw, 6.1rem) -- bottomed out at 43px on a phone, giving a
+   h1:h2 ratio of 1.05. The page title and the first section heading were the
+   same size. The landing page holds 2.56 / 1.94 / 1.71 at the same widths;
+   this ramp keeps the subpages above 1.4 everywhere without overflowing the
+   longest title ("Long-term partnerships.") at 360px. */
+.page-hero h1 {
+  margin: 0;
+  color: var(--white, #fffdf8);
+  font-size: clamp(3.5rem, 8vw, 6.8rem);
+  line-height: 0.92;
+}
+
+.page-hero h1 .ember { color: var(--ember, #ef4a28); }
+
+.page-hero-intro {
+  max-width: 46rem;
+  margin: clamp(1.4rem, 3vw, 2.1rem) 0 0;
+  font-size: var(--body-lg, 1rem);
+  line-height: 1.6;
+  color: rgba(255, 253, 248, 0.82);
+}
+
+.page-hero-intro .region-name { color: var(--sun, #ffb000); font-style: normal; }
+
+@media (max-width: 800px) {
+  .page-hero { padding-top: calc(var(--header-height, 6rem) + 2.75rem); }
+
+  /* Section h2 holds at 41px on a phone, so an h1 capped at 3.6rem landed on
+     43px at 390 and 40px at 360 -- the page title was the same size as, then
+     smaller than, the headings beneath it. 13 characters is the longest word
+     across the five titles ("conversations", "partnerships."), which fits at
+     this scale inside the 20px gutter. */
+  .page-hero h1 { font-size: clamp(3.5rem, 15vw, 4.6rem); }
+}
+
+/* ==========================================================================
+   Footer navigation
+   ========================================================================== */
+
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.5rem;
+}
+
+.footer-nav a {
+  color: rgba(255, 253, 248, 0.72);
+  font-family: var(--ui, sans-serif);
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.footer-nav a:hover,
+.footer-nav a:focus-visible { color: var(--sun, #ffb000); }
+
+/* The masthead marks the page you are on. Without this every link looks
+   equally available and the nav stops telling you where you are. */
+.primary-navigation a[aria-current="page"] {
+  color: var(--sun, #ffb000);
+}
+
+/* ==========================================================================
+   coffee.html — House Blend detail
+   ========================================================================== */
+
+.blend-detail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+  gap: clamp(2rem, 4vw, 3.5rem);
+  margin-top: clamp(2.25rem, 4vw, 3.25rem);
+}
+
+.blend-column .mono-label { margin-bottom: 1.1rem; }
+
+.code-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.code-list li {
+  display: grid;
+  grid-template-columns: 4.25rem minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: baseline;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 253, 248, 0.16);
+}
+
+.code-list b {
+  font-family: var(--mono, monospace);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  color: var(--sun, #ffb000);
+}
+
+.code-list span { font-size: var(--body, 0.9rem); line-height: 1.5; }
+
+@media (max-width: 420px) {
+  .code-list li { grid-template-columns: minmax(0, 1fr); gap: 0.2rem; }
+}
+
+/* ==========================================================================
+   business.html — how it starts
+   ========================================================================== */
+
+.step-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: clamp(1rem, 2.2vw, 1.6rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+.step {
+  padding: 1.5rem 1.4rem 1.7rem;
+  background: rgba(255, 253, 248, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(255, 253, 248, 0.16);
+}
+
+.step-no {
+  display: block;
+  margin-bottom: 1rem;
+  font-family: var(--mono, monospace);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  color: var(--ember, #ef4a28);
+}
+
+.step h3 {
+  margin: 0 0 0.6rem;
+  font-family: var(--display, sans-serif);
+  font-size: clamp(1.25rem, 1.8vw, 1.6rem);
+  font-weight: 400;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.step p { margin: 0; font-size: var(--body, 0.9rem); line-height: 1.6; }
+
+/* ==========================================================================
+   business.html — deeper partner rows
+   ========================================================================== */
+
+.partner-row-deep .partner-detail {
+  margin: 0.55rem 0 0;
+  font-size: var(--body, 0.9rem);
+  line-height: 1.6;
+  color: rgba(255, 253, 248, 0.72);
+}
+
+/* ==========================================================================
+   Closing call to action
+   ========================================================================== */
+
+.page-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem 2rem;
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+  padding-top: clamp(1.75rem, 3.5vw, 2.5rem);
+  border-top: 1px solid rgba(255, 253, 248, 0.22);
+}
+
+.page-cta p {
+  margin: 0;
+  max-width: 38ch;
+  font-size: var(--body-lg, 1rem);
+  line-height: 1.55;
+}
+
+/* ==========================================================================
+   Light-ground repairs
+
+   `main > .section` paints white-on-black at (0,1,1). On the pages the plain
+   .section blocks inherit that, which is correct — but the two grey surfaces
+   above (.step, .blend-formats li) need their inset rules re-stated at a
+   matching specificity or the base rule's border reset wins.
+   ========================================================================== */
+
+main > .section .step,
+main > .section .blend-formats li {
+  border: 0;
+}
+
+/* Contact stacks its intro above the form instead of using the landing page's
+   two-column .quotation grid.
+
+   The grid is single-column with a real gap rather than `display: block`. That
+   matters: styles-base.css makes .quotation-intro a STICKY SIDEBAR
+   (`position: sticky; top: calc(var(--header-height) + 2rem)`) which is right
+   when it sits beside a long scrolling form, and wrong the moment it sits above
+   one — the 104px `top` offset pushed the intro down over the form, hiding its
+   paragraph completely behind the parchment panel and leaving a 104px void
+   above the heading. Resetting the sticky is the actual fix; the explicit gap
+   means the two can't collide again even if something else moves. */
+.quotation#enquire {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1.75rem, 3.5vw, 2.5rem);
+}
+
+.quotation#enquire .quotation-intro {
+  position: static;
+  top: auto;
+}
+
+.quotation#enquire .request-form { margin-top: 0; }

@@ -1,3 +1,4 @@
+import { ReferenceIntro } from "../components/site/ReferenceIntro";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -137,22 +138,41 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   const isAdmin = useRouterState({
-    select: (state) => state.location.pathname.startsWith("/admin"),
+    select: (state) => state.location.pathname.startsWith("/30team-portal-10"),
   });
   return (
     <html lang="en">
       <head>
         <HeadContent />
+        <meta
+          name="google-site-verification"
+          content="fUdDvlhnwHJWzOul-k-mrx9aBi9gZacGoyPyYQToPoc"
+        />
+        {!isAdmin && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+          if (window.location.hostname === 'tonacoffee.et') {
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-HBF3D4K11S');
+            var tag = document.createElement('script');
+            tag.async = true;
+            tag.src = 'https://www.googletagmanager.com/gtag/js?id=G-HBF3D4K11S';
+            document.head.appendChild(tag);
+          }
+        `,
+            }}
+          />
+        )}
         {!isAdmin && (
           <>
             <link
               rel="stylesheet"
               href="https://tona-coffee-two.vercel.app/assets/vendor/leaflet.css"
             />
-            <link
-              rel="stylesheet"
-              href="https://tona-coffee-two.vercel.app/styles.css"
-            />
+            <link rel="stylesheet" href="/reference/styles.css" />
           </>
         )}
       </head>
@@ -298,14 +318,18 @@ function RootComponent() {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
-  const isAdmin = pathname.startsWith("/admin");
+  const isAdmin = pathname.startsWith("/30team-portal-10");
   const isRoutePending = useRouterState({
     select: (state) => state.status === "pending",
   });
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SiteLoadingScreen routePending={isRoutePending} />
+      {isAdmin ? (
+        <SiteLoadingScreen routePending={isRoutePending} />
+      ) : (
+        <ReferenceIntro />
+      )}
       {!isAdmin && <PageMotion pathname={pathname} />}
       <div className="flex min-h-screen flex-col">
         {!isAdmin && (

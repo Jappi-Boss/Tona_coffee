@@ -1,0 +1,489 @@
+/* ============================================================================
+   Round five.
+   1. The four-box moment sequence is gone (dead rules left harmless).
+   2. Partnership support merged into "The difference".
+   3. Two map iframes replaced by one Leaflet map with custom Tona pins.
+   ============================================================================ */
+
+/* ---------------------------------------------------------------------------
+   2. THE DIFFERENCE + PARTNERSHIP SUPPORT
+
+   `.partnership-merge` no longer exists; the feature block now sits directly
+   inside #difference, under the three principles it restates.
+   --------------------------------------------------------------------------- */
+#difference .business-feature {
+  margin-top: clamp(3rem, 6vw, 6rem);
+  padding-top: clamp(2rem, 4vw, 3.5rem);
+  border-top: 1px solid var(--line-light);
+}
+
+/* #business now carries only the partner types and the sample statement. */
+#business .partner-list {
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+}
+
+/* ---------------------------------------------------------------------------
+   3. STOCKIST MAP
+   --------------------------------------------------------------------------- */
+.stockist-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(1.25rem, 2.5vw, 2.5rem);
+  align-items: start;
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+}
+
+.stockist-layout-nomap {
+  grid-template-columns: 1fr;
+}
+
+.stockist-list {
+  display: grid;
+  gap: clamp(0.65rem, 1.2vw, 1rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stockist {
+  border: 1px solid var(--line-light);
+  background: rgba(255, 253, 248, 0.05);
+  transition: background 220ms ease, border-color 220ms ease;
+}
+
+.stockist.is-active {
+  border-color: var(--ember);
+  background: rgba(239, 74, 40, 0.1);
+}
+
+.stockist-button {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 1.15rem 1.25rem 0.6rem;
+  color: inherit;
+  background: none;
+  border: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.stockist-no {
+  color: var(--ember);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.stockist-body {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.stockist-name {
+  font-family: var(--display-clean);
+  font-size: var(--t-card-lg);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.stockist-address {
+  font-size: var(--body);
+  opacity: 0.82;
+}
+
+.stockist-note {
+  font-size: var(--body-sm);
+  opacity: 0.62;
+}
+
+.stockist-mark {
+  margin-left: auto;
+  color: var(--ember);
+  transition: transform 320ms var(--tone-ease);
+}
+
+.stockist-button:hover .stockist-mark,
+.stockist.is-active .stockist-mark {
+  transform: translateX(0.35rem);
+}
+
+.stockist > .text-link {
+  display: inline-block;
+  margin: 0 1.25rem 1.15rem;
+  min-height: 44px;
+  line-height: 44px;
+}
+
+.stockist-map {
+  position: relative;
+  min-height: 26rem;
+  border: 1px solid var(--line-light);
+  background: rgba(255, 253, 248, 0.04);
+}
+
+#tona-map {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #0b0b0b;
+}
+
+/* OpenStreetMap ships a bright basemap. Inverting and rotating the hue back
+   yields a dark map with readable labels, so it sits on the black ground
+   instead of punching a white rectangle through it. The filter is scoped to
+   the tile images so the pins and popups keep their real colours. */
+.leaflet-tile {
+  filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.88) saturate(0.55);
+}
+
+/* Leaflet chrome, re-skinned for the black ground. */
+.leaflet-container {
+  background: #0b0b0b;
+  font-family: var(--body);
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  color: var(--black);
+  background: var(--white);
+  border-radius: 0;
+}
+
+.leaflet-popup-content {
+  margin: 0.85rem 1rem;
+  font-size: var(--body-sm);
+  line-height: 1.45;
+}
+
+.leaflet-popup-content strong {
+  font-family: var(--display-clean);
+  font-size: var(--t-card-sm);
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+/* The custom pin: an ember teardrop carrying the stockist number. */
+.tona-pin {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: var(--black);
+  background: var(--ember);
+  border: 2px solid var(--white);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55);
+}
+
+.tona-pin-no {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transform: rotate(45deg);
+}
+
+.tona-pin-wrap {
+  transition: transform 260ms var(--tone-ease);
+}
+
+.tona-pin-wrap:hover {
+  transform: translateY(-3px);
+}
+
+@media (max-width: 900px) {
+  .stockist-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .stockist-map {
+    min-height: 20rem;
+    order: -1; /* map first on mobile, then the addresses */
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stockist,
+  .stockist-mark,
+  .tona-pin-wrap {
+    transition: none;
+  }
+}
+
+
+/* ---------------------------------------------------------------------------
+   LEAFLET CHROME
+
+   Leaflet ships these at higher specificity than a bare class selector:
+     .leaflet-touch .leaflet-bar a               (0,2,1)  30px zoom buttons
+     .leaflet-container .leaflet-control-attribution (0,2,0)  white strip
+   so the overrides have to match that shape, not just come later.
+   --------------------------------------------------------------------------- */
+.leaflet-touch .leaflet-bar a,
+.leaflet-container .leaflet-control-zoom a {
+  width: 44px;
+  height: 44px;
+  line-height: 44px;
+  color: var(--black);
+  background: var(--white);
+  border-color: rgba(0, 0, 0, 0.2);
+  font-size: 1.15rem;
+}
+
+.leaflet-touch .leaflet-bar a:hover,
+.leaflet-container .leaflet-control-zoom a:hover {
+  color: var(--black);
+  background: var(--ember);
+}
+
+.leaflet-container .leaflet-control-attribution {
+  padding: 2px 6px;
+  color: rgba(255, 253, 248, 0.9);
+  background: rgba(0, 0, 0, 0.85);
+  font-size: 0.65rem;
+}
+
+.leaflet-container .leaflet-control-attribution a {
+  color: #ffffff;
+}
+
+/* ---------------------------------------------------------------------------
+   SERVICE PACKAGES, MERGED INTO THE ORDER SECTION
+
+   The old #collection section is gone: its House Blend / Local market feature
+   block and the "Pack key" note were both redundant once the packages sit
+   directly above the quotation form (each card already prints the code and the
+   full format name, and the form's step 02 names them again in full).
+
+   `.pack-grid` was sized for a full-width section of its own — 4 columns of
+   37rem-tall cards. Here it is a menu leading into the form, so it is scaled
+   down and given a divider that ties it to the form beneath.
+   --------------------------------------------------------------------------- */
+.package-menu {
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+}
+
+.package-menu > .mono-label {
+  margin-bottom: 1rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--line-light);
+  color: var(--ember);
+}
+
+#orders .pack-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  background: var(--line-light);
+  border: 1px solid var(--line-light);
+}
+
+#orders .pack-card {
+  min-height: 0;
+  padding: 1.15rem 1.1rem 1.3rem;
+  border: 0;
+  background: var(--black);
+}
+
+#orders .pack-card-custom {
+  background: var(--ember);
+}
+
+#orders .pack-card h3 {
+  margin-top: 1.1rem;
+  font-size: var(--t-card-xl);
+  line-height: 0.85;
+}
+
+#orders .pack-card > p {
+  min-height: 0;
+  margin-top: 0.7rem;
+  margin-bottom: 1.1rem;
+  font-size: var(--body-sm);
+  line-height: 1.4;
+  opacity: 0.72;
+}
+
+#orders .pack-card li {
+  grid-template-columns: 3.6rem 1fr;
+  padding: 0.45rem 0;
+  font-size: 0.66rem;
+}
+
+#orders .pack-card .custom-badge {
+  margin-top: 0.9rem;
+  font-size: 0.62rem;
+}
+
+@media (max-width: 1100px) {
+  #orders .pack-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  #orders .pack-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #orders .pack-card h3 {
+    margin-top: 0.5rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   PACKAGE CARDS AS THE SELECTOR
+
+   The cards and the form's old "01 / Choose a package" grid were two pickers
+   for the same four packages, stacked on top of each other. The cards are now
+   the selector itself (radios associated to the form via form="quote-form"),
+   so the duplicate step is gone and the flow reads: pick a package, pick a
+   format, add your details.
+   --------------------------------------------------------------------------- */
+.pack-choice {
+  display: block;
+  height: 100%;
+  cursor: pointer;
+}
+
+.pack-choice input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pack-choice-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: background 220ms ease, box-shadow 220ms ease;
+}
+
+/* Cards sit on the grid's 1px gap, so selection reads as an inset rule
+   rather than a border that would shift the layout. */
+#orders .pack-card:hover .pack-choice-body {
+  background: rgba(255, 253, 248, 0.06);
+}
+
+#orders .pack-card:has(input:checked) {
+  background: var(--ember);
+  color: var(--black);
+}
+
+#orders .pack-card:has(input:checked) .pack-no,
+#orders .pack-card:has(input:checked) li span {
+  color: rgba(0, 0, 0, 0.8);
+}
+
+#orders .pack-card:has(input:checked) li {
+  border-top-color: rgba(0, 0, 0, 0.3);
+}
+
+#orders .pack-card:has(input:checked) > .pack-choice > .pack-choice-body {
+  background: transparent;
+}
+
+#orders .pack-card:has(input:focus-visible) {
+  outline: 2px solid var(--sun);
+  outline-offset: -2px;
+}
+
+/* The custom card is already ember; invert it when chosen so the selected
+   state stays legible. */
+#orders .pack-card-custom:has(input:checked) {
+  color: var(--white);
+  background: var(--forest);
+}
+
+#orders .pack-card-custom:has(input:checked) .pack-no,
+#orders .pack-card-custom:has(input:checked) li span {
+  color: rgba(255, 253, 248, 0.82);
+}
+
+#orders .pack-card-custom:has(input:checked) li {
+  border-top-color: rgba(255, 253, 248, 0.3);
+}
+
+#orders .pack-card-custom:has(input:checked) .custom-badge {
+  color: var(--black);
+  background: var(--sun);
+}
+
+/* The custom card is ember by default, so "ember = selected" alone is
+   ambiguous — an unselected custom card looked identical to the selected 1kg.
+   Selection is therefore marked by a Harvest Sun inset ring, which reads on
+   every ground, and the heading flips to black for contrast on ember
+   (Harvest Sun on Ritual Ember is only ~1.9:1). */
+#orders .pack-card:has(input:checked) {
+  box-shadow: inset 0 0 0 3px var(--sun);
+}
+
+#orders .pack-card:has(input:checked) h3 {
+  color: var(--black);
+}
+
+#orders .pack-card-custom:has(input:checked) h3 {
+  color: var(--sun);
+}
+
+/* ---------------------------------------------------------------------------
+   PARTNERSHIP SUPPORT REMOVED; ITS IMAGE REHOMED
+
+   The "Whichever one you are, this comes with it." block and its six-item list
+   are gone from #difference — that section is now purely the three principles.
+   The photograph was worth keeping, so it pairs with the 100g sample statement
+   in #business, which had no imagery of its own. `.business-feature` no longer
+   exists anywhere, so its old rules are dead; these replace them.
+   --------------------------------------------------------------------------- */
+.sample-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(2rem, 4vw, 4rem);
+  align-items: center;
+  margin-top: clamp(3rem, 6vw, 6rem);
+  padding-top: clamp(2rem, 4vw, 3.5rem);
+  border-top: 1px solid var(--line-light);
+}
+
+.sample-media {
+  margin: 0;
+  overflow: hidden;
+}
+
+.sample-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 32rem;
+  object-fit: cover;
+  object-position: center 22%;
+}
+
+/* The statement no longer owns the section divider — the layout does. */
+.sample-layout .sample-statement {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+@media (max-width: 900px) {
+  .sample-layout {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+
+  .sample-media img {
+    max-height: 20rem;
+  }
+}

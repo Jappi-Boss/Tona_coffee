@@ -1,0 +1,954 @@
+/* ============================================================================
+   Round three: structural amendments.
+
+   Note on ground colour: full-page-hero-system.css forces `.about`,
+   `.difference`, `.quotation`, `.section-ember` and `.section-dark` all to
+   black, so the page is uniformly black regardless of the `section-ember`
+   class in the markup. New sections inherit that, with the single deliberate
+   exception of #feedback, which follows the supplied parchment reference and
+   closes the page on a light ground.
+   ============================================================================ */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   2. MERGED MOMENT BLOCK — five cards replace the audience list + value rail
+   --------------------------------------------------------------------------- */
+.moment-block {
+  margin-top: clamp(3.5rem, 7vw, 7rem);
+}
+
+.moment-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(0.65rem, 1.1vw, 1rem);
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+}
+
+.moment-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.55rem;
+  min-height: 17rem;
+  padding: 1.25rem 1.1rem 1.35rem;
+  color: var(--black);
+  background: var(--white);
+  transition: color 220ms ease, background 220ms ease, transform 380ms var(--tone-ease);
+}
+
+.moment-card .moment-no {
+  color: var(--ember);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  transition: color 220ms ease;
+}
+
+.moment-card > .amend-icon {
+  margin: 0.55rem 0 auto;
+}
+
+.moment-card h4 {
+  margin: 0;
+  font-family: var(--display-clean);
+  font-size: var(--t-card-md);
+  font-weight: 400;
+  line-height: 0.98;
+  text-transform: uppercase;
+}
+
+.moment-card p {
+  max-width: 24ch;
+  margin: 0;
+  font-size: var(--body-sm);
+  line-height: 1.45;
+  opacity: 0.74;
+}
+
+.moment-card .moment-tag {
+  margin-top: 0.7rem;
+  padding-top: 0.55rem;
+  width: 100%;
+  border-top: 1px solid rgba(0, 0, 0, 0.18);
+  color: var(--ember);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: color 220ms ease, border-color 220ms ease;
+}
+
+/* Orange on black, matching the established hover language. */
+.moment-card:hover {
+  color: var(--black);
+  background: var(--ember);
+  transform: translateY(-0.38rem);
+}
+
+.moment-card:hover .moment-no,
+.moment-card:hover .moment-tag,
+.moment-card:hover > .amend-icon {
+  color: var(--black);
+}
+
+.moment-card:hover .moment-tag {
+  border-color: rgba(0, 0, 0, 0.35);
+}
+
+/* ---------------------------------------------------------------------------
+   4. EXPORT RAIL — replaces the grind rail now that the origin cards
+      no longer carry size/grind/quantity controls
+   --------------------------------------------------------------------------- */
+.export-rail {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  align-items: start;
+  margin-top: clamp(2.5rem, 5vw, 4.5rem);
+  padding-top: clamp(1.5rem, 3vw, 2.5rem);
+  border-top: 1px solid var(--line-light);
+}
+
+.export-rail .mono-label {
+  margin-bottom: 0.5rem;
+  color: var(--ember);
+}
+
+.export-rail p:last-child {
+  max-width: 30ch;
+  margin: 0;
+  font-size: var(--body-sm);
+  line-height: 1.5;
+  opacity: 0.78;
+}
+
+.export-rail .button {
+  align-self: center;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+   7. FOR BUSINESS + PARTNERSHIP SUPPORT, merged into one block
+   --------------------------------------------------------------------------- */
+.partnership-merge {
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+}
+
+.partnership-merge .business-feature {
+  margin-top: 0;
+  padding-top: clamp(2rem, 4vw, 3.5rem);
+  border-top: 1px solid var(--line-light);
+}
+
+/* ---------------------------------------------------------------------------
+   8. 100g SAMPLE STATEMENT — replaces the three sample cards
+   --------------------------------------------------------------------------- */
+.sample-statement {
+  margin-top: clamp(3rem, 6vw, 6rem);
+  padding-top: clamp(2rem, 4vw, 3.5rem);
+  border-top: 1px solid var(--line-light);
+}
+
+.sample-statement .display {
+  max-width: 18ch;
+  margin: 0.6rem 0 1.2rem;
+  font-size: var(--t-feature);
+  line-height: 0.92;
+}
+
+.sample-statement > p {
+  max-width: 62ch;
+  margin: 0 0 1.6rem;
+  font-size: var(--body-lg);
+  line-height: 1.55;
+  opacity: 0.85;
+}
+
+.sample-statement strong {
+  color: var(--sun);
+  font-weight: 500;
+}
+
+/* ---------------------------------------------------------------------------
+   11. EVENTS — submission form and hosted archive
+   --------------------------------------------------------------------------- */
+.event-submit-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(2rem, 4vw, 4.5rem);
+  margin-top: clamp(3rem, 6vw, 6rem);
+  padding-top: clamp(2rem, 4vw, 3.5rem);
+  border-top: 1px solid var(--line-light);
+}
+
+.event-submit-intro .display {
+  max-width: 16ch;
+  margin: 0.6rem 0 1rem;
+  font-size: var(--t-feature);
+  line-height: 0.92;
+}
+
+.event-submit-intro > p {
+  max-width: 44ch;
+  font-size: var(--body-lg);
+  line-height: 1.55;
+  opacity: 0.82;
+}
+
+.host-requirements {
+  margin: 1.8rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.host-requirements li {
+  display: grid;
+  grid-template-columns: 2.4rem 1fr;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--line-light);
+  font-size: var(--body-sm);
+  line-height: 1.45;
+}
+
+.host-requirements li span {
+  color: var(--ember);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+
+.hosted-block {
+  margin-top: clamp(3rem, 6vw, 6rem);
+  padding-top: clamp(2rem, 4vw, 3.5rem);
+  border-top: 1px solid var(--line-light);
+}
+
+.hosted-heading .display {
+  max-width: 16ch;
+  margin: 0.6rem 0 0;
+  font-size: var(--t-feature);
+  line-height: 0.92;
+}
+
+.hosted-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.65rem, 1.1vw, 1rem);
+  margin-top: clamp(1.8rem, 3.5vw, 3rem);
+}
+
+.hosted-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-height: 12rem;
+  padding: 1.2rem 1.1rem;
+  background: rgba(255, 253, 248, 0.05);
+  border: 1px solid var(--line-light);
+  transition: background 220ms ease, transform 380ms var(--tone-ease);
+}
+
+.hosted-card time {
+  color: var(--ember);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hosted-card h4 {
+  margin: auto 0 0;
+  font-family: var(--display-clean);
+  font-size: var(--t-card-sm);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.hosted-card p {
+  margin: 0;
+  font-size: var(--body-sm);
+  opacity: 0.74;
+}
+
+.hosted-card small {
+  color: var(--sun);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hosted-card:hover {
+  background: rgba(255, 253, 248, 0.1);
+  transform: translateY(-0.3rem);
+}
+
+/* ---------------------------------------------------------------------------
+   12. MERGED ORDER SECTION — quotation builder beside the general request
+   --------------------------------------------------------------------------- */
+.orders-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.25rem, 2.5vw, 2.5rem);
+  align-items: start;
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+}
+
+.orders-layout > form {
+  padding: clamp(1.4rem, 2.4vw, 2.2rem);
+  background: rgba(255, 253, 248, 0.05);
+  border: 1px solid var(--line-light);
+}
+
+.form-kicker {
+  margin: 0 0 1.4rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--line-light);
+  color: var(--ember);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* 17. Medium Dark Espresso — the fifth format — sits in the right column. */
+.format-choices {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.format-choices label:nth-child(5) {
+  grid-column: 2;
+}
+
+/* ---------------------------------------------------------------------------
+   15. WHERE TO FIND US — stockists with embedded maps
+   --------------------------------------------------------------------------- */
+.location-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 2rem);
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+}
+
+.location-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-light);
+  background: rgba(255, 253, 248, 0.05);
+  overflow: hidden;
+}
+
+.location-body {
+  padding: clamp(1.2rem, 2vw, 1.8rem);
+}
+
+.location-body .mono-label {
+  color: var(--ember);
+}
+
+.location-body h3 {
+  margin: 0.5rem 0 0.4rem;
+  font-family: var(--display-clean);
+  font-size: var(--t-card-lg);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.location-address {
+  margin: 0 0 0.5rem;
+  font-size: var(--body);
+  opacity: 0.8;
+}
+
+.location-note {
+  margin: 0 0 1rem;
+  font-size: var(--body-sm);
+  opacity: 0.65;
+}
+
+.location-map {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  margin-top: auto;
+  border-top: 1px solid var(--line-light);
+  background: rgba(255, 253, 248, 0.08);
+}
+
+.location-map iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  /* The embed ships a light basemap; damp it so it sits on the black ground. */
+  filter: grayscale(0.35) contrast(1.05);
+}
+
+/* ---------------------------------------------------------------------------
+   14. FEEDBACK — the supplied reference layout, on the brand's parchment
+   --------------------------------------------------------------------------- */
+/* `main > .section` sets white-on-black at specificity (0,1,1), so the light
+   ground has to be claimed at (0,2,1) — and every inherited colour re-stated,
+   or the text stays white on parchment. */
+main > .section.feedback {
+  color: var(--black);
+  background: var(--parchment);
+}
+
+.feedback .section-index {
+  color: var(--ember);
+}
+
+.feedback .section-heading .display,
+.feedback .display {
+  color: var(--black);
+}
+
+.feedback .section-intro,
+.feedback .section-heading .section-intro {
+  color: rgba(0, 0, 0, 0.72);
+  opacity: 1;
+}
+
+.feedback .mono-label {
+  color: var(--ember);
+}
+
+/* The section-heading rule draws a light divider; on parchment it must be dark. */
+.feedback .section-index::after,
+.feedback .section-heading::after {
+  background: rgba(0, 0, 0, 0.24);
+}
+
+.feedback-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.25rem, 2.5vw, 2.5rem);
+  align-items: start;
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+}
+
+.feedback-choices {
+  display: grid;
+  gap: clamp(0.65rem, 1.2vw, 1rem);
+}
+
+.feedback-choice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  min-height: 5.5rem;
+  padding: 1.2rem 1.4rem;
+  color: var(--black);
+  background: var(--paper);
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 220ms ease, border-color 220ms ease, transform 380ms var(--tone-ease);
+}
+
+.feedback-choice-body {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.feedback-choice-title {
+  color: var(--black);
+  font-family: var(--display-clean);
+  font-size: var(--t-card-sm);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.feedback-choice-mark {
+  color: var(--ember);
+  font-size: 1.2rem;
+  transition: transform 320ms var(--tone-ease);
+}
+
+.feedback-choice:hover,
+.feedback-choice:focus-visible {
+  background: var(--white);
+  border-color: var(--ember);
+  transform: translateY(-0.2rem);
+}
+
+.feedback-choice:hover .feedback-choice-mark {
+  transform: translateX(0.35rem);
+}
+
+.feedback-choice.is-selected {
+  border-color: var(--ember);
+  box-shadow: inset 0 0 0 1px var(--ember);
+}
+
+.feedback-stars {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.feedback-star {
+  color: rgba(0, 0, 0, 0.22);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 180ms ease, transform 260ms var(--tone-ease);
+}
+
+.feedback-star:hover,
+.feedback-star.is-active {
+  color: var(--sun);
+}
+
+.feedback-star:hover {
+  transform: scale(1.16);
+}
+
+.feedback-star:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 2px;
+}
+
+.feedback-form {
+  padding: clamp(1.4rem, 2.4vw, 2.2rem);
+  background: var(--paper);
+  border: 1px solid rgba(0, 0, 0, 0.16);
+}
+
+.feedback-form .form-kicker {
+  border-bottom-color: rgba(0, 0, 0, 0.16);
+}
+
+.feedback-form .field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.feedback-form input,
+.feedback-form textarea {
+  width: 100%;
+  padding: 0.85rem 0.9rem;
+  color: var(--black);
+  background: var(--white);
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  font: inherit;
+  font-size: var(--body);
+}
+
+.feedback-form input::placeholder,
+.feedback-form textarea::placeholder {
+  color: rgba(0, 0, 0, 0.42);
+}
+
+.feedback-form input:focus-visible,
+.feedback-form textarea:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 1px;
+}
+
+.feedback-form .message-field {
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.feedback-form .feedback-submit {
+  width: 100%;
+  min-height: 3.25rem;
+  margin-top: 0.5rem;
+}
+
+.feedback .form-status {
+  margin-top: 0.8rem;
+  color: rgba(0, 0, 0, 0.7);
+  font-size: var(--body-sm);
+}
+
+.feedback .form-kicker {
+  color: var(--ember);
+}
+
+/* ---------------------------------------------------------------------------
+   13. SOCIAL ICONS
+   --------------------------------------------------------------------------- */
+.social-link-top {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.social-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  flex: 0 0 auto;
+  color: var(--ember);
+  transition: color 220ms ease, transform 320ms var(--tone-ease);
+}
+
+.social-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.contact-social-band a:hover .social-icon,
+.contact-social-band a:focus-visible .social-icon {
+  color: var(--sun);
+  transform: translateY(-0.15rem) scale(1.06);
+}
+
+/* ---------------------------------------------------------------------------
+   RESPONSIVE
+   --------------------------------------------------------------------------- */
+@media (max-width: 1100px) {
+  .moment-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .export-rail {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .export-rail .button {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 900px) {
+  .moment-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .moment-card {
+    min-height: 14rem;
+  }
+
+  .orders-layout,
+  .feedback-layout,
+  .location-grid,
+  .event-submit-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .hosted-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hosted-card {
+    min-height: 0;
+  }
+
+  .export-rail {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .event-submit-form .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .feedback-form .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .location-map {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (max-width: 560px) {
+  .moment-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .moment-card {
+    min-height: 0;
+  }
+
+  .moment-card p {
+    max-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moment-card,
+  .hosted-card,
+  .feedback-choice,
+  .feedback-star,
+  .feedback-choice-mark,
+  .social-icon {
+    transition: none;
+  }
+
+  .moment-card:hover,
+  .hosted-card:hover,
+  .feedback-choice:hover {
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   12b. ORDER SECTION LAYOUT
+
+   styles-base sets `.quotation { grid-template-columns: minmax(18rem,.72fr) 1.28fr }`
+   — built for one intro beside one form. Now that the section holds two forms,
+   that grid squeezed both into the right column. The intro runs full width
+   above instead, and the two forms share the full measure below.
+   --------------------------------------------------------------------------- */
+#orders.quotation {
+  display: block;
+}
+
+#orders .quotation-intro {
+  position: static;
+  max-width: 58ch;
+}
+
+#orders .quotation-intro .display {
+  margin: 0.6rem 0 1rem;
+  font-size: var(--t-section);
+  line-height: 0.9;
+}
+
+/* 18. One field language across both forms in the merged section — the
+   request form was inheriting filled white inputs from expanded-landing.css
+   while the quotation form used the site's underline fields. */
+#orders .request-form input,
+#orders .request-form select,
+#orders .request-form textarea {
+  color: var(--white);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line-light);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+#orders .request-form input::placeholder,
+#orders .request-form textarea::placeholder {
+  color: rgba(255, 253, 248, 0.42);
+}
+
+#orders .request-form select option {
+  color: var(--black);
+  background: var(--white);
+}
+
+#orders .request-form input:focus,
+#orders .request-form select:focus,
+#orders .request-form textarea:focus {
+  background: transparent;
+  outline: none;
+  box-shadow: inset 0 -2px 0 var(--ember);
+}
+
+#orders .request-form input:hover,
+#orders .request-form select:hover,
+#orders .request-form textarea:hover {
+  background: rgba(255, 253, 248, 0.04);
+}
+
+/* ---------------------------------------------------------------------------
+   11b. EVENT SUBMISSION FIELDS
+
+   This form is new markup, so it matched none of the existing form selectors
+   (.quote-form / .request-form / .inquiry-form / #event-form). Its text inputs
+   rendered with no visible affordance and its selects fell back to the browser
+   default white box. Same field language as the merged order section.
+   --------------------------------------------------------------------------- */
+.event-submit-form .field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.event-submit-form label {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.event-submit-form label > span {
+  color: var(--ember);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.event-submit-form input,
+.event-submit-form select,
+.event-submit-form textarea {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.55rem 0;
+  color: var(--white);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line-light);
+  border-radius: 0;
+  font: inherit;
+  font-size: var(--body);
+}
+
+.event-submit-form textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.event-submit-form input::placeholder,
+.event-submit-form textarea::placeholder {
+  color: rgba(255, 253, 248, 0.42);
+}
+
+/* A dark select needs its dropdown list re-coloured too, or the options
+   render as white-on-white in some engines. */
+.event-submit-form select option {
+  color: var(--black);
+  background: var(--white);
+}
+
+.event-submit-form input:hover,
+.event-submit-form select:hover,
+.event-submit-form textarea:hover {
+  background: rgba(255, 253, 248, 0.04);
+}
+
+.event-submit-form input:focus,
+.event-submit-form select:focus,
+.event-submit-form textarea:focus {
+  outline: none;
+  box-shadow: inset 0 -2px 0 var(--ember);
+}
+
+/* Date inputs render a dark-on-dark calendar glyph on black grounds. */
+.event-submit-form input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.event-submit-form .message-field {
+  display: grid;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.event-submit-form button {
+  width: auto;
+  min-height: 3.25rem;
+}
+
+/* ---------------------------------------------------------------------------
+   18. CONTRAST ON LIGHT GROUNDS
+
+   Ritual Ember reaches 5.68:1 on black, so the dark sections are fine as they
+   are. On the light grounds this round introduced — the white moment cards and
+   the parchment feedback section — it drops to 3.64 and 2.99, under AA for
+   text below 24px. These are the measured shades that clear 4.5:1:
+
+     #C43718 on the white card (#FFFDF8) ....... 5.29
+     #A62C10 on parchment (#E4D4BA) ............ 4.83
+     #A62C10 on paper (#F0E6D5) ................ 5.68
+     rgba(0,0,0,.55) inactive star on paper .... 4.51
+   --------------------------------------------------------------------------- */
+:root {
+  --ember-on-white: #c43718;
+  --ember-on-parchment: #a62c10;
+}
+
+.moment-card .moment-no,
+.moment-card .moment-tag {
+  color: var(--ember-on-white);
+}
+
+.feedback .section-index,
+.feedback .mono-label,
+.feedback .form-kicker,
+.feedback-choice-mark {
+  color: var(--ember-on-parchment);
+}
+
+.feedback-star {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.feedback-star:hover,
+.feedback-star.is-active {
+  color: #b8770a; /* Harvest Sun is 1.9:1 on paper; this reads as gold and clears AA. */
+}
+
+/* These two labels sat at 4.03–4.28 because of an inherited opacity. */
+.sample-statement .mono-label,
+.event-submit-intro .mono-label,
+.hosted-heading .mono-label {
+  color: var(--ember);
+  opacity: 1;
+}
+
+/* Pre-existing, found during the round-three sweep:
+
+   1. `.host-tona` has an ember background, and its `.mono-label` inherits the
+      ember foreground — ember on ember, contrast 1.00. The "Host Tona" label
+      was invisible on the live site.
+   2. `.pack-card li span` combines a 0.66-alpha colour with a 0.72 opacity,
+      landing at an effective 0.475 and 4.21:1. */
+.host-tona .mono-label {
+  color: var(--black);
+  opacity: 0.85;
+}
+
+/* Scoped away from .pack-card-custom — that fourth card sits on an ember
+   ground with black text, so a light foreground there reads at 2.6:1. */
+.pack-card:not(.pack-card-custom) li span {
+  color: rgba(255, 253, 248, 0.74);
+  opacity: 1;
+}
+
+.pack-card-custom li span {
+  color: rgba(0, 0, 0, 0.8);
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   TAP TARGETS
+
+   1. Moving the hamburger to the right last round added `align-items: center`
+      to the header grid. That stopped the toggle stretching to the header row,
+      collapsing it from 72px tall to its 19px content height — under the 44px
+      minimum, on the primary mobile control. An explicit min-height restores
+      the target without giving up the right alignment.
+   2. `.whatsapp-close` was 42x42, two pixels short.
+   --------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .site-header .menu-toggle {
+    min-height: 44px;
+    align-items: center;
+  }
+}
+
+.whatsapp-close {
+  min-width: 44px;
+  min-height: 44px;
+}

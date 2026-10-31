@@ -1,0 +1,242 @@
+/* ============================================================================
+   Mobile round two.
+   1. Hamburger menu type.
+   2. Mobile type scale proportionality.
+   3. Request-quotation section organisation.
+   Mobile only — nothing here applies above 900px.
+   ============================================================================ */
+
+/* ---------------------------------------------------------------------------
+   1. HAMBURGER MENU
+
+   The open menu was rendering its links at 9.9px inside 67px-tall rows — the
+   labels were smaller than the "MENU" toggle above them, an inverted hierarchy,
+   with most of the panel left empty. Full-screen mobile menus want display-scale
+   type. The header's "Order" CTA is `display:none` below 800px, so the menu also
+   had no call to action at all; it is brought back into the open panel.
+   --------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .primary-navigation {
+    justify-content: flex-start;
+    gap: 0;
+    padding: 1.5rem 1.25rem 2rem;
+  }
+
+  .primary-navigation a {
+    display: flex;
+    align-items: center;
+    min-height: 3.5rem;
+    padding: 0.7rem 0;
+    font-family: var(--display-clean, var(--display));
+    font-size: clamp(1.7rem, 7.4vw, 2.35rem);
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+
+  /* The toggle should read as a control, not compete with the menu items. */
+  .menu-toggle {
+    font-size: var(--label);
+  }
+
+  /* Bring the Order CTA into the open panel. It clears the WhatsApp launcher
+     that sits at the bottom-left. */
+  .site-header:has(#menu-toggle[aria-expanded="true"]) .header-cta {
+    position: fixed;
+    z-index: 120;
+    right: 1.25rem;
+    bottom: 6rem;
+    left: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 3.25rem;
+    padding: 0 1.1rem;
+    color: var(--black);
+    background: var(--ember);
+    font-size: var(--label);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   2. MOBILE TYPE SCALE
+
+   The previous mobile steps ran 37 / 32 / 29 / 26 / 23 / 21px — ratios between
+   1.10 and 1.16, too tight to read as distinct levels, and the drop from the
+   smallest heading (21) to body-lg (16) was a disproportionate 1.31.
+
+   These are a true geometric scale at a constant 1.17 from body-lg:
+   16 → 18.7 → 21.9 → 25.6 → 29.9 → 34.9 → 40.8px at 390px wide.
+
+   Each cap is still pinned to what the desktop clamp resolves to at exactly
+   900px (46.4 / 38.4 / 33.6 / 29.6 / 24.8 / 21.6), so the breakpoint stays
+   continuous in both directions.
+   --------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  :root {
+    --t-section: clamp(2.55rem, 6.6vw, 2.9rem);
+    --t-feature: clamp(2.18rem, 5.6vw, 2.4rem);
+    --t-card-xl: clamp(1.87rem, 4.9vw, 2.1rem);
+    --t-card-lg: clamp(1.6rem, 4.3vw, 1.85rem);
+    --t-card-md: clamp(1.37rem, 3.6vw, 1.55rem);
+    --t-card-sm: clamp(1.17rem, 3.1vw, 1.35rem);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   3. REQUEST QUOTATION
+
+   The form was 1872px tall in a 2301px section because every choice grid fell
+   to a single column: four package cards took 395px and the format cards 482px.
+   Two columns halve that without shrinking the tap targets, since the labels
+   are short ("1kg / Tona package"). Input heights were also mixed (48 and 53px)
+   and label type ran at two sizes (11.2 and 12px).
+   --------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .quotation .quote-form {
+    padding: 1.25rem 1.1rem 1.4rem;
+  }
+
+  /* Numbered steps read as steps: a rule above each, consistent spacing. */
+  .quote-form fieldset {
+    margin: 0 0 1.5rem;
+    padding: 0;
+    border: 0;
+  }
+
+  /* The section reads as `section-ember` in the markup but computes to solid
+     black, so the step separators have to be light, not dark. This matches the
+     alpha the legends already use. */
+  .quote-form fieldset + fieldset,
+  .quote-form .message-field {
+    padding-top: 1.4rem;
+    border-top: 1px solid rgba(255, 253, 248, 0.18);
+  }
+
+  .quote-form legend,
+  .quotation legend {
+    width: 100%;
+    margin: 0 0 0.85rem;
+    padding: 0 0 0.6rem;
+    font-size: var(--label);
+    letter-spacing: 0.08em;
+  }
+
+  /* Two across. The choice cards keep a 44px+ target at half width. */
+  .quotation .choice-grid,
+  .quotation .choice-grid.package-choices,
+  .quotation .choice-grid.format-choices {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .quotation .choice-grid label span {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.2rem;
+    min-height: 4.25rem;
+    padding: 0.7rem 0.65rem;
+    font-size: var(--label);
+    line-height: 1.25;
+    text-align: left;
+  }
+
+  .quotation .choice-grid label span b {
+    font-size: var(--t-card-sm);
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  /* One column for the text fields — inputs need the full width. */
+  .quotation .field-grid {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+
+  .quotation .field-grid label,
+  .quotation .message-field,
+  .quotation .logo-field label {
+    display: grid;
+    gap: 0.4rem;
+    font-size: var(--label);
+  }
+
+  .quotation .field-grid label > span,
+  .quotation .message-field > span,
+  .quotation .logo-field label {
+    font-size: var(--label);
+    letter-spacing: 0.06em;
+  }
+
+  /* One input height everywhere; the textarea is the single exception. */
+  .quotation input:not([type="radio"]):not([type="hidden"]),
+  .quotation select {
+    min-height: 3rem;
+    height: 3rem;
+    padding: 0 0.85rem;
+    font-size: 1rem; /* 16px keeps iOS Safari from zooming on focus */
+  }
+
+  .quotation textarea {
+    min-height: 7rem;
+    padding: 0.75rem 0.85rem;
+    font-size: 1rem;
+  }
+
+  .quotation .message-field {
+    margin-top: 0;
+  }
+
+  .quotation .submit-button {
+    width: 100%;
+    min-height: 3.25rem;
+    margin-top: 1.4rem;
+  }
+
+  .quotation .form-status {
+    margin-top: 0.8rem;
+    font-size: var(--body-sm);
+  }
+}
+
+@media (max-width: 380px) {
+  /* Below this the two-column choice cards start truncating their labels. */
+  .quotation .choice-grid,
+  .quotation .choice-grid.package-choices,
+  .quotation .choice-grid.format-choices {
+    grid-template-columns: 1fr;
+  }
+
+  .quotation .choice-grid label span {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.5rem;
+    min-height: 3.25rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   4. HAMBURGER AT THE TOP RIGHT
+
+   The header is a three-column grid (112px 104px 160px). On mobile the third
+   column is empty — the nav is `position: fixed` and the CTA is `display:none`,
+   so both leave the grid flow — which stranded the toggle in the middle at
+   x132..236. Two columns put the mark left and the toggle hard right.
+   --------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .site-header {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .site-header .brand {
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .site-header .menu-toggle {
+    grid-column: 2;
+    justify-self: end;
+    gap: 0.6rem;
+  }
+}

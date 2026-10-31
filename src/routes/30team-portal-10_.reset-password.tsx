@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { getAdminAuth } from "@/lib/admin-auth";
 import { TonaLogo } from "@/components/site/TonaLogo";
 
-export const Route = createFileRoute("/admin_/reset-password")({
+export const Route = createFileRoute("/30team-portal-10_/reset-password")({
   component: ResetPasswordPage,
   head: () => ({ meta: [{ title: "Reset password — Tona Coffee" }] }),
 });
@@ -35,7 +35,7 @@ function ResetPasswordPage() {
       if (result.error)
         throw new Error(result.error.message ?? "Could not reset password.");
       toast.success("Password updated. You can now sign in.");
-      await navigate({ to: "/admin/login" });
+      await navigate({ to: "/30team-portal-10/login" });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Could not reset password.",
@@ -67,7 +67,7 @@ function ResetPasswordPage() {
           </button>
         </form>
         <Link
-          to="/admin/login"
+          to="/30team-portal-10/login"
           className="mt-6 block text-center text-sm font-semibold text-teal hover:text-primary"
         >
           Back to sign in

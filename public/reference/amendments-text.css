@@ -1,0 +1,213 @@
+/* ============================================================================
+   Body text scale — 10 to 12 point.
+
+   The audit found 27 distinct text sizes, with reading copy scattered across
+   13.7 / 13.8 / 14.4 / 14.7 / 15.2 / 18.9 / 19.2 / 24.5px. Everything a visitor
+   actually *reads* now sits on three steps inside the requested 10-12pt band
+   (1pt = 1.333px, so 10pt = 13.3px and 12pt = 16px).
+
+   Mono UI labels — index numbers, legends, chips, badges, buttons — are not
+   body text and stay below the band so compact components keep their
+   proportions; they are consolidated from twelve ad-hoc sizes to two.
+   ============================================================================ */
+
+:root {
+  --body-lg: 1rem;        /* 16.0px = 12.0pt — leads, section intros        */
+  --body-md: 0.9175rem;   /* 14.7px = 11.0pt — default paragraph copy       */
+  --body-sm: 0.835rem;    /* 13.4px = 10.0pt — captions, small print        */
+  --label:   0.75rem;     /* 12.0px          — mono UI labels, buttons      */
+  --label-sm: 0.6875rem;  /* 11.0px          — dense chips and pills        */
+}
+
+/* --- 12pt: opening and section-level copy --------------------------------- */
+.lead,
+.section-intro,
+.contact-intro,
+.hero#home .hero-intro > p,
+.form-intro > p:last-child,
+.quotation-intro > p:last-child,
+.request-intro > p:last-child,
+.moment-intro > p:not(.mono-label) {
+  font-size: var(--body-lg);
+  line-height: 1.5;
+}
+
+.lead {
+  max-width: 44ch;
+  line-height: 1.45;
+}
+
+/* --- 11pt: default paragraph copy ----------------------------------------- */
+.copy-columns p,
+.audience-row p,
+.value-item p,
+.partner-row p,
+.principle p,
+.sample-card p,
+.event-card p,
+.pack-card p,
+.host-services article p,
+.origin-card-body > p:not(.altitude),
+.blend-facts p,
+.vision-mission article p:not(.mono-label),
+.definition .meaning,
+.contact-details dd,
+.inquiry-form p,
+.quote-form p,
+main li:not(.moment-sequence li):not(.tasting-notes li):not(.pack-card li),
+footer p {
+  font-size: var(--body-md);
+  line-height: 1.5;
+}
+
+/* --- 10pt: captions and small print --------------------------------------- */
+main small,
+footer small,
+figcaption,
+.pack-card li,
+.form-status,
+.abbreviation-note {
+  font-size: var(--body-sm);
+  line-height: 1.45;
+}
+
+/* --- Mono UI labels. Not body text; two steps instead of twelve. ---------- */
+.section-index,
+.mono-label,
+.origin-meta,
+.altitude,
+.custom-badge,
+.contact-details dt,
+.social-handle,
+legend,
+label,
+.button,
+.text-link,
+.event-register,
+.origin-order-action .button {
+  font-size: var(--label);
+}
+
+.option-pills span,
+.tasting-notes li,
+.pack-card .pack-no,
+.principle-no {
+  font-size: var(--label-sm);
+}
+
+/* The definition's oversized term glyph is a display device, kept relative. */
+.definition strong {
+  font-size: 1.75em;
+}
+
+/* ============================================================================
+   Specificity corrections. Each of these was still being won by an earlier,
+   more specific rule; the selectors below match or exceed those.
+   ============================================================================ */
+
+/* .hero#home .definition .meaning (1,3,1) was beating the generic list. */
+.hero#home .definition .meaning,
+.hero#home .definition .term {
+  font-size: var(--body-md);
+  line-height: 1.5;
+}
+
+/* .blend-facts dd carried its own 1.05rem (16.8px). */
+.blend-facts dd,
+.contact-details dd {
+  font-size: var(--body-md);
+}
+
+/* Three separate `small` rules each set their own size. */
+.sample-card small,
+.event-card small,
+.contact-details small,
+.sample-card:nth-child(2) small {
+  font-size: var(--body-sm);
+}
+
+/* Legends were on 0.66rem; the label step keeps every form heading equal. */
+.origin-order legend,
+.quote-form legend,
+.inquiry-form legend {
+  font-size: var(--label);
+}
+
+/* Hero CTAs join the same button size as every other button on the page. */
+.hero#home .button-row > a,
+.hero#home .hero-secondary-link {
+  font-size: var(--label);
+}
+
+/* Display numerals are not body text, but they should still sit on the shared
+   heading scale rather than inventing their own 57.6px step. */
+.event-card time b,
+.social-name {
+  font-size: var(--t-card-xl);
+  line-height: 0.9;
+}
+
+/* --- Final consolidation. Everything below was still off the scale. -------- */
+
+/* Grind notes and contact lines are reading copy, not display. */
+.grind-notes p,
+.contact-details p,
+.contact-details a,
+.contact-block p,
+.contact-block a,
+.contact-list p,
+.contact-list a {
+  font-size: var(--body-md);
+  line-height: 1.5;
+}
+
+/* Card numerals all share the dense label step. */
+.audience-row > span:first-child,
+.moment-sequence li > span:first-child,
+.value-item > span:first-child,
+.partner-row > span:first-child,
+.sample-card > span:first-child,
+/* `.pack-card label span` used to sit here. It matched nothing while the pack
+   cards had no <label>; once they became radio choices it matched every span
+   in the card — including the heading's word-reveal masks, dropping "1kg" from
+   45px to 11px. The card head is already covered by `.pack-card-head span`. */
+.definition .meaning b {
+  font-size: var(--label-sm);
+}
+
+.pack-card-head span,
+.about-art figcaption,
+figure figcaption {
+  font-size: var(--label);
+}
+
+/* Footer signature: the wordmark keeps a display size from the heading scale,
+   its strapline joins the label step. */
+.footer-signature p {
+  font-size: var(--t-card-xl);
+  line-height: 0.9;
+}
+
+.footer-signature span {
+  font-size: var(--label);
+}
+
+/* --- Last three. ----------------------------------------------------------- */
+
+/* The grind notes live in `.format-rail > div`, not a named class. */
+.format-rail p:not(.mono-label) {
+  font-size: var(--body-md);
+  line-height: 1.5;
+}
+
+/* Definition-list terms, sample-card links and form label text. */
+.blend-facts dt,
+.sample-card a,
+.inquiry-form label span,
+.quote-form label span {
+  font-size: var(--label);
+}
+
+.hero#home .definition .meaning b {
+  font-size: var(--label-sm);
+}

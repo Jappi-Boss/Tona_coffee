@@ -1,0 +1,689 @@
+/* Final content and layout amendments — preserves the approved Tona hero and visual system. */
+
+:root {
+  --section-title-size: clamp(3.45rem, 5.7vw, 6rem);
+  --feature-title-size: clamp(3rem, 4.7vw, 5.15rem);
+  --compact-title-size: clamp(2.15rem, 2.8vw, 3.35rem);
+  --field-gray: #ebe9e4;
+  --tone-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::selection {
+  color: var(--black);
+  background: var(--ember);
+}
+
+html {
+  scrollbar-color: var(--ember) var(--black);
+  scrollbar-width: thin;
+}
+
+input,
+textarea {
+  caret-color: var(--ember);
+}
+
+main > .section:not(.hero) {
+  position: relative;
+  overflow: clip;
+}
+
+/* Keep non-hero hierarchy controlled and consistent. */
+.section-heading .display {
+  max-width: 15ch;
+  font-size: var(--section-title-size);
+  line-height: 0.88;
+  letter-spacing: -0.025em;
+}
+
+.moment-intro .display,
+.samples-heading .display,
+.business-feature .display,
+.form-intro .display,
+.host-heading .display,
+.quotation-intro .display,
+.contact-main .display,
+.request-intro .display {
+  font-size: var(--feature-title-size);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+}
+
+.section-intro,
+.form-intro > p:last-child,
+.request-intro > p:last-child {
+  max-width: 66ch;
+}
+
+/* A continuous ember marker gives scroll a quiet ceremonial pulse. */
+.section-cinema::after {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  top: 11rem;
+  right: clamp(0.75rem, 2vw, 2rem);
+  width: 2px;
+  height: 5.25rem;
+  background: var(--ember);
+  opacity: 0;
+  transform: translate3d(0, var(--cinema-track, 0), 0) scaleY(0.2);
+  transform-origin: top;
+  transition: opacity 320ms ease, transform 680ms var(--tone-ease);
+  pointer-events: none;
+}
+
+.section-cinema.cinema-in::after {
+  opacity: 0.62;
+  transform: translate3d(0, var(--cinema-track, 0), 0) scaleY(1);
+}
+
+/* About image: larger, but the caption remains in normal flow and fully legible. */
+.about-layout {
+  grid-template-columns: minmax(0, 0.82fr) minmax(26rem, 1.18fr);
+  gap: clamp(3rem, 6vw, 7rem);
+  align-items: start;
+  overflow: visible !important;
+}
+
+.about-copy {
+  position: relative;
+  z-index: 2;
+}
+
+.about-art,
+.about-art.parallax-media {
+  width: min(100%, 45rem);
+  justify-self: end;
+  overflow: visible !important;
+}
+
+.about-art img,
+.about-art.parallax-media img {
+  display: block;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: center;
+  transform: none !important;
+  will-change: auto;
+}
+
+.about-art figcaption {
+  position: relative;
+  z-index: 3;
+  min-height: 3.15rem;
+  display: flex;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  color: var(--ember);
+  background: var(--black);
+  opacity: 1;
+}
+
+/* Five clear audiences in one desktop row. */
+.moment-layout {
+  grid-template-columns: 1fr;
+  gap: clamp(2.5rem, 5vw, 5rem);
+}
+
+.moment-intro {
+  position: static;
+  display: grid;
+  grid-template-columns: minmax(11rem, 0.28fr) minmax(0, 0.72fr);
+  gap: clamp(2rem, 5vw, 6rem);
+  align-items: end;
+}
+
+.moment-intro .display {
+  max-width: 12ch;
+  margin: 0;
+}
+
+.audience-list {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(0.65rem, 1.1vw, 1rem);
+}
+
+.audience-row {
+  min-width: 0;
+  min-height: 17rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1.1rem 0.9rem 1.2rem;
+  color: var(--white);
+  background: rgba(23, 77, 79, 0.22);
+  box-shadow: inset 0 2px 0 var(--ember) !important;
+}
+
+.audience-row > span {
+  order: 0;
+}
+
+.audience-row > .amend-icon {
+  order: 1;
+  margin: 0.7rem 0 auto;
+}
+
+.audience-row h4 {
+  order: 2;
+  font-size: clamp(1.75rem, 2.15vw, 2.55rem);
+  line-height: 0.94;
+}
+
+.audience-row p {
+  order: 3;
+  max-width: 22ch;
+  color: rgba(255, 253, 248, 0.72);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+/* Shared animated icon language. */
+.amend-icon {
+  width: 3.15rem;
+  height: 3.15rem;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: var(--ember);
+  transform-origin: center;
+  transition: color 220ms ease, transform 320ms var(--tone-ease);
+}
+
+.amend-icon svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.amend-icon [data-draw] {
+  vector-effect: non-scaling-stroke;
+}
+
+body.motion-ready .amend-icon [data-draw] {
+  opacity: 0.28;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+body.motion-ready .motion-in .amend-icon [data-draw],
+body.motion-ready .moment-sequence.is-visible .amend-icon [data-draw] {
+  animation: tona-amend-icon-draw 920ms var(--tone-ease) forwards;
+  animation-delay: calc(110ms + var(--icon-delay, 0ms));
+}
+
+@keyframes tona-amend-icon-draw {
+  0% { opacity: 0.22; stroke-dashoffset: 1; }
+  100% { opacity: 1; stroke-dashoffset: 0; }
+}
+
+/* Four moment boxes: white at rest, Tona orange on interaction. */
+.moment-sequence {
+  gap: clamp(0.65rem, 1.1vw, 1rem);
+}
+
+.moment-sequence li {
+  min-height: 15rem;
+  justify-content: flex-start;
+  gap: 0.9rem;
+  padding: 1.25rem;
+  color: var(--black);
+  background: var(--white);
+  font-size: clamp(1.6rem, 2vw, 2.2rem);
+  transition: color 220ms ease, background 220ms ease, transform 380ms var(--tone-ease);
+}
+
+.moment-sequence li:nth-child(even) {
+  color: var(--black);
+  background: var(--white);
+}
+
+.moment-sequence li > span:first-child {
+  color: var(--ember);
+  transition: color 220ms ease;
+}
+
+.moment-sequence .amend-icon {
+  margin: 0.7rem 0 auto;
+}
+
+.moment-sequence li:hover {
+  color: var(--black);
+  background: var(--ember);
+  transform: translateY(-0.38rem);
+}
+
+.moment-sequence li:hover > span:first-child,
+.moment-sequence li:hover .amend-icon {
+  color: var(--black);
+}
+
+.moment-title {
+  display: block;
+}
+
+/* Four values beneath vision and mission use the same clear interaction rule. */
+.value-rail {
+  gap: clamp(0.65rem, 1.1vw, 1rem);
+  background: transparent;
+}
+
+.value-item {
+  min-height: 17rem;
+  color: var(--black);
+  background: var(--white);
+  transition: color 220ms ease, background 220ms ease, transform 380ms var(--tone-ease);
+}
+
+.value-item > span {
+  color: var(--ember);
+  transition: color 220ms ease;
+}
+
+.value-item .amend-icon {
+  margin-top: 1rem;
+}
+
+.value-item h3 {
+  margin-top: auto;
+  font-size: clamp(2.65rem, 3.35vw, 3.9rem);
+}
+
+.value-item:hover {
+  color: var(--black);
+  background: var(--ember);
+  transform: translateY(-0.38rem);
+}
+
+.value-item:hover > span,
+.value-item:hover .amend-icon {
+  color: var(--black);
+}
+
+.value-item:hover p {
+  color: rgba(0, 0, 0, 0.78);
+}
+
+/* Coffee cards: four balanced columns at wide sizes, compact controls, local imagery. */
+.origin-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.65rem, 1vw, 0.95rem);
+  align-items: stretch;
+}
+
+.origin-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(23, 77, 79, 0.28);
+}
+
+.origin-card figure {
+  aspect-ratio: 4 / 3;
+}
+
+.origin-card figure img {
+  width: 100%;
+  height: 100%;
+  object-position: center;
+}
+
+.origin-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.origin-meta {
+  font-size: 0.58rem;
+}
+
+.origin-card h3 {
+  margin: 1.35rem 0 0.72rem;
+  font-size: clamp(2.3rem, 2.75vw, 3.35rem);
+  line-height: 0.84;
+}
+
+.origin-card-body > p:not(.altitude) {
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.tasting-notes {
+  gap: 0.38rem;
+  margin: 0.9rem 0;
+}
+
+.tasting-notes li {
+  padding: 0.42rem 0.5rem;
+  font-size: 0.58rem;
+}
+
+.altitude {
+  font-size: 0.6rem;
+}
+
+.origin-order {
+  gap: 0.78rem;
+  margin-top: auto;
+  padding-top: 1.15rem;
+}
+
+.origin-order legend {
+  margin-bottom: 0.45rem;
+  font-size: 0.72rem;
+}
+
+.option-pills {
+  gap: 0.32rem;
+}
+
+.option-pills span {
+  min-height: 2.5rem;
+  padding: 0.38rem 0.25rem;
+  font-size: 0.61rem;
+}
+
+.origin-order-action {
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+}
+
+.origin-order-action .button {
+  width: 100%;
+}
+
+/* Business rows gain expressive line icons directly beside each title. */
+.partner-row {
+  grid-template-columns: 2.3rem 3.15rem minmax(17rem, 1fr) minmax(18rem, 0.85fr);
+  gap: clamp(1rem, 2.6vw, 2.6rem);
+  padding: clamp(1.4rem, 2.3vw, 2.3rem) 0;
+}
+
+.partner-row h3 {
+  font-size: clamp(2.15rem, 2.85vw, 3.35rem);
+}
+
+.partner-row .amend-icon {
+  width: 2.8rem;
+  height: 2.8rem;
+}
+
+.partner-row:hover .amend-icon {
+  color: var(--sun);
+  transform: translateY(-0.2rem) rotate(-3deg);
+}
+
+.business-feature figure {
+  min-height: 38rem;
+}
+
+.business-feature figure img {
+  object-position: center 55%;
+}
+
+/* White enquiry canvas with quiet gray field surfaces. */
+.inquiry-form {
+  color: var(--black);
+  background: var(--white);
+}
+
+.inquiry-form input,
+.inquiry-form select,
+.inquiry-form textarea {
+  color: var(--black);
+  background: var(--field-gray);
+  box-shadow: none;
+}
+
+.inquiry-form input:hover,
+.inquiry-form select:hover,
+.inquiry-form textarea:hover {
+  background: #e2dfd8;
+}
+
+.inquiry-form input:focus,
+.inquiry-form select:focus,
+.inquiry-form textarea:focus {
+  background: #f3f1ec;
+  box-shadow: inset 0 -2px 0 var(--ember);
+}
+
+.inquiry-form .form-status {
+  color: rgba(0, 0, 0, 0.68);
+}
+
+/* Events: supplied image first, then three horizontal event cards. */
+.events-layout {
+  grid-template-columns: 1fr;
+  gap: clamp(1.1rem, 2.4vw, 2.2rem);
+}
+
+.events-image,
+.events-image.parallax-media {
+  position: relative;
+  top: auto;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  overflow: hidden;
+}
+
+.events-image img {
+  width: 100%;
+  height: 100%;
+  object-position: center 61%;
+}
+
+.event-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.65rem, 1vw, 0.95rem);
+}
+
+.event-card {
+  min-height: 23rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.event-card time {
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  justify-content: start;
+  gap: 0.55rem;
+}
+
+.event-card time b {
+  font-size: clamp(3.1rem, 4vw, 4.8rem);
+}
+
+.event-card h3 {
+  font-size: clamp(2.15rem, 2.65vw, 3rem);
+}
+
+.event-card > div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.event-card small {
+  margin-top: auto;
+  padding-top: 1.2rem;
+}
+
+.event-card .button {
+  width: 100%;
+  margin-top: auto;
+}
+
+/* Text inside every content family enters as readable, clipped linework. */
+.cinematic-word-mask {
+  display: inline-block;
+  overflow: clip;
+  vertical-align: bottom;
+}
+
+.cinematic-word {
+  display: inline-block;
+  transform-origin: 50% 100%;
+}
+
+body.motion-ready .cinematic-copy .cinematic-word {
+  opacity: 0;
+  filter: blur(5px);
+  transform: translateY(112%) rotate(1deg);
+  transition:
+    opacity 420ms ease var(--cinematic-delay, 0ms),
+    filter 680ms var(--tone-ease) var(--cinematic-delay, 0ms),
+    transform 760ms var(--tone-ease) var(--cinematic-delay, 0ms);
+}
+
+body.motion-ready .cinematic-copy.cinematic-copy-in .cinematic-word {
+  opacity: 1;
+  filter: blur(0);
+  transform: none;
+}
+
+@media (max-width: 1240px) {
+  .audience-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .origin-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .origin-card h3 {
+    font-size: clamp(3rem, 5.6vw, 4.7rem);
+  }
+}
+
+@media (max-width: 900px) {
+  .section-cinema::after {
+    display: none;
+  }
+
+  .about-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .about-art,
+  .about-art.parallax-media {
+    width: min(100%, 48rem);
+    justify-self: center;
+  }
+
+  .moment-intro {
+    grid-template-columns: 1fr;
+  }
+
+  .moment-sequence,
+  .value-rail {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .partner-row {
+    grid-template-columns: 2.2rem 3rem minmax(0, 1fr);
+  }
+
+  .partner-row p {
+    grid-column: 3;
+  }
+
+  .business-feature figure {
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+  }
+
+  .event-list {
+    grid-template-columns: 1fr;
+  }
+
+  .event-card {
+    min-height: 17rem;
+  }
+}
+
+@media (max-width: 680px) {
+  :root {
+    --section-title-size: clamp(3.05rem, 14vw, 4.65rem);
+    --feature-title-size: clamp(2.75rem, 12vw, 4.1rem);
+  }
+
+  .audience-list,
+  .moment-sequence,
+  .value-rail,
+  .origin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .audience-row,
+  .moment-sequence li,
+  .value-item {
+    min-height: 14rem;
+  }
+
+  .origin-card h3 {
+    font-size: clamp(3.2rem, 15vw, 4.8rem);
+  }
+
+  .partner-row {
+    grid-template-columns: 2rem 2.65rem minmax(0, 1fr);
+    gap: 0.8rem;
+  }
+
+  .partner-row .amend-icon {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+
+  .partner-row h3 {
+    font-size: clamp(2rem, 9.6vw, 3rem);
+  }
+
+  .events-image,
+  .events-image.parallax-media {
+    aspect-ratio: 4 / 3;
+  }
+
+  .event-card .button {
+    grid-column: auto;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .audience-row:hover .amend-icon,
+  .moment-sequence li:hover .amend-icon,
+  .value-item:hover .amend-icon {
+    transform: translateY(-0.18rem) rotate(-3deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-cinema::after {
+    display: none;
+  }
+
+  body.motion-ready .amend-icon [data-draw],
+  body.motion-ready .motion-in .amend-icon [data-draw],
+  body.motion-ready .moment-sequence.is-visible .amend-icon [data-draw],
+  body.motion-ready .cinematic-copy .cinematic-word,
+  body.motion-ready .cinematic-copy.cinematic-copy-in .cinematic-word {
+    opacity: 1;
+    filter: none;
+    stroke-dashoffset: 0;
+    transform: none;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .moment-sequence li:hover,
+  .value-item:hover,
+  .partner-row:hover .amend-icon {
+    transform: none;
+  }
+}

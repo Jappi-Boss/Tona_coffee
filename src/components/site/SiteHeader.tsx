@@ -1,19 +1,24 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
-import { TonaLogo } from "./TonaLogo";
+import { useEffect, useState } from "react";
 
 const NAV = [
-  { to: "/", label: "Home" },
-  { to: "/about", label: "About" },
-  { to: "/products", label: "Coffee" },
-  { to: "/for-business", label: "For business" },
-  { to: "/events", label: "Events" },
-  { to: "/contact", label: "Contact" },
+  { to: "home", label: "Home" },
+  { to: "story", label: "About" },
+  { to: "coffee", label: "Coffee" },
+  { to: "business", label: "For business" },
+  { to: "stockists", label: "Where to find us" },
+  { to: "contact", label: "Contact" },
 ] as const;
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [active, setActive] = useState("home");
+  useEffect(() => {
+    const update = () => setActive(window.location.hash.slice(1) || "home");
+    update();
+    window.addEventListener("hashchange", update);
+    return () => window.removeEventListener("hashchange", update);
+  }, []);
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
@@ -26,7 +31,10 @@ export function SiteHeader() {
         className="brand"
         onClick={() => setOpen(false)}
       >
-        <TonaLogo tone="light" />
+        <img
+          src="https://tona-coffee-two.vercel.app/website/assets/images/tona-logo-light.png"
+          alt="Tona Coffee"
+        />
       </Link>
 
       <button
@@ -49,21 +57,23 @@ export function SiteHeader() {
         aria-label="Primary navigation"
       >
         {NAV.map((item) => (
-          <Link
+          <a
             key={item.to}
-            to={item.to}
-            className={pathname === item.to ? "active" : undefined}
-            aria-current={pathname === item.to ? "page" : undefined}
-            data-status={pathname === item.to ? "active" : undefined}
-            activeOptions={{ exact: true }}
-            onClick={() => setOpen(false)}
+            href={"/#" + item.to}
+            className={active === item.to ? "active" : undefined}
+            aria-current={active === item.to ? "page" : undefined}
+            data-status={active === item.to ? "active" : undefined}
+            onClick={() => {
+              setActive(item.to);
+              setOpen(false);
+            }}
           >
             {item.label}
-          </Link>
+          </a>
         ))}
       </nav>
 
-      <a className="header-cta" href="/contact#orders" onClick={() => setOpen(false)}>
+      <a className="header-cta" href="/#orders" onClick={() => setOpen(false)}>
         Order <span aria-hidden="true">↓</span>
       </a>
     </header>

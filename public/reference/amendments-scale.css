@@ -1,0 +1,163 @@
+/* ============================================================================
+   Standard type scale + card density.
+   Amendment 07 — titles a step smaller and on one scale, hero excepted.
+   Amendment 12 — one consistent set of sizes across every section.
+   Amendment 06 — coffee cards reduced in height.
+   ============================================================================ */
+
+:root {
+  /* One modular scale, ~1.25 between steps. The hero is deliberately absent —
+     it keeps its own oversized display size. */
+  --t-section: clamp(2.9rem, 4.6vw, 4.7rem);   /* every section <h2>        */
+  --t-feature: clamp(2.4rem, 3.5vw, 3.6rem);   /* in-section feature titles  */
+  --t-card-xl: clamp(2.1rem, 3.1vw, 3.2rem);   /* principles, pack numerals  */
+  --t-card-lg: clamp(1.85rem, 2.5vw, 2.6rem);  /* values, partner rows       */
+  --t-card-md: clamp(1.55rem, 2vw, 2.1rem);    /* origins, samples, events   */
+  --t-card-sm: clamp(1.35rem, 1.65vw, 1.75rem);/* audience row              */
+}
+
+/* --- Section titles -------------------------------------------------------
+   Eight sections, one size. Quotation and Contact previously rendered at the
+   feature size despite being <h2>, which broke the hierarchy mid-page. */
+.section-heading .display,
+.quotation-intro .display,
+.contact-main .display {
+  font-size: var(--t-section);
+  line-height: 0.9;
+  letter-spacing: -0.022em;
+}
+
+/* --- Feature titles inside a section -------------------------------------- */
+.moment-intro .display,
+.samples-heading .display,
+.business-feature .display,
+.form-intro .display,
+.host-heading .display,
+.request-intro .display,
+.collection-feature .display,
+.service-feature .display {
+  font-size: var(--t-feature);
+  line-height: 0.92;
+  letter-spacing: -0.018em;
+}
+
+/* --- Card headings, collapsed from nine ad-hoc sizes to four tiers -------- */
+.principle h3,
+.pack-card h3 {
+  font-size: var(--t-card-xl);
+  line-height: 0.88;
+}
+
+.pack-card h3 {
+  margin-top: clamp(1.6rem, 2.6vw, 2.6rem);
+}
+
+.value-item h3,
+.partner-row h3 {
+  font-size: var(--t-card-lg);
+  line-height: 0.9;
+}
+
+.origin-card h3,
+.sample-card h4,
+.event-card h3,
+.host-services article h4,
+.moment-sequence li {
+  font-size: var(--t-card-md);
+  line-height: 0.98;
+}
+
+.origin-card h3,
+.event-card h3 {
+  line-height: 0.9;
+}
+
+.audience-row h4 {
+  font-size: var(--t-card-sm);
+  line-height: 1;
+}
+
+/* Body copy inside cards tracks the smaller headings so the ratio holds. */
+.principle p,
+.value-item p,
+.partner-row p,
+.sample-card p,
+.host-services article p {
+  font-size: clamp(0.92rem, 1.02vw, 1.05rem);
+  line-height: 1.5;
+}
+
+/* --- Amendment 06: reduce the coffee cards -------------------------------- */
+.origin-card figure {
+  aspect-ratio: 3 / 2;
+}
+
+.origin-card-body {
+  padding: 0.9rem 0.9rem 1rem;
+}
+
+.origin-card h3 {
+  margin: 0.85rem 0 0.5rem;
+}
+
+.origin-card-body > p:not(.altitude) {
+  font-size: 0.86rem;
+  line-height: 1.42;
+}
+
+.tasting-notes {
+  margin: 0.7rem 0 0.55rem;
+}
+
+.origin-order {
+  gap: 0.6rem;
+  padding-top: 0.85rem;
+}
+
+.origin-order legend {
+  margin-bottom: 0.35rem;
+  font-size: 0.66rem;
+}
+
+.option-pills span {
+  min-height: 2.15rem;
+  padding: 0.3rem 0.2rem;
+  font-size: 0.58rem;
+}
+
+/* Stepper and Order button share one row instead of stacking. */
+.origin-order-action {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.origin-order-action .button {
+  width: 100%;
+  padding: 0.7rem 0.6rem;
+  font-size: 0.62rem;
+}
+
+/* --- Narrow screens: the same scale, compressed ---------------------------- */
+@media (max-width: 900px) {
+  /* Caps are pinned to what the desktop clamps resolve to at exactly 900px
+     (46.4 / 38.4 / 33.6 / 29.6 / 24.8 / 21.6px), so crossing the breakpoint is
+     continuous. Without this the titles jumped *up* by ~16px as the viewport
+     got narrower. */
+  :root {
+    --t-section: clamp(2.3rem, 8.2vw, 2.95rem);
+    --t-feature: clamp(2rem, 6.9vw, 2.45rem);
+    --t-card-xl: clamp(1.8rem, 6vw, 2.15rem);
+    --t-card-lg: clamp(1.65rem, 5.3vw, 1.9rem);
+    --t-card-md: clamp(1.45rem, 4.4vw, 1.6rem);
+    --t-card-sm: clamp(1.3rem, 3.9vw, 1.4rem);
+  }
+
+  .origin-card figure {
+    aspect-ratio: 4 / 3;
+  }
+
+  .origin-order-action {
+    grid-template-columns: 1fr;
+  }
+}

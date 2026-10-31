@@ -1,0 +1,178 @@
+/* ============================================================================
+   Hero entrance.
+
+   `hero-framer-exact-revert.css` deliberately froze the hero to match the
+   Framer original: opacity:1, clip-path:none, transition:none, transform:none
+   on the logo, nav, CTA, title lines, artwork, definition and intro — plus
+   `animation: none !important` on several of them.
+
+   So this is built on CSS keyframes rather than the JS `.motion-ready` /
+   `.reveal` system, for two reasons:
+
+   1. No flash. Keyframes run from first paint. The JS system cannot hide
+      anything until `motion-ready` lands, which — because script.js bootstraps
+      through a dynamic import() — is after first paint, so a JS-driven hero
+      would show fully, blink out, then animate in.
+   2. No JS dependency. If script.js never loads, the animation still plays and
+      still ends on the exact frozen final state, because none of these use
+      `forwards` — each settles back onto the normal cascade value.
+
+   Cascade note: animation declarations already outrank the revert's *normal*
+   `transform:none` / `opacity:1` / `clip-path:none`. Only its
+   `animation: none !important` needs beating, hence `!important` here on the
+   animation property alone, with the `body.motion-ready` / `body.motion-loaded`
+   variants written out so specificity matches and later source order wins.
+   ============================================================================ */
+
+:root {
+  --hero-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes tonaHeroLine {
+  from { opacity: 0; clip-path: inset(108% 0 -20% 0); transform: translateY(18%); }
+  to   { opacity: 1; clip-path: inset(-20% 0 -20% 0); transform: translateY(0); }
+}
+
+@keyframes tonaHeroArt {
+  from { opacity: 0; transform: translateY(2.6rem) scale(0.945); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes tonaHeroFromLeft {
+  from { opacity: 0; transform: translateX(-2.1rem); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes tonaHeroFromRight {
+  from { opacity: 0; transform: translateX(2.1rem); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes tonaHeroDrop {
+  from { opacity: 0; transform: translateY(-0.85rem); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes tonaHeroMark {
+  from { opacity: 0; clip-path: inset(100% 0 0 0); transform: translateY(0.55rem) scale(0.93); }
+  to   { opacity: 1; clip-path: inset(-10% 0 -10% 0); transform: none; }
+}
+
+@keyframes tonaHeroFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* --- Masthead ------------------------------------------------------------- */
+.site-header .brand img,
+body.motion-ready .site-header .brand img,
+body.motion-loaded .site-header .brand img {
+  animation: tonaHeroMark 820ms var(--hero-ease) 60ms backwards !important;
+}
+
+.site-header .primary-navigation a,
+body.motion-ready .site-header .primary-navigation a,
+body.motion-loaded .site-header .primary-navigation a {
+  animation: tonaHeroDrop 700ms var(--hero-ease) backwards !important;
+  animation-delay: calc(180ms + var(--nav-i, 0) * 60ms);
+}
+
+.site-header .primary-navigation a:nth-child(1) { --nav-i: 0; }
+.site-header .primary-navigation a:nth-child(2) { --nav-i: 1; }
+.site-header .primary-navigation a:nth-child(3) { --nav-i: 2; }
+.site-header .primary-navigation a:nth-child(4) { --nav-i: 3; }
+.site-header .primary-navigation a:nth-child(5) { --nav-i: 4; }
+.site-header .primary-navigation a:nth-child(6) { --nav-i: 5; }
+
+.site-header .header-cta,
+body.motion-ready .site-header .header-cta,
+body.motion-loaded .site-header .header-cta {
+  animation: tonaHeroDrop 700ms var(--hero-ease) 520ms backwards !important;
+}
+
+/* --- Title. The two lines mask upward in sequence. The parent keeps its
+       scaleX(1.085) at >=1101px untouched, because only the spans animate. --- */
+.hero#home .display-hero span:first-child,
+body.motion-ready .hero#home .display-hero span:first-child,
+body.motion-loaded .hero#home .display-hero span:first-child {
+  animation: tonaHeroLine 1120ms var(--hero-ease) 200ms backwards !important;
+}
+
+.hero#home .display-hero span:last-child,
+body.motion-ready .hero#home .display-hero span:last-child,
+body.motion-loaded .hero#home .display-hero span:last-child {
+  animation: tonaHeroLine 1120ms var(--hero-ease) 340ms backwards !important;
+}
+
+/* --- Artwork, definition, intro, play mark -------------------------------- */
+.hero#home .hero-media,
+body.motion-ready .hero#home .hero-media,
+body.motion-loaded .hero#home .hero-media {
+  animation: tonaHeroArt 1250ms var(--hero-ease) 430ms backwards !important;
+}
+
+.hero#home .definition,
+body.motion-ready .hero#home .definition,
+body.motion-loaded .hero#home .definition {
+  animation: tonaHeroFromLeft 980ms var(--hero-ease) 640ms backwards !important;
+}
+
+.hero#home .hero-intro,
+body.motion-ready .hero#home .hero-intro,
+body.motion-loaded .hero#home .hero-intro {
+  animation: tonaHeroFromRight 980ms var(--hero-ease) 720ms backwards !important;
+}
+
+.hero#home .original-hero-play,
+body.motion-ready .hero#home .original-hero-play,
+body.motion-loaded .hero#home .original-hero-play {
+  animation: tonaHeroFade 900ms var(--hero-ease) 950ms backwards !important;
+}
+
+.hero#home .kicker,
+.hero#home .hero-copy {
+  animation: tonaHeroFade 900ms var(--hero-ease) 600ms backwards;
+}
+
+/* --- Reduced motion: land straight on the frozen final state -------------- */
+@media (prefers-reduced-motion: reduce) {
+  .site-header .brand img,
+  body.motion-ready .site-header .brand img,
+  body.motion-loaded .site-header .brand img,
+  .site-header .primary-navigation a,
+  body.motion-ready .site-header .primary-navigation a,
+  body.motion-loaded .site-header .primary-navigation a,
+  .site-header .header-cta,
+  body.motion-ready .site-header .header-cta,
+  body.motion-loaded .site-header .header-cta,
+  .hero#home .display-hero span:first-child,
+  body.motion-ready .hero#home .display-hero span:first-child,
+  body.motion-loaded .hero#home .display-hero span:first-child,
+  .hero#home .display-hero span:last-child,
+  body.motion-ready .hero#home .display-hero span:last-child,
+  body.motion-loaded .hero#home .display-hero span:last-child,
+  .hero#home .hero-media,
+  body.motion-ready .hero#home .hero-media,
+  body.motion-loaded .hero#home .hero-media,
+  .hero#home .definition,
+  body.motion-ready .hero#home .definition,
+  body.motion-loaded .hero#home .definition,
+  .hero#home .hero-intro,
+  body.motion-ready .hero#home .hero-intro,
+  body.motion-loaded .hero#home .hero-intro,
+  .hero#home .original-hero-play,
+  body.motion-ready .hero#home .original-hero-play,
+  body.motion-loaded .hero#home .original-hero-play,
+  .hero#home .kicker,
+  .hero#home .hero-copy {
+    animation: none !important;
+  }
+}
+
+/* The entrance translates .hero-intro in from +2.1rem, which briefly reaches
+   past the right edge. The hero already clips (the artwork bleeds without
+   producing a scrollbar), but state this explicitly so the animation can never
+   introduce a horizontal scrollbar. */
+.hero#home {
+  overflow-x: clip;
+}

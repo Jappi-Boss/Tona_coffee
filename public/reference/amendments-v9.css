@@ -1,0 +1,120 @@
+/* ============================================================================
+   One-page merge — 25 Sep 2026.
+
+   The About, Coffee, For Business and Contact pages were folded back into the
+   landing page (their URLs redirect to the matching anchors via vercel.json).
+   The client asked for the illustrations to carry every section, so each
+   section now opens with a "lead": its heading beside one illustration.
+   Photographs appear only where the subject is the product in hand (own
+   label) or people at the table (feedback), always as the secondary image.
+
+   .section-lead          heading | art, art on the right
+   .section-lead--flip    art | heading, used inside the coffee section so the
+                          House Blend and Export leads do not stack identically
+   .section-art           4:3 illustration, cropped consistently
+   .section-art--portrait 4:5 photograph at a narrower measure
+   ========================================================================== */
+
+.section-lead {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: clamp(2rem, 5vw, 5.5rem);
+  align-items: center;
+}
+
+.section-lead--flip { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); }
+.section-lead--flip > .section-art { order: -1; }
+
+.section-lead > .section-heading,
+.section-lead > .quotation-intro {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.section-lead + * { margin-top: clamp(2.5rem, 5vw, 4.5rem); }
+
+.section-art { margin: 0; }
+
+.section-art img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.section-art--portrait {
+  justify-self: center;
+  width: min(100%, 26rem);
+}
+
+.section-art--portrait img {
+  aspect-ratio: 4 / 5;
+  object-position: 50% 35%;
+}
+
+.section-art figcaption {
+  margin-top: 0.85rem;
+  font-family: var(--mono, monospace);
+  font-size: var(--label, 0.75rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: inherit;
+  opacity: 0.7;
+}
+
+/* Merged subsections: "The name" (About) and "How it starts" / "Own label"
+   (For Business). One step below the section title in size. */
+.name-block,
+.own-label,
+.business-steps { margin-top: clamp(4rem, 8vw, 7rem); }
+
+.name-block,
+.own-label { align-items: center; }
+
+.name-title,
+.subsection-heading .display {
+  margin: 0.6rem 0 1.2rem;
+  font-size: clamp(2.6rem, 5vw, 5rem);
+  line-height: 0.9;
+}
+
+.subsection-heading .section-intro { max-width: 46ch; }
+.business-steps .step-list { margin-top: clamp(2rem, 4vw, 3rem); }
+.own-label .host-requirements { margin: 1.5rem 0 2rem; }
+
+@media (max-width: 900px) {
+  .section-lead,
+  .section-lead--flip { grid-template-columns: minmax(0, 1fr); }
+
+  .section-lead--flip > .section-art { order: 0; }
+  .section-art { max-width: 40rem; }
+
+  .section-art--portrait {
+    justify-self: start;
+    width: min(100%, 22rem);
+  }
+}
+
+/* The export block is a grid item, so its min-width defaulted to its content;
+   on phones the origin cards pushed it 23px past the gutter to the screen edge. */
+.coffee-split > .export-block { min-width: 0; }
+
+/* Same cause one level down: the export block and the single-column origin
+   grid had a ~351px track minimum, wider than a phone's content column. */
+@media (max-width: 560px) {
+  #coffee .export-block,
+  #coffee .origin-grid,
+  #coffee .export-rail { grid-template-columns: minmax(0, 1fr); }
+  #coffee .export-rail > * { min-width: 0; }
+  #coffee .export-rail .button { white-space: normal; text-align: left; }
+}
+
+/* Leads sit inside other grids (the export block); stop them and their
+   children sizing to their longest word. */
+.section-lead,
+.section-lead > * { min-width: 0; }
+
+/* "Tona" in Ritual Ember inside the Abol. Tona. Bereka. story (client, 25 Sep). */
+.tona-word { color: var(--ember, #ef4a28); }

@@ -1,3 +1,4 @@
+import { referenceSections } from "./reference-sections";
 import genericCoffeeImage from "@/assets/beans.jpg";
 import { MapPin, Phone, Instagram } from "lucide-react";
 import {
@@ -439,7 +440,7 @@ function ReferenceHero() {
               longer. This is where Tona belongs.
             </p>
             <div className="button-row">
-              <a href="#orders">
+              <a href="#coffee">
                 Explore our coffee <span aria-hidden="true">↓</span>
               </a>
             </div>
@@ -483,146 +484,10 @@ function ReferenceHero() {
 
 function ReferenceAboutSection() {
   return (
-    <section
-      className="about section motion-section section-cinema"
-      id="story"
-      aria-labelledby="story-title"
-    >
-      <SectionHeading
-        id="story-title"
-        index="01 / About Tona"
-        titleLabel="Some conversationsneed more time."
-        title={
-          <>
-            <RevealWords words={["Some", "conversations"]} />
-            <br />
-            <RevealWords words={["need", "more", "time."]} startAt={2} />
-          </>
-        }
-      />
-
-      <div className="about-layout">
-        <div className="about-copy reveal">
-          <p className="lead motion-copy">
-            Born from Ethiopia’s coffee culture and inspired by the second round
-            of the coffee ceremony, Tona is an African-led specialty roaster
-            rooted in Ethiopia’s coffee heartlands.
-          </p>
-          <div className="copy-columns">
-            <p className="motion-copy">
-              The first cup brings people together. The second is where
-              formalities fade, ideas deepen, people listen, question, laugh,
-              reflect and connect. This is where Tona belongs.
-            </p>
-            <p className="motion-copy">
-              It is about more than the coffee in the cup. It is about what
-              happens around the cup—origin, careful roasting, hospitality and
-              the conversations that shared coffee makes possible.
-            </p>
-          </div>
-        </div>
-
-        <figure className="about-art reveal motion-media parallax-media">
-          <img
-            src={REFERENCE_IMAGES.about}
-            width="1448"
-            height="1086"
-            alt="Two Ethiopian women sharing the second round of a traditional coffee ceremony"
-            loading="lazy"
-            decoding="async"
-          />
-          <figcaption>
-            The coffee creates the pause. The moment creates the meaning.
-          </figcaption>
-        </figure>
-      </div>
-
-      <div className="moment-block">
-        <div className="moment-intro reveal">
-          <p className="mono-label">A moment for everyone</p>
-          <h3
-            className="display word-reveal motion-heading"
-            aria-label="Around the cup,we come closer."
-          >
-            <RevealWords words={["Around", "the", "cup"]} />
-            <br />
-            <RevealWords words={["we", "come", "closer."]} startAt={3} />
-          </h3>
-          <p className="section-intro motion-copy">
-            Five reasons people stay for the second round—and what Tona brings
-            to each of them.
-          </p>
-        </div>
-
-        <div className="moment-grid">
-          {(
-            [
-              [
-                "01",
-                "For friends",
-                "Another round is how an evening keeps going.",
-                "Connection",
-                "people",
-              ],
-              [
-                "02",
-                "For colleagues",
-                "Where a discussion moves past the agenda.",
-                "Quality",
-                "briefcase",
-              ],
-              [
-                "03",
-                "For partners",
-                "Space for ideas, decisions and the trust behind them.",
-                "Origin",
-                "handshake",
-              ],
-              [
-                "04",
-                "For families",
-                "The oldest reason to gather, poured not explained.",
-                "Culture",
-                "family",
-              ],
-              [
-                "05",
-                "For yourself",
-                "A deliberate pause, and a cup worth the time.",
-                "Craft",
-                "cup",
-              ],
-            ] as const
-          ).map(([number, title, text, tag, icon], index) => (
-            <article className="moment-card reveal" key={number}>
-              <span className="moment-no">{number}</span>
-              <MomentIcon type={icon} delay={index * 80} />
-              <CinematicHeading as="h4" text={title} />
-              <p>{text}</p>
-              <span className="moment-tag">{tag}</span>
-            </article>
-          ))}
-        </div>
-      </div>
-
-      <div className="vision-mission reveal">
-        <article className="motion-copy">
-          <p className="mono-label">Vision</p>
-          <p>
-            To see African coffee recognized globally for excellence, while
-            creating value for communities and inspiring cultural pride.
-          </p>
-        </article>
-        <article className="motion-copy">
-          <p className="mono-label">Mission</p>
-          <p>
-            We source responsibly, roast carefully, and create meaningful coffee
-            experiences that connect people with Ethiopian coffee, culture and
-            origin.
-          </p>
-        </article>
-      </div>
-    </section>
+    <div
+      style={{ display: "contents" }}
+      dangerouslySetInnerHTML={{ __html: referenceSections.story }}
+    />
   );
 }
 
@@ -710,58 +575,113 @@ function ReferenceCoffeeSection() {
       id="coffee"
       aria-labelledby="coffee-title"
     >
-      <SectionHeading
-        id="coffee-title"
-        index="02 / Our coffee"
-        titleLabel="Ethiopian coffee. Sourced for export."
-        title={
-          <>
-            <RevealWords words={["Ethiopian", "coffee."]} />
-            <br />
-            <span className="ember">
-              <RevealWords words={["Sourced", "for", "export."]} startAt={2} />
-            </span>
-          </>
-        }
-        intro="We source and export premium Ethiopian green coffee for roasters, importers, and traders worldwide. From regions such as Gedeo, Sidama, Oromia, and Jimma, we source to your quality, profile, and volume requirements—and deliver to your door."
-      />
-
-      <div className="origin-grid" aria-live="polite">
-        {products === null ? (
-          <p className="section-intro">Loading the current coffee catalogue…</p>
-        ) : products.length ? (
-          products.map((product) => (
-            <OriginCard key={product.id} origin={product} />
-          ))
-        ) : (
+      <div className="section-lead">
+        <div className="section-heading reveal">
+          <p className="section-index">02 / Our coffee</p>
+          <h2 id="coffee-title" className="display coffee-product-title">
+            House Blend.
+          </h2>
+          <p className="coffee-product-subtitle">Ethiopia in every cup.</p>
           <p className="section-intro">
-            {catalogError || "No published coffees are available right now."}
+            Our House Blend brings together the best of Ethiopia&rsquo;s coffee
+            lands in one roast. It&rsquo;s smooth, balanced, and built for
+            everyday moments, your morning start, your work break, your second
+            round with the people you love. This is Tona at home.
           </p>
-        )}
+        </div>
+        <figure className="section-art reveal">
+          <img
+            src="https://tona-coffee-two.vercel.app/assets/art/roasting-pan.webp"
+            width="1200"
+            height="900"
+            alt="Tona House Blend being poured into ceremony cups while a bag of House Blend is shown"
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption>Our House Blend, poured for the second round.</figcaption>
+        </figure>
       </div>
 
-      <div className="export-rail reveal">
-        <div>
-          <p className="mono-label">Sample first</p>
-          <p>
-            Any origin ships as a 100g sample before a single bag is committed.
-          </p>
+      <div className="coffee-split">
+        <div className="export-block">
+          <div className="section-lead section-lead--flip">
+            <div className="section-heading reveal">
+              <p className="section-index">For export green coffee.</p>
+              <h3 className="display coffee-product-title coffee-product-title--split">
+                <span className="product-line product-line--sun">
+                  Ethiopian coffee.
+                </span>{" "}
+                <span className="product-line product-line--ember">
+                  Sourced for export.
+                </span>
+              </h3>
+              <p className="section-intro">
+                We source and export premium Ethiopian green coffee for
+                roasters, importers, and traders worldwide. From regions such as{" "}
+                <i className="region-name">Yirgacheffe</i>,{" "}
+                <i className="region-name">Sidama</i>,{" "}
+                <i className="region-name">Guji</i>, and{" "}
+                <i className="region-name">Jimma</i>, we source to your quality,
+                profile, and volume requirements and deliver to your door.
+              </p>
+            </div>
+            <figure className="section-art reveal">
+              <img
+                src="https://tona-coffee-two.vercel.app/assets/art/highland-harvest.webp"
+                width="1200"
+                height="900"
+                alt="Harvest in the Ethiopian highlands, with coffee drying on raised beds and sacks of green coffee"
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>Yirgacheffe, Sidama, Guji and Jimma.</figcaption>
+            </figure>
+          </div>
+
+          <div className="origin-grid" aria-live="polite">
+            {products === null ? (
+              <p className="section-intro">
+                Loading the current coffee catalogue…
+              </p>
+            ) : products.length ? (
+              products.map((product) => (
+                <OriginCard key={product.id} origin={product} />
+              ))
+            ) : (
+              <p className="section-intro">
+                {catalogError ||
+                  "No published coffees are available right now."}
+              </p>
+            )}
+          </div>
+
+          <div className="export-rail reveal">
+            <div>
+              <p className="mono-label">Sample first</p>
+              <p>
+                Any origin ships as a 100g sample before a single bag is
+                committed.
+              </p>
+            </div>
+            <div>
+              <p className="mono-label">Lot documents</p>
+              <p>
+                Origin, process, altitude and cupping notes travel with every
+                offer.
+              </p>
+            </div>
+            <div>
+              <p className="mono-label">Volume</p>
+              <p>
+                Quoted per contract, against your shipping window and
+                destination.
+              </p>
+            </div>
+            <a className="button button-primary" href="#orders">
+              Start an export request <span aria-hidden="true">↓</span>
+            </a>
+          </div>
         </div>
-        <div>
-          <p className="mono-label">Lot documents</p>
-          <p>
-            Origin, process, altitude and cupping notes travel with every offer.
-          </p>
-        </div>
-        <div>
-          <p className="mono-label">Volume</p>
-          <p>
-            Quoted per contract, against your shipping window and destination.
-          </p>
-        </div>
-        <a className="button button-primary" href="#orders">
-          Start an export request <span aria-hidden="true">↓</span>
-        </a>
       </div>
     </section>
   );
@@ -813,128 +733,20 @@ function PrincipleIcon({ type }: { type: "handshake" | "eye" | "link" }) {
 }
 
 function ReferenceDifferenceSection() {
-  const principles = [
-    [
-      "01",
-      "handshake",
-      "Dignity in every handshake.",
-      "We build relationships that recognise the knowledge, labour and ambition behind every coffee.",
-    ],
-    [
-      "02",
-      "eye",
-      "Radical transparency.",
-      "Clear conversations, traceable Ethiopian origins, consistent roast profiles and a shared understanding of quality.",
-    ],
-    [
-      "03",
-      "link",
-      "Partnership, not transaction.",
-      "We commit to the relationship before the order — and everything below comes with it.",
-    ],
-  ] as const;
-
   return (
-    <section
-      className="difference section motion-section section-cinema"
-      id="difference"
-      aria-labelledby="difference-title"
-    >
-      <SectionHeading
-        id="difference-title"
-        index="03 / The difference"
-        titleLabel="The codewe live by."
-        title={
-          <>
-            <RevealWords words={["The", "code"]} />
-            <br />
-            <RevealWords words={["we", "live", "by."]} startAt={2} />
-          </>
-        }
-      />
-      <div className="principle-list">
-        {principles.map(([number, icon, title, text]) => (
-          <article className="principle reveal motion-card" key={number}>
-            <span className="principle-no">{number}</span>
-            <span className="principle-icon" aria-hidden="true">
-              <PrincipleIcon type={icon} />
-            </span>
-            <CinematicHeading as="h3" text={title} />
-            <p>{text}</p>
-          </article>
-        ))}
-      </div>
-    </section>
+    <div
+      style={{ display: "contents" }}
+      dangerouslySetInnerHTML={{ __html: referenceSections.difference }}
+    />
   );
 }
 
 function ReferenceBusinessSection() {
   return (
-    <section
-      className="business section motion-section section-cinema"
-      id="business"
-      aria-labelledby="business-title"
-    >
-      <SectionHeading
-        id="business-title"
-        index="04 / For business"
-        titleLabel="Long-term partnerships.Not one-time orders."
-        title={
-          <>
-            <RevealWords words={["Long-term", "partnerships."]} />
-            <br />
-            <RevealWords words={["Not", "one-time", "orders."]} startAt={2} />
-          </>
-        }
-        intro="We build around each partner—from neighbourhood cafés to international distributors—with supply, guidance and storytelling support included."
-      />
-
-      <div className="partner-list">
-        {PARTNERS.map(([title, text, icon], index) => (
-          <article className="partner-row reveal motion-card" key={title}>
-            <span>{String(index + 1).padStart(2, "0")}</span>
-            <AmendIcon type={icon} delay={index * 80} />
-            <CinematicHeading as="h3" text={title} />
-            <p>{text}</p>
-          </article>
-        ))}
-      </div>
-
-      <div className="sample-layout">
-        <figure className="sample-media reveal motion-media parallax-media">
-          <img
-            src={REFERENCE_IMAGES.business}
-            width="1800"
-            height="2377"
-            alt="Two women sharing Tona coffee during a contemporary Ethiopian coffee ceremony"
-            loading="lazy"
-            decoding="async"
-          />
-        </figure>
-        <div className="sample-statement reveal">
-          <p className="mono-label">Samples</p>
-          <h3 className="display">
-            A hundred grams.
-            <br />
-            <span className="ember">Enough to know.</span>
-          </h3>
-          <p>
-            Every Tona coffee—each export origin and the House Blend—ships as a
-            <strong> 100g sample</strong> before anything is committed. Enough
-            for a full cupping, a staff tasting and a second opinion. Tell us
-            which one, and it is on its way.
-          </p>
-          <a
-            className="button button-primary"
-            href={waLink("Hi Tona, I'd like to request a 100g sample.")}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Request a 100g sample <span aria-hidden="true">↗</span>
-          </a>
-        </div>
-      </div>
-    </section>
+    <div
+      style={{ display: "contents" }}
+      dangerouslySetInnerHTML={{ __html: referenceSections.business }}
+    />
   );
 }
 
@@ -1008,7 +820,17 @@ async function submitQuotationForm(
     `Monthly volume: ${formText(data, "volume")}`,
     `Message: ${formText(data, "message")}`,
   ].join("\n");
-  const popup = prepareWhatsAppWindow();
+  const channel =
+    (event.nativeEvent as SubmitEvent).submitter?.getAttribute("data-send") ||
+    "whatsapp";
+  const popup = channel === "whatsapp" ? prepareWhatsAppWindow() : null;
+  const openEmail = (message: string) => {
+    window.location.href =
+      "mailto:info@tonacoffee.et?subject=" +
+      encodeURIComponent("Tona Coffee enquiry") +
+      "&body=" +
+      encodeURIComponent(message);
+  };
 
   try {
     const result = await submitQuotation({
@@ -1024,16 +846,19 @@ async function submitQuotationForm(
         message: optionalFormText(data, "message"),
       },
     });
-    finishWhatsAppWindow(
-      popup,
-      result.whatsappMessage,
-      Boolean(result.whatsappSent),
-    );
+    if (channel === "email") openEmail(result.whatsappMessage);
+    else
+      finishWhatsAppWindow(
+        popup,
+        result.whatsappMessage,
+        Boolean(result.whatsappSent),
+      );
     setStatus(
       `Quotation ${result.quoteNumber} saved. ${result.emailSent ? "Email sent. " : ""}${result.whatsappSent ? "WhatsApp notification sent." : "WhatsApp message is ready for you to send."}`,
     );
   } catch (error) {
-    finishWhatsAppWindow(popup, fallbackMessage);
+    if (channel === "email") openEmail(fallbackMessage);
+    else finishWhatsAppWindow(popup, fallbackMessage);
     setStatus(
       error instanceof Error && /required|valid/i.test(error.message)
         ? error.message
@@ -1061,7 +886,17 @@ async function submitRequestForm(
     `Coffee interest: ${coffeeInterest}`,
     `Message: ${message}`,
   ].join("\n");
-  const popup = prepareWhatsAppWindow();
+  const channel =
+    (event.nativeEvent as SubmitEvent).submitter?.getAttribute("data-send") ||
+    "whatsapp";
+  const popup = channel === "whatsapp" ? prepareWhatsAppWindow() : null;
+  const openEmail = (message: string) => {
+    window.location.href =
+      "mailto:info@tonacoffee.et?subject=" +
+      encodeURIComponent("Tona Coffee enquiry") +
+      "&body=" +
+      encodeURIComponent(message);
+  };
 
   try {
     const result = await submitContactRequest({
@@ -1075,12 +910,19 @@ async function submitRequestForm(
         message: message || "No additional message.",
       },
     });
-    finishWhatsAppWindow(popup, whatsappMessage, Boolean(result.whatsappSent));
+    if (channel === "email") openEmail(whatsappMessage);
+    else
+      finishWhatsAppWindow(
+        popup,
+        whatsappMessage,
+        Boolean(result.whatsappSent),
+      );
     setStatus(
       `Request saved. ${result.emailSent ? "Email sent. " : ""}${result.whatsappSent ? "WhatsApp notification sent." : "WhatsApp message is ready for you to send."}`,
     );
   } catch (error) {
-    finishWhatsAppWindow(popup, whatsappMessage);
+    if (channel === "email") openEmail(whatsappMessage);
+    else finishWhatsAppWindow(popup, whatsappMessage);
     setStatus(
       error instanceof Error && /required|valid/i.test(error.message)
         ? error.message
@@ -1378,7 +1220,6 @@ function ReferenceEventDialog({
               : busy
                 ? "Saving registration…"
                 : "Register on WhatsApp"}{" "}
-            <span aria-hidden="true">↗</span>
           </button>
           <p className="form-status" role="status">
             {status || "Registration is confirmed by the Tona team."}
@@ -1514,7 +1355,6 @@ function ReferenceEventsSection() {
                   onClick={() => setSelected(event)}
                 >
                   {event.registrationOpen ? "Register" : "Closed"}{" "}
-                  <span aria-hidden="true">↗</span>
                 </button>
               </article>
             ))
@@ -1691,7 +1531,7 @@ function ReferenceEventsSection() {
             type="submit"
             disabled={hostBusy}
           >
-            Submit event on WhatsApp <span aria-hidden="true">↗</span>
+            Submit event on WhatsApp
           </button>
           <p className="form-status" role="status">
             {status}
@@ -1755,7 +1595,7 @@ function ReferenceOrdersSection() {
       aria-labelledby="orders-title"
     >
       <div className="quotation-intro reveal">
-        <p className="section-index">06 / Order &amp; enquire</p>
+        <p className="section-index">05 / Order &amp; enquire</p>
         <h2
           id="orders-title"
           className="display word-reveal motion-heading"
@@ -1944,15 +1784,26 @@ function ReferenceOrdersSection() {
             type="submit"
             disabled={quoteBusy}
           >
-            {quoteBusy ? "Saving quotation…" : "Prepare WhatsApp quotation"}{" "}
-            <span aria-hidden="true">↗</span>
+            {quoteBusy ? "Saving quotation…" : "Send on WhatsApp"}{" "}
           </button>
+          <button
+            className="button button-outline"
+            type="submit"
+            data-send="email"
+            disabled={quoteBusy || requestBusy}
+          >
+            Send by email
+          </button>
+          <p className="send-note">
+            WhatsApp reaches the team fastest. Email goes to info@tonacoffee.et.
+          </p>
           <p className="form-status" role="status">
             {quoteStatus}
           </p>
         </form>
 
         <form
+          id="contact"
           className="request-form reveal motion-card"
           onSubmit={async (event) => {
             event.preventDefault();
@@ -2009,6 +1860,7 @@ function ReferenceOrdersSection() {
                 <option>Retail order</option>
                 <option>Export enquiry</option>
                 <option>Wholesale / business supply</option>
+                <option>Local Distribution</option>
                 <option>Sample request (100g)</option>
                 <option>Event or collaboration</option>
                 <option>Feedback</option>
@@ -2032,9 +1884,19 @@ function ReferenceOrdersSection() {
             type="submit"
             disabled={requestBusy}
           >
-            {requestBusy ? "Saving request…" : "Send request on WhatsApp"}{" "}
-            <span aria-hidden="true">↗</span>
+            {requestBusy ? "Saving request…" : "Send on WhatsApp"}{" "}
           </button>
+          <button
+            className="button button-outline"
+            type="submit"
+            data-send="email"
+            disabled={quoteBusy || requestBusy}
+          >
+            Send by email
+          </button>
+          <p className="send-note">
+            WhatsApp reaches the team fastest. Email goes to info@tonacoffee.et.
+          </p>
           <p className="form-status" role="status">
             {requestStatus}
           </p>
@@ -2389,7 +2251,7 @@ function ReferenceFindUsSection() {
   return (
     <section
       className="findus section section-dark motion-section section-cinema"
-      id="contact"
+      id="stockists"
       aria-labelledby="findus-title"
     >
       <SectionHeading
@@ -2442,7 +2304,7 @@ function ReferenceFindUsSection() {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          View on Google Maps ↗
+                          View on Google Maps
                         </a>
                       )}
                     </dd>
@@ -2497,7 +2359,7 @@ function ReferenceFindUsSection() {
                 rel="noopener noreferrer"
                 aria-label={`Directions to ${stockist.name}`}
               >
-                Directions <span aria-hidden="true">↗</span>
+                Directions
               </a>
             </li>
           ))}
@@ -2748,7 +2610,7 @@ function ReferenceFeedbackSection() {
             className="button button-primary feedback-submit"
             type="submit"
           >
-            Send feedback <span aria-hidden="true">↗</span>
+            Send feedback
           </button>
           <p className="form-status" role="status">
             {status}
@@ -2764,11 +2626,10 @@ export function ReferenceHome() {
     <ReferencePage>
       <ReferenceHero />
       <ReferenceAboutSection />
-      <ReferenceOrdersSection />
       <ReferenceCoffeeSection />
       <ReferenceDifferenceSection />
       <ReferenceBusinessSection />
-      <ReferenceEventsSection />
+      <ReferenceOrdersSection />
       <ReferenceFindUsSection />
       <ReferenceFeedbackSection />
     </ReferencePage>
@@ -2787,7 +2648,6 @@ export function ReferenceAboutPage() {
 export function ReferenceCoffeePage() {
   return (
     <ReferencePage>
-      <ReferenceOrdersSection />
       <ReferenceCoffeeSection />
     </ReferencePage>
   );

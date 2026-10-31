@@ -1,0 +1,531 @@
+/* ============================================================================
+   Round eight — client amendments, 17 Sep 2026.
+
+   Covers:
+   - The brand-mark intro and its handoff into the existing hero entrance.
+   - Hero: play mark moved clear of the artwork, intro copy given its own space.
+   - Section 02 rebuilt: House Blend first, export second.
+   - The quotation's two-way send (WhatsApp + email).
+   - Shared furniture for the five new pages (their own layouts live in
+     pages-v5.css).
+
+   Imported last, so plain specificity is enough to win almost everywhere. The
+   exception is amendments-hero.css, which uses `animation: ... !important` to
+   beat hero-framer-exact-revert.css's `animation: none !important`. To retime
+   those animations for the intro we therefore need `!important` of our own,
+   and the `html.tona-intro` prefix supplies the extra specificity.
+   ========================================================================== */
+
+:root {
+  /* How long the hero waits while the intro plays. The curtain starts lifting
+     at 1750ms, so the hero is already in motion as it clears — that overlap is
+     what makes it read as one continuous move rather than two sequences. */
+  --intro-hold: 1800ms;
+  --intro-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ==========================================================================
+   1 · The intro
+   ========================================================================== */
+
+/* Hidden by default. Only the inline gate in index.html turns it on, so with
+   JS disabled — or on a second page view in the same session — it never
+   paints at all. */
+.tona-intro { display: none; }
+
+html.tona-intro-on .tona-intro {
+  display: grid;
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  place-items: center;
+  background: var(--black, #000);
+  animation: tonaIntroCurtain 760ms var(--intro-ease) 1750ms forwards;
+}
+
+/* The lockup reproduces the proportions of tona-logo-light.png exactly
+   (640 × 304, mark occupying x 0–201.5, wordmark x 270–640) so the intro and
+   the header logo are the same artwork at different scales. */
+html.tona-intro-on .tona-intro-lockup {
+  position: relative;
+  width: min(30rem, 62vw);
+  aspect-ratio: 640 / 304;
+  animation: tonaIntroHandoff 900ms var(--intro-ease) 1700ms forwards;
+}
+
+html.tona-intro-on .tona-intro-mark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 31.48%;
+  height: 100%;
+}
+
+/* Each shape is its own absolutely-positioned layer holding the whole
+   viewBox, so the four parts register perfectly on top of one another and can
+   be clipped as ordinary HTML boxes. Clipping SVG children directly with
+   inset() is far less predictable across engines. */
+html.tona-intro-on .tin-part {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+html.tona-intro-on .tin-part svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+html.tona-intro-on .tin-part path { fill: var(--ember, #ef4a28); }
+
+/* Beat 1 — the bean arrives. */
+html.tona-intro-on .tin-bean {
+  animation: tonaIntroBean 680ms var(--intro-ease) 140ms backwards;
+}
+
+/* Beat 2 — the bowl fills downward, like a pour. */
+html.tona-intro-on .tin-bowl {
+  animation: tonaIntroPour 720ms var(--intro-ease) 430ms backwards;
+}
+
+/* Beat 3 — the arc and base rule open outward from the centre. */
+html.tona-intro-on .tin-arc {
+  animation: tonaIntroOpen 620ms var(--intro-ease) 800ms backwards;
+}
+
+/* Beat 4 — the stem drops in and the mark is complete. */
+html.tona-intro-on .tin-stem {
+  animation: tonaIntroStem 420ms var(--intro-ease) 1020ms backwards;
+}
+
+/* Beat 5 — the wordmark wipes in and it becomes the logo. */
+html.tona-intro-on .tona-intro-word {
+  position: absolute;
+  top: 5.26%;
+  left: 42.19%;
+  width: 57.81%;
+  height: 88.49%;
+  object-fit: contain;
+  animation: tonaIntroWord 660ms var(--intro-ease) 1140ms backwards;
+}
+
+@keyframes tonaIntroBean {
+  from { opacity: 0; transform: translateY(-14%) scale(0.72); }
+  60%  { opacity: 1; }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes tonaIntroPour {
+  from { clip-path: inset(0 0 100% 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes tonaIntroOpen {
+  from { clip-path: inset(0 50% 0 50%); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes tonaIntroStem {
+  from { opacity: 0; clip-path: inset(0 0 100% 0); }
+  to   { opacity: 1; clip-path: inset(0 0 0 0); }
+}
+
+@keyframes tonaIntroWord {
+  from { opacity: 0; clip-path: inset(0 100% 0 0); transform: translateX(-2%); }
+  to   { opacity: 1; clip-path: inset(0 0 0 0); transform: none; }
+}
+
+/* The lockup shrinks and drifts up-left toward the masthead as the curtain
+   goes, so the eye is carried to where the logo actually lives. Not a
+   pixel-exact morph onto the header mark — that would need per-breakpoint
+   measurement for a gesture the eye reads in 200ms. */
+@keyframes tonaIntroHandoff {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translate3d(-12%, -22%, 0) scale(0.34); }
+}
+
+@keyframes tonaIntroCurtain {
+  from { opacity: 1; visibility: visible; }
+  92%  { opacity: 0; }
+  to   { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+/* ==========================================================================
+   2 · Hero retiming while the intro plays
+
+   Each delay below is the value in amendments-hero.css plus --intro-hold.
+   `backwards` is already on every one of those animations, so the elements
+   stay in their from-state for the whole hold instead of flashing.
+   ========================================================================== */
+
+html.tona-intro-on .site-header .brand img {
+  animation-delay: calc(60ms + var(--intro-hold)) !important;
+}
+
+html.tona-intro-on .site-header .primary-navigation a {
+  animation-delay: calc(180ms + var(--nav-i, 0) * 60ms + var(--intro-hold)) !important;
+}
+
+html.tona-intro-on .site-header .header-cta {
+  animation-delay: calc(520ms + var(--intro-hold)) !important;
+}
+
+html.tona-intro-on .hero#home .display-hero span:first-child {
+  animation-delay: calc(200ms + var(--intro-hold)) !important;
+}
+
+html.tona-intro-on .hero#home .display-hero span:last-child {
+  animation-delay: calc(340ms + var(--intro-hold)) !important;
+}
+
+html.tona-intro-on .hero#home .hero-media {
+  animation-delay: calc(430ms + var(--intro-hold)) !important;
+}
+
+html.tona-intro-on .hero#home .definition {
+  animation-delay: calc(640ms + var(--intro-hold)) !important;
+}
+
+html.tona-intro-on .hero#home .hero-intro {
+  animation-delay: calc(720ms + var(--intro-hold)) !important;
+}
+
+html.tona-intro-on .hero#home .original-hero-play {
+  animation-delay: calc(950ms + var(--intro-hold)) !important;
+}
+
+html.tona-intro-on .hero#home .kicker,
+html.tona-intro-on .hero#home .hero-copy {
+  animation-delay: calc(600ms + var(--intro-hold)) !important;
+}
+
+/* The scroll lock is deliberately NOT here. Locking in CSS and unlocking in JS
+   fails closed: if the module chain is slow or broken the visitor gets a page
+   they cannot scroll. amendments-v5.js sets and clears it instead, so the worst
+   case is no lock at all — which nobody notices. */
+
+/* Belt and braces — the inline gate already checks this, but a user who flips
+   the setting mid-session should never see the curtain. */
+@media (prefers-reduced-motion: reduce) {
+  html.tona-intro-on .tona-intro { display: none; }
+  html.tona-intro-on body { overflow: visible; }
+  html.tona-intro-on .site-header .brand img,
+  html.tona-intro-on .site-header .primary-navigation a,
+  html.tona-intro-on .site-header .header-cta,
+  html.tona-intro-on .hero#home .display-hero span:first-child,
+  html.tona-intro-on .hero#home .display-hero span:last-child,
+  html.tona-intro-on .hero#home .hero-media,
+  html.tona-intro-on .hero#home .definition,
+  html.tona-intro-on .hero#home .hero-intro,
+  html.tona-intro-on .hero#home .original-hero-play,
+  html.tona-intro-on .hero#home .kicker,
+  html.tona-intro-on .hero#home .hero-copy {
+    animation: none !important;
+  }
+}
+
+/* ==========================================================================
+   3 · Hero — play mark and intro copy (client item 8)
+
+   Measured at 1512 × 900 before the change:
+   - artwork  .hero-media  spans 32.35% → ~67.65%
+   - play mark sat at left 68.3% with translate(-50%), i.e. 976px → 1088px,
+     which put its left half over the artwork and its right edge over the
+     opening paragraph at 1080px.
+   Both overlaps are removed by moving it into the clear band on the right,
+   above the paragraph and outboard of the artwork.
+   ========================================================================== */
+
+@media (min-width: 1101px) {
+  .hero#home .original-hero-play {
+    top: auto;
+    left: auto;
+    right: clamp(1.25rem, 1.45vw, 1.6rem);
+    bottom: calc(clamp(6rem, 20.5vh, 13.5rem) + 12.5rem);
+    width: clamp(5rem, 5.8vw, 6.25rem);
+    transform: none;
+  }
+
+  .hero#home .original-hero-play:hover {
+    transform: rotate(8deg);
+  }
+
+  /* The opening paragraph is the one piece of hero copy that has to be read,
+     not just seen. Give it the full right column and a legible measure. */
+  .hero#home .hero-intro {
+    width: min(30vw, 27rem);
+  }
+
+  .hero#home .hero-intro > p {
+    font-size: clamp(0.95rem, 1.08vw, 1.12rem);
+    line-height: 1.55;
+    color: var(--white, #fffdf8);
+  }
+}
+
+@media (max-width: 1100px) and (min-width: 801px) {
+  .hero#home .original-hero-play {
+    top: auto;
+    left: auto;
+    right: 4%;
+    bottom: calc(clamp(6rem, 20.5vh, 13.5rem) + 11rem);
+    width: 5.25rem;
+    transform: none;
+  }
+
+  .hero#home .original-hero-play:hover { transform: rotate(8deg); }
+
+  .hero#home .hero-intro > p {
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+}
+
+/* Below 800px the hero is a stacked flex column and the play mark is an
+   ordered child (amendments-mobile.css). Keep it in flow, just centre it and
+   give it room rather than re-absolute-positioning it. */
+@media (max-width: 800px) {
+  .hero#home .original-hero-play {
+    position: relative;
+    top: auto;
+    right: auto;
+    left: auto;
+    bottom: auto;
+    width: 5rem;
+    margin: 1.75rem auto 0.5rem;
+    transform: none;
+  }
+
+  .hero#home .original-hero-play:hover { transform: rotate(8deg); }
+
+  .hero#home .hero-intro > p {
+    font-size: 1.02rem;
+    line-height: 1.6;
+  }
+}
+
+/* ==========================================================================
+   4 · Section 02 — House Blend first, then export (client items 2 and 7)
+   ========================================================================== */
+
+.coffee-split {
+  display: grid;
+  gap: clamp(3.5rem, 6vw, 6.5rem);
+}
+
+.blend-block,
+.export-block {
+  display: grid;
+  gap: clamp(1.75rem, 3vw, 2.75rem);
+}
+
+.blend-lead {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(1.75rem, 4vw, 3.5rem);
+  align-items: start;
+}
+
+.blend-lead > p {
+  margin: 0;
+  max-width: 44ch;
+}
+
+.blend-formats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: clamp(0.75rem, 1.5vw, 1.1rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.blend-formats li {
+  padding: 1.1rem 1.15rem 1.2rem;
+  background: rgba(255, 253, 248, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(255, 253, 248, 0.16);
+}
+
+.blend-formats b {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-family: var(--display, sans-serif);
+  font-size: clamp(1.5rem, 2.2vw, 2rem);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.blend-formats span {
+  display: block;
+  font-family: var(--mono, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 253, 248, 0.72);
+}
+
+/* The divider between the local story and the export story. */
+.coffee-turn {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding-top: clamp(2rem, 4vw, 3.25rem);
+  border-top: 1px solid rgba(255, 253, 248, 0.22);
+}
+
+.coffee-turn p {
+  margin: 0;
+  font-family: var(--mono, monospace);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 253, 248, 0.72);
+}
+
+/* The region names inside the export paragraph. */
+.region-name {
+  color: var(--sun, #ffb000);
+  font-style: normal;
+  white-space: nowrap;
+}
+
+@media (max-width: 860px) {
+  .blend-lead { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ==========================================================================
+   5 · Quotation — two-way send (client item 5)
+   ========================================================================== */
+
+.send-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.4rem;
+}
+
+.send-row .button { width: 100%; }
+
+.send-note {
+  margin: 0.85rem 0 0;
+  font-family: var(--mono, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  line-height: 1.6;
+  text-transform: uppercase;
+  color: rgba(255, 253, 248, 0.7);
+}
+
+/* #orders composites to solid black despite carrying section-ember, so
+   anything drawn on it has to be light rgba — dark separators are invisible
+   there. Matching the 0.28 alpha the form legends already use. */
+.quotation .send-note { color: rgba(255, 253, 248, 0.7); }
+
+/* The email button is the quieter of the two: WhatsApp is how most of Tona's
+   trade actually reaches them. */
+.button-outline {
+  color: var(--white, #fffdf8);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px rgba(255, 253, 248, 0.55);
+}
+
+.button-outline:hover,
+.button-outline:focus-visible {
+  color: var(--black, #000);
+  background: var(--sun, #ffb000);
+  box-shadow: inset 0 0 0 1px var(--sun, #ffb000);
+}
+
+/* ==========================================================================
+   6 · The WhatsApp concierge's invisible dead zone
+
+   `.whatsapp-chat[hidden]` hides the panel with opacity/visibility rather than
+   display:none — it deliberately keeps `display: block` so the open/close
+   transition has something to animate. The side effect is that the fixed
+   `.whatsapp-concierge` wrapper stays 320x565 whether the panel is open or
+   shut, and a box with no background still takes hit-tests. The result was a
+   320x565 invisible click-blocking region in the bottom-left corner of every
+   page. On contact.html it sat directly on the phone number and email address:
+   both measured as unclickable at 1024px and below.
+
+   The wrapper stops taking clicks; the two things a visitor can actually press
+   take them back.
+   ========================================================================== */
+
+.whatsapp-concierge { pointer-events: none; }
+
+.whatsapp-launcher,
+.whatsapp-chat:not([hidden]) { pointer-events: auto; }
+
+/* ==========================================================================
+   7 · Hit areas
+
+   accessibility.md › "Offer sufficiently sized controls" puts the desktop
+   minimum at 20x20pt and the default at 28x28. The footer links measured
+   150x14 and the contact links 124x18 — under the minimum on their short axis.
+   Padding grows the target without moving the text, so nothing shifts
+   visually. The mobile menu is unaffected: it already uses display-sized rows.
+   ========================================================================== */
+
+/* Vertical padding on an INLINE link grows its hit box without touching the
+   line box, so nothing on the page moves. Deliberately not min-height: giving
+   these links a box height makes them stretch inside the masthead grid, which
+   took the nav links to the full 78px row and — because the Order CTA's
+   underline is a border-bottom — dragged that rule 60px clear of its text.
+   The masthead is left alone for the same reason: at 287x16 and 44x20 those
+   are pointer targets on a desktop layout, which accessibility.md puts at a
+   20x20 minimum, and below 800px the nav becomes a full-screen menu whose rows
+   already measure 350x56. */
+.footer-nav a,
+.footer-meta a,
+.contact-details a {
+  padding-block: 0.6rem;
+}
+
+/* ==========================================================================
+   8 · Contrast on the paper-ground form (WCAG 2.1 AA)
+
+   The request form has two different grounds depending on where it lands:
+   inside #orders on the landing page a stack of rules in amendments-v3.css
+   makes it dark, but on contact.html's #enquire none of those apply and the
+   base paper ground (#F0E6D5) shows through. Measured against the real
+   composited background, that put four pairs under AA:
+
+     .send-note      white 70%  on paper   1.15:1  (needs 4.5)
+     .button-outline white      on paper   1.22:1  (needs 4.5)
+     .form-kicker    ember      on paper   2.99:1  (needs 4.5)
+     label span      ember      on paper   2.99:1  (needs 4.5)
+
+   Ritual Ember is simply not a text colour on a light ground -- it tops out
+   near 3:1. --ember-deep is the same hue darkened until it clears AA on
+   parchment and paper (5.80:1 on #F0E6D5), so the brand reads without the
+   legibility cost.
+   ========================================================================== */
+
+:root { --ember-deep: #a62809; }
+
+.quotation#enquire .request-form .form-kicker,
+.quotation#enquire .request-form label > span,
+.quotation#enquire .request-form legend {
+  color: var(--ember-deep);
+}
+
+.quotation#enquire .request-form .send-note {
+  color: rgba(0, 0, 0, 0.72);
+}
+
+.quotation#enquire .request-form .button-outline {
+  color: var(--black, #000);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.45);
+}
+
+.quotation#enquire .request-form .button-outline:hover,
+.quotation#enquire .request-form .button-outline:focus-visible {
+  color: var(--black, #000);
+  background: var(--sun, #ffb000);
+  box-shadow: inset 0 0 0 1px var(--sun, #ffb000);
+}

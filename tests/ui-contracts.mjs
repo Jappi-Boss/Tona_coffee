@@ -122,7 +122,7 @@ assert.ok(
   source.includes("stockist.latitude !== null && stockist.longitude !== null"),
 );
 assert.ok(!source.includes("KNOWN_MAP_POSITIONS"));
-const adminUI = readFileSync("src/routes/admin.tsx", "utf8");
+const adminUI = readFileSync("src/routes/30team-portal-10.tsx", "utf8");
 assert.ok(adminUI.includes("View details"));
 assert.ok(adminUI.includes('name="latitude"'));
 assert.ok(adminUI.includes('name="longitude"'));

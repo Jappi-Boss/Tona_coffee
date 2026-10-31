@@ -1,0 +1,71 @@
+/* ============================================================================
+   Left-alignment pass.
+
+   `.section-heading` was a two-column grid — `minmax(9rem, 0.55fr) 2fr` — with
+   the small index label in column 1 and the title in column 2. That pushed six
+   section titles to x375 while Quotation and Contact, which are plain blocks,
+   already started at x45. Collapsing to a single column stacks the label above
+   the title and puts every title on the same left edge.
+
+   The hero keeps its centred lockup.
+   ============================================================================ */
+
+.section-heading,
+.moment-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(0.85rem, 1.3vw, 1.35rem);
+  justify-items: start;
+  text-align: left;
+}
+
+/* styles-base pins .section-intro to `grid-column: 2`, which no longer exists. */
+.section-heading > *,
+.moment-intro > *,
+.section-intro {
+  grid-column: 1;
+}
+
+/* The title no longer shares its row, so it can use the full measure. */
+.section-heading .display,
+.moment-intro .display {
+  max-width: 26ch;
+  text-align: left;
+}
+
+.section-intro {
+  margin-top: 0.35rem;
+  max-width: 62ch;
+}
+
+/* Every heading block on the page reads from the same left edge. */
+.section-heading,
+.moment-intro,
+.samples-heading,
+.form-intro,
+.host-heading,
+.quotation-intro,
+.contact-main,
+.request-intro,
+.business-feature .display,
+.collection-feature .display,
+.service-feature .display {
+  text-align: left;
+}
+
+.section-index,
+.moment-intro .mono-label {
+  justify-self: start;
+}
+
+@media (max-width: 900px) {
+  .section-heading,
+  .moment-intro {
+    gap: 0.75rem;
+  }
+
+  .section-heading .display,
+  .moment-intro .display {
+    max-width: none;
+  }
+}

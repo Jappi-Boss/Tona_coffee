@@ -1,0 +1,176 @@
+/* ============================================================================
+   Client review amendments, round 2 — 23 Sep 2026.
+
+   1. Hero right rail. v7 anchored the copy to the right edge but gave it a
+      fixed measure, so between 1101 and 1440px it cleared the illustration by
+      only 15-20px and from 801 to 1100px it sat ~35px on top of the leaves.
+      The illustration's right edge lands at 69.6-73.2% of the viewport across
+      every desktop and tablet width (measured), so the rail's width is now
+      derived from that line: whatever is left of the viewport after the art,
+      a gap, and the right margin. The copy can never reach back over the art.
+   2. Header, 801-900px. amendments-mobile-2 restyles the nav as the mobile
+      overlay (display-face links at ~38px) from 900px down, but the base file
+      only reveals the hamburger from 800px down. In that 100px band the
+      overlay-sized links rendered inline and ran together ("HOMEABOUTCOFFEE")
+      and the Order button wrapped under the logo. The band now uses the same
+      hamburger pattern as phones, which is what the 900px rules assume.
+   ========================================================================== */
+
+@media (min-width: 801px) {
+  .hero#home .hero-intro {
+    --art-edge: 70.5vw;
+    --rail-gap: clamp(1.25rem, 2vw, 2rem);
+    --rail-right: clamp(1.25rem, 1.8vw, 2rem);
+    right: var(--rail-right);
+    left: auto;
+    width: min(25rem, calc(100vw - var(--art-edge) - var(--rail-gap) - var(--rail-right)));
+    /* Set by amendments-v8.js. The headline is sized by viewport width but the
+       rail is anchored to the viewport bottom, so on short screens (1366x680,
+       1280x720 laptops) the rail rose into "MOMENT". The script measures the
+       headline baseline and drops the rail just clear of it. `translate` is
+       used, not `transform`, so the reveal animation is left untouched. */
+    translate: 0 var(--rail-drop, 0px);
+  }
+}
+
+/* The tablet layout scales the art up (it ends at ~73% rather than ~70%). */
+@media (min-width: 801px) and (max-width: 1100px) {
+  .hero#home .hero-intro { --art-edge: 75vw; }
+
+  .hero#home .hero-intro p {
+    font-size: clamp(0.84rem, 1.45vw, 1rem);
+    line-height: 1.5;
+  }
+}
+
+@media (min-width: 801px) and (max-width: 900px) {
+  .site-header { grid-template-columns: 1fr auto; }
+  .site-header .brand { border-right: 0; }
+
+  .site-header .menu-toggle {
+    display: inline-flex;
+    gap: 0.6rem;
+    min-width: 6.5rem;
+    min-height: 44px;
+    align-items: center;
+    border-left: 1px solid var(--line-light);
+  }
+
+  .menu-mark { position: relative; width: 1rem; height: 1rem; }
+  .menu-mark::before,
+  .menu-mark::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transition: transform 180ms ease;
+  }
+  .menu-mark::before { transform: translateY(-3px); }
+  .menu-mark::after { transform: translateY(3px); }
+  .menu-toggle[aria-expanded="true"] .menu-mark::before { transform: rotate(45deg); }
+  .menu-toggle[aria-expanded="true"] .menu-mark::after { transform: rotate(-45deg); }
+
+  .primary-navigation {
+    position: fixed;
+    z-index: -1;
+    inset: var(--header-height) 0 auto;
+    min-height: calc(100vh - var(--header-height));
+    flex-direction: column;
+    align-items: stretch;
+    background: var(--black);
+    transform: translateX(105%);
+    visibility: hidden;
+    transition: transform 260ms ease, visibility 260ms;
+  }
+  .primary-navigation.is-open { transform: translateX(0); visibility: visible; }
+  .primary-navigation a { justify-content: flex-start; border-bottom: 1px solid var(--line-light); }
+  .primary-navigation a::after { display: none; }
+
+  .header-cta { display: none; }
+}
+
+/* 3. Product titles (client items 5 and 8). "House Blend." and "For export
+      green coffee." are the main titles; the orange lines under them are
+      subtitles. v7 set one shared size for both, but `.section-heading
+      .display` (0,2,0) and the page-hero display rule outrank `.coffee-product-
+      title` (0,1,0), so the export title fell back to the generic 66px section
+      size while the Coffee page's House Blend rendered at 109px, and the 55px
+      subtitle ended up nearly as large as the export title above it. The
+      selectors below carry (0,3,0) so both titles land on the same size in
+      every location.
+
+      The heading grid's 18.7px row-gap also sat between title and subtitle on
+      top of the subtitle's margin (28px total). Drop the row-gap in product
+      headings and space each child explicitly instead. */
+.section-heading:has(> .coffee-product-title) { row-gap: 0; }
+.section-heading > .coffee-product-title { margin-top: clamp(0.9rem, 1.3vw, 1.2rem); }
+.section-heading:has(> .coffee-product-title) > .section-intro { margin-top: clamp(1rem, 1.6vw, 1.35rem); }
+
+.page-hero .display.coffee-product-title,
+.section-heading .display.coffee-product-title {
+  max-width: none;
+  font-size: clamp(3rem, 6vw, 6.5rem);
+  line-height: 0.9;
+}
+
+.page-hero .coffee-product-subtitle,
+.section-heading .coffee-product-subtitle {
+  max-width: none;
+  margin-top: clamp(0.25rem, 0.5vw, 0.45rem);
+  font-size: clamp(1.8rem, 3.4vw, 3.6rem);
+  text-wrap: balance;
+}
+
+@media (max-width: 720px) {
+  .page-hero .display.coffee-product-title,
+  .section-heading .display.coffee-product-title { font-size: clamp(2.65rem, 13vw, 4.5rem); }
+
+  .page-hero .coffee-product-subtitle,
+  .section-heading .coffee-product-subtitle { font-size: clamp(1.55rem, 7.5vw, 2.6rem); }
+}
+
+/* 4. Portrait photographs in the full-bleed editorial figure. `.page-figure`
+      stretches its image to the column width, which suits the 4:3 artwork but
+      turns a 3:4 photograph into a 1280x1700px wall. Cap the measure instead
+      of cropping, so faces and packaging stay in frame. */
+.page-figure--portrait {
+  max-width: min(100%, 34rem);
+}
+
+.page-figure--portrait img {
+  max-height: 85vh;
+  width: auto;
+  max-width: 100%;
+}
+
+/* 5. Export heading, client revision (23 Sep 2026). "For export green
+      coffee." moves up to the eyebrow, and the large title becomes two lines
+      at the same size: "Ethiopian coffee." in Harvest Sun over "Sourced for
+      export." in Ritual Ember. One element, so the two lines share one
+      line-height and sit as tightly as a single wrapped headline. */
+.coffee-product-title--split .product-line { display: block; }
+.section-heading .coffee-product-title--split .product-line--sun,
+.page-hero .coffee-product-title--split .product-line--sun { color: var(--sun, #ffb000); }
+.section-heading .coffee-product-title--split .product-line--ember,
+.page-hero .coffee-product-title--split .product-line--ember { color: var(--ember, #ef4a28); }
+
+/* 6. Five partner types (Events & collaborations removed at the client's
+      request). The list was a 3-column grid built for six cards; five left a
+      hole at the end of row two. On a 6-track grid the first three cards take
+      two tracks each and the last two take three, so both rows fill edge to
+      edge. In the 2-column band the fifth card spans the full row. */
+/* Landing uses #business, the Business page .business; :is() carries the ID's
+   weight so this outranks both pages' own grid rules. */
+@media (min-width: 1001px) {
+  :is(#business, .business) .partner-list { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  :is(#business, .business) .partner-list > .partner-row { grid-column: span 2; }
+  :is(#business, .business) .partner-list > .partner-row:nth-child(4):nth-last-child(2),
+  :is(#business, .business) .partner-list > .partner-row:nth-child(5):nth-last-child(1) { grid-column: span 3; }
+}
+
+@media (min-width: 621px) and (max-width: 1000px) {
+  :is(#business, .business) .partner-list > .partner-row:nth-child(5):nth-last-child(1) { grid-column: 1 / -1; }
+}

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 import { getAdminAuth } from "@/lib/admin-auth";
 
-export const Route = createFileRoute("/admin_/login")({
+export const Route = createFileRoute("/30team-portal-10_/login")({
   component: AdminLoginPage,
   head: () => ({ meta: [{ title: "Admin sign in — Tona Coffee" }] }),
 });
@@ -39,7 +39,7 @@ function AdminLoginPage() {
       toast.success(
         mode === "signin" ? "Welcome back." : "Admin account created.",
       );
-      await navigate({ to: "/admin" });
+      await navigate({ to: "/30team-portal-10" });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Unable to sign in.",
@@ -61,7 +61,7 @@ function AdminLoginPage() {
         await getAdminAuth()
       ).adapter.requestPasswordReset({
         email,
-        redirectTo: `${window.location.origin}/admin/reset-password`,
+        redirectTo: `${window.location.origin}/30team-portal-10/reset-password`,
       });
       if (result.error)
         throw new Error(result.error.message ?? "Could not send reset email.");
