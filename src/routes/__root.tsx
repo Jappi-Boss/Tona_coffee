@@ -141,9 +141,15 @@ function RootShell({ children }: { children: ReactNode }) {
     select: (state) => state.location.pathname.startsWith("/30team-portal-10"),
   });
   return (
-    <html lang="en">
+    <html lang="en" className={isAdmin ? undefined : "tona-intro-on"}>
       <head>
         <HeadContent />
+        {!isAdmin && (
+          <>
+            <style>{`html.tona-intro-on { background:#000; } html.tona-intro-on .public-site-content { visibility:hidden; } html.tona-intro-on body { overflow:hidden; }`}</style>
+            <noscript><style>{`.public-site-content { visibility:visible !important; } .tona-intro { display:none !important; } body { overflow:auto !important; }`}</style></noscript>
+          </>
+        )}
         <meta
           name="google-site-verification"
           content="fUdDvlhnwHJWzOul-k-mrx9aBi9gZacGoyPyYQToPoc"
@@ -324,7 +330,7 @@ function RootComponent() {
         <ReferenceIntro />
       )}
       {!isAdmin && <PageMotion pathname={pathname} />}
-      <div className="flex min-h-screen flex-col">
+      <div className={"flex min-h-screen flex-col" + (isAdmin ? "" : " public-site-content")}>
         {!isAdmin && (
           <a className="skip-link" href="#main-content">
             Skip to content

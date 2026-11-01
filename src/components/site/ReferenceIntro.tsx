@@ -2,51 +2,19 @@ import { useEffect, useState } from "react";
 const markup =
   '<div class="tona-intro" id="tona-intro" role="presentation" aria-hidden="true">\n    <div class="tona-intro-lockup">\n      <span class="tona-intro-mark">\n        <span class="tin-part tin-bean"><svg viewBox="912 353 92 139" xmlns="http://www.w3.org/2000/svg" focusable="false"><path transform="matrix(1,0,0,-1,951.9182,361.32649)" d="M0 0C1.181-4.893 3.459-9.43 4.56-14.443 5.81-20.129 5.641-25.972 3.979-31.5-1.833-29.779-6.194-22.893-6.194-14.671-6.194-8.472-3.71-3.043 0 0M19.816-14.671C19.816-22.43 15.936-29.005 10.613-31.168 11.89-25.871 11.95-20.334 11.059-14.928 10.504-11.569 9.489-8.342 8.254-5.177 7.249-2.601 6.306-.134 5.852 2.519 6.169 2.55 6.486 2.583 6.81 2.583 13.983 2.583 19.816-5.157 19.816-14.671M6.81-38.232C17.46-38.232 26.124-27.662 26.124-14.671 26.124-1.679 17.46 8.891 6.81 8.891-3.838 8.891-12.501-1.679-12.501-14.671-12.501-27.662-3.838-38.232 6.81-38.232"/></svg></span>\n        <span class="tin-part tin-bowl"><svg viewBox="912 353 92 139" xmlns="http://www.w3.org/2000/svg" focusable="false"><path transform="matrix(1,0,0,-1,986.9218,433.20228)" d="M0 0C-.631-.662-1.294-1.293-1.987-1.86-3.659-3.374-5.456-4.699-7.38-5.866-8.263-6.434-9.209-6.938-10.155-7.411-14.698-9.682-19.742-11.07-25.041-11.353V-8.673-3.059-.378C-19.742-.662-14.698-2.05-10.155-4.32-8.105-3.185-6.151-1.86-4.352-.346-10.439 3.343-17.503 5.582-25.041 5.93V8.61 20.753H-31.349V8.673 5.993C-39.549 5.93-47.182 3.627-53.773-.346-51.976-1.86-50.02-3.217-47.938-4.32-42.924-1.797-37.31-.378-31.349-.315V-2.996-8.736-11.417C-37.31-11.353-42.924-9.934-47.938-7.411-48.885-6.938-49.83-6.434-50.714-5.866-52.638-4.699-54.467-3.374-56.138-1.86-56.833-1.293-57.495-.662-58.125 0-64.181 6.15-68.154 14.35-68.88 23.433H-31.349-25.041 10.755C9.997 14.35 6.055 6.15 0 0M-75.314 29.741V26.587C-75.314 14.76-70.646 3.974-63.014-3.974-62.415-4.636-61.784-5.267-61.121-5.866-59.576-7.317-57.904-8.673-56.138-9.871-55.35-10.407-54.561-10.912-53.773-11.385-47.182-15.359-39.549-17.661-31.349-17.724H-27.124C-26.429-17.724-25.736-17.693-25.041-17.661-17.503-17.315-10.439-15.075-4.352-11.385-3.533-10.912-2.744-10.407-1.987-9.871-.22-8.673 1.451-7.317 2.997-5.866 3.659-5.267 4.321-4.636 4.888-3.974 12.521 3.974 17.189 14.76 17.189 26.587V29.741Z"/></svg></span>\n        <span class="tin-part tin-arc"><svg viewBox="912 353 92 139" xmlns="http://www.w3.org/2000/svg" focusable="false"><path transform="matrix(1,0,0,-1,986.954,444.96614)" d="M0 0C6.023-6.15 9.965-14.318 10.723-23.401H-25.074V-20.721-8.61C-25.768-8.673-26.461-8.673-27.156-8.673H-31.381V-20.721-23.401H-68.912C-68.187-14.318-64.213-6.15-58.189 0-59.924 1.23-61.564 2.555-63.078 4.005-70.678-3.942-75.346-14.728-75.346-26.555V-29.709H-31.381-25.074 17.157V-26.555C17.157-14.728 12.489-3.942 4.888 4.005 3.374 2.555 1.734 1.23 0 0"/></svg></span>\n        <span class="tin-part tin-stem"><svg viewBox="912 353 92 139" xmlns="http://www.w3.org/2000/svg" focusable="false"><path transform="matrix(1,0,0,-1,0,1080)" d="M955.573 588.01H961.881V602.644H955.573Z"/></svg></span>\n      </span>\n      <img class="tona-intro-word" src="https://tona-coffee-two.vercel.app/assets/tona-wordmark.png" width="370" height="269" alt="" decoding="async">\n    </div>\n  </div>';
 export function ReferenceIntro() {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
   useEffect(() => {
     const done = () => {
       document.documentElement.classList.remove("tona-intro-on");
       setVisible(false);
-      try {
-        sessionStorage.setItem("tona-intro-done", "1");
-      } catch {}
       window.dispatchEvent(new Event("tona:loader-hidden"));
     };
-    try {
-      if (
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
-        sessionStorage.getItem("tona-intro-done")
-      ) {
-        done();
-        return;
-      }
-    } catch {
-      done();
-      return;
-    }
     document.documentElement.classList.add("tona-intro-on");
-    setVisible(true);
     const timer = window.setTimeout(done, 3200);
-    const key = (e: KeyboardEvent) => {
-      if (["Escape", "Enter", " "].includes(e.key)) done();
-    };
-    document.addEventListener("keydown", key);
     return () => {
       clearTimeout(timer);
-      document.removeEventListener("keydown", key);
       document.documentElement.classList.remove("tona-intro-on");
     };
   }, []);
-  return visible ? (
-    <div
-      onClick={() => {
-        document.documentElement.classList.remove("tona-intro-on");
-        setVisible(false);
-        try {
-          sessionStorage.setItem("tona-intro-done", "1");
-        } catch {}
-      }}
-      dangerouslySetInnerHTML={{ __html: markup }}
-    />
-  ) : null;
+  return visible ? <div dangerouslySetInnerHTML={{ __html: markup }} /> : null;
 }
