@@ -292,3 +292,20 @@ body.motion-ready main .section-art.is-visible {
   position: relative;
   overflow: clip;
 }
+#main-content .section.motion-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 3vw;
+  width: 9vw;
+  height: 0.45rem;
+  background: var(--ember);
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1) 160ms;
+  pointer-events: none;
+}
+#main-content .section.motion-section.motion-in::before { transform: scaleX(1); }
+@media (prefers-reduced-motion: reduce) {
+  #main-content .section.motion-section::before { transform: none; transition: none; }
+}
