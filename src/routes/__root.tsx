@@ -124,8 +124,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         },
         {
           rel: "icon",
-          href: "/favicon.png?v=2",
-          type: "image/png",
+          href: "/tona-favicon.svg?v=3",
+          type: "image/svg+xml",
         },
       ],
     }),
