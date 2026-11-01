@@ -129,3 +129,10 @@ assert.ok(adminUI.includes('name="longitude"'));
 console.log(
   "UI/API contracts passed: optional fields, coordinate pairs, event validation, inquiry payload and full-detail controls.",
 );
+
+// Reference quotation form has package, roast format and message only.
+const minimalQuote = pub.quotationInput.parse({packageSize:"1kg",format:"Medium bean",message:"25kg per month"});
+assert.equal(minimalQuote.customerName, "");
+assert.equal(minimalQuote.phone, "");
+assert.equal(minimalQuote.message, "25kg per month");
+assert.equal(pub.quotationInput.safeParse({packageSize:"invalid",format:""}).success,false);

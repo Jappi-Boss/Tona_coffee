@@ -575,7 +575,7 @@ function Overview({
     })),
     ...data.quotationRequests.map((row) => ({
       type: "Quotation",
-      title: String(row.customer_name),
+      title: String(row.customer_name || "Website quotation"),
       detail: String(row.quote_number),
       date: row.created_at,
       view: "quotations" as View,
@@ -1045,8 +1045,8 @@ function Quotations({
                 subtitle={formatDate(row.created_at)}
               />
               <Cell
-                title={String(row.customer_name)}
-                subtitle={`${String(row["phone"])}${row.email ? ` · ${row.email}` : ""}`}
+                title={String(row.customer_name || "Not provided")}
+                subtitle={[row["phone"], row.email].filter(Boolean).join(" · ") || "Contact details not provided"}
               />
               <Cell
                 title={String(row.package_size)}

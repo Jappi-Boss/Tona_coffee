@@ -818,11 +818,6 @@ async function submitQuotationForm(
     `Package: ${packageSize === "custom" ? "250g custom" : packageSize}`,
     `Format: ${format}`,
     `Customer brand: ${formText(data, "brand-name")}`,
-    `Name: ${formText(data, "name")}`,
-    `Company: ${formText(data, "company")}`,
-    `Phone: ${formText(data, "phone")}`,
-    `Email: ${formText(data, "email")}`,
-    `Monthly volume: ${formText(data, "volume")}`,
     `Message: ${formText(data, "message")}`,
   ].join("\n");
   const channel =
@@ -843,11 +838,6 @@ async function submitQuotationForm(
         packageSize,
         format,
         brandName: optionalFormText(data, "brand-name"),
-        customerName: formText(data, "name"),
-        company: optionalFormText(data, "company"),
-        phone: formText(data, "phone"),
-        email: optionalFormText(data, "email"),
-        monthlyVolume: optionalFormText(data, "volume"),
         message: optionalFormText(data, "message"),
       },
     });
@@ -885,8 +875,6 @@ async function submitRequestForm(
     "Hi Tona, I have a request.",
     `Name: ${formText(data, "full-name")}`,
     `Organization: ${formText(data, "organization")}`,
-    `Phone: ${formText(data, "phone")}`,
-    `Email: ${formText(data, "email")}`,
     `Request type: ${requestType}`,
     `Coffee interest: ${coffeeInterest}`,
     `Message: ${message}`,
@@ -908,8 +896,6 @@ async function submitRequestForm(
       data: {
         fullName: formText(data, "full-name"),
         organization: optionalFormText(data, "organization"),
-        phone: formText(data, "phone"),
-        email: optionalFormText(data, "email"),
         requestType,
         coffeeInterest,
         message: message || "No additional message.",
@@ -1746,45 +1732,6 @@ function ReferenceOrdersSection() {
               placeholder="Your brand name"
             />
           </div>
-          <fieldset className="contact-fields">
-            <legend>02 / Your details</legend>
-            <div className="field-grid">
-              <label>
-                <span>Name</span>
-                <input
-                  name="name"
-                  minLength={2}
-                  maxLength={120}
-                  type="text"
-                  autoComplete="name"
-                  required
-                />
-              </label>
-              <label>
-                <span>Company</span>
-                <input name="company" type="text" autoComplete="organization" />
-              </label>
-              <label>
-                <span>Phone / WhatsApp</span>
-                <input
-                  name="phone"
-                  type="tel"
-                  autoComplete="tel"
-                  minLength={7}
-                  maxLength={40}
-                  required
-                />
-              </label>
-              <label>
-                <span>Email</span>
-                <input name="email" type="email" autoComplete="email" />
-              </label>
-              <label>
-                <span>Monthly volume</span>
-                <input name="volume" type="text" placeholder="e.g. 25kg" />
-              </label>
-            </div>
-          </fieldset>
           <label className="message-field">
             <span>Volume and anything else we should know</span>
             <textarea

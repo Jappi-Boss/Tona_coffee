@@ -526,7 +526,7 @@ export async function createQuotationRequest(input: {
     `Email: ${input.email ?? ""}`,
     `Monthly volume: ${input.monthlyVolume ?? ""}`,
     `Message: ${input.message ?? ""}`,
-  ].join("\n");
+  ].filter((line) => !line.endsWith(": ")).join("\n");
   const notifications = await sendSubmissionNotifications({
     title: `New House Blend quotation ${quoteNumber}`,
     subject: `New Tona Coffee quotation ${quoteNumber}`,

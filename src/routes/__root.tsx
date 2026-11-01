@@ -124,7 +124,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         },
         {
           rel: "icon",
-          href: "https://raw.githubusercontent.com/Jappi-Boss/Tona_coffee/7247bf6b0bd5bd8d6d21d08d20fb861eb2aeb612/public/favicon.png",
+          href: "/favicon.png?v=2",
           type: "image/png",
         },
       ],
