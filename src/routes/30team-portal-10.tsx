@@ -33,6 +33,7 @@ import {
   useState,
 } from "react";
 import { toast } from "sonner";
+import { isFeedbackRequest, requestLabel } from "@/lib/admin-requests";
 import { PRODUCT_IMAGES } from "@/lib/product-images";
 
 import {
@@ -78,8 +79,9 @@ const navItems = [
   ["orders", "Orders", PackageCheck],
   ["quotations", "Quotations", FileSpreadsheet],
   ["business", "Business inquiries", ClipboardList],
-  ["contacts", "Contact requests", MessageSquareText],
-  ["users", "Users", UserCog],
+  ["contacts", "Website enquiries", MessageSquareText],
+  ["feedback", "Feedback", Inbox],
+  ["users", "Staff access", UserCog],
 ] as const;
 
 type View = (typeof navItems)[number][0];
@@ -425,9 +427,11 @@ function AdminDashboard() {
               }
             />
           )}
-          {view === "contacts" && (
+          {(view === "contacts" || view === "feedback") && (
             <Contacts
-              rows={filtered.contactRequests}
+              key={view}
+              feedback={view === "feedback"}
+              rows={filtered.contactRequests.filter((row) => isFeedbackRequest(row) === (view === "feedback"))}
               onStatus={changeStatus}
               onDelete={(row) =>
                 removeRecord(
@@ -537,7 +541,7 @@ function Overview({
     [
       "Open inquiries",
       data.businessInquiries.filter(
-        (row) => !["closed", "declined"].includes(String(row.status)),
+        (row) => !["closed", "lost"].includes(String(row.status)),
       ).length,
       "business",
       ClipboardList,
@@ -1057,7 +1061,7 @@ function Quotations({
                 subtitle={String(row.source ?? "website")}
               />
               <Cell
-                title={String(row.company ?? "Individual request")}
+                title={String(row.company || "Website quotation")}
                 subtitle={`${row.brand_name ? `Brand: ${row.brand_name}` : ""}${row.monthly_volume ? ` · ${row.monthly_volume}` : ""}`}
               />
               <Cell title={formatDate(row.created_at)} />
@@ -1158,18 +1162,39 @@ function Business({
 
 function Contacts({
   rows,
+  feedback,
   onStatus,
   onDelete,
 }: {
   rows: Row[];
+  feedback: boolean;
   onStatus: StatusHandler;
   onDelete: (row: Row) => void;
 }) {
+  const [statusFilter, setStatusFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const types = Array.from(new Set(rows.map((row) => String(row.request_type))));
+  const displayed = rows.filter((row) => (!statusFilter || row.status === statusFilter) && (!typeFilter || row.request_type === typeFilter));
   return (
     <Section
-      title="Contact requests"
-      description="Keep customer questions and feedback moving."
+      title={feedback ? "Customer feedback" : "Website enquiries"}
+      description={feedback ? "Review coffee ratings, suggestions and reported problems from the website." : "Follow retail, export, wholesale and local-distribution requests."}
     >
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        <label className="text-sm">Status
+          <select aria-label="Filter by status" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="ml-2 rounded-md border bg-white p-2">
+            <option value="">All statuses</option>
+            {["new", "in_progress", "resolved", "spam"].map((status) => <option key={status} value={status}>{status.replaceAll("_", " ")}</option>)}
+          </select>
+        </label>
+        <label className="text-sm">Request type
+          <select aria-label="Filter by request type" value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} className="ml-2 rounded-md border bg-white p-2">
+            <option value="">All types</option>
+            {types.map((type) => <option key={type} value={type}>{requestLabel(type)}</option>)}
+          </select>
+        </label>
+        <span className="text-sm text-muted-foreground">{displayed.length} requests</span>
+      </div>
       <RecordTable
         headers={[
           "Customer",
@@ -1180,14 +1205,14 @@ function Contacts({
           "Actions",
         ]}
       >
-        {rows.map((row) => (
+        {displayed.map((row) => (
           <tr key={String(row.id)} className="border-t">
             <Cell
               title={String(row.full_name)}
-              subtitle={String(row["phone"])}
+              subtitle={[row["phone"], row.email].filter(Boolean).join(" · ") || "No contact details"}
             />
-            <Cell title={String(row.request_type).replaceAll("_", " ")} />
-            <Cell title={String(row.message)} />
+            <Cell title={requestLabel(row.request_type)} subtitle={String(row.coffee_interest || row.organization || "")} />
+            <td className="min-w-64 max-w-md whitespace-pre-wrap break-words p-4 text-sm text-teal">{String(row.message)}</td>
             <Cell title={formatDate(row.created_at)} />
             <td className="p-4">
               <StatusSelect
@@ -1208,6 +1233,7 @@ function Contacts({
           </tr>
         ))}
       </RecordTable>
+      {!displayed.length && <Empty text="No requests match this view." />}
     </Section>
   );
 }
@@ -1243,7 +1269,7 @@ function UserManagement({
 }) {
   return (
     <Section
-      title="Dashboard users"
+      title="Staff access"
       description="Create and maintain the people who can access Tona operations."
       action={
         <button
@@ -2391,7 +2417,8 @@ function countFor(view: View, data: DashboardData) {
   if (view === "orders") return data.orders.length;
   if (view === "quotations") return data.quotationRequests.length;
   if (view === "business") return data.businessInquiries.length;
-  if (view === "contacts") return data.contactRequests.length;
+  if (view === "contacts") return data.contactRequests.filter((row) => !isFeedbackRequest(row)).length;
+  if (view === "feedback") return data.contactRequests.filter(isFeedbackRequest).length;
   if (view === "locations") return data.locations.length;
   if (view === "users") return data.users.length;
   return 0;

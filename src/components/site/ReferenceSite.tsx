@@ -17,6 +17,7 @@ import {
   getPublicLocations,
   submitBusinessInquiry,
   submitContactRequest,
+  submitFeedback,
   submitEventRegistration,
   submitQuotation,
   type PublicEvent,
@@ -896,6 +897,8 @@ async function submitRequestForm(
       data: {
         fullName: formText(data, "full-name"),
         organization: optionalFormText(data, "organization"),
+        phone: formText(data, "phone"),
+        email: optionalFormText(data, "email"),
         requestType,
         coffeeInterest,
         message: message || "No additional message.",
@@ -1825,8 +1828,6 @@ function ReferenceOrdersSection() {
                 <option>Export enquiry</option>
                 <option>Wholesale / business supply</option>
                 <option>Local Distribution</option>
-                <option>Sample request (100g)</option>
-                <option>Event or collaboration</option>
                 <option>Feedback</option>
                 <option>Something else</option>
               </select>
@@ -2531,6 +2532,38 @@ function ReferenceFindUsSection() {
   );
 }
 
+
+async function submitFeedbackForm(event: FormEvent<HTMLFormElement>, setStatus: (message: string) => void) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const data = new FormData(form);
+  if (formText(data, "feedback-type") === "Rate your coffee" && !Number(formText(data, "feedback-rating"))) {
+    setStatus("Choose a star rating for your coffee.");
+    return;
+  }
+  const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+  if (button?.disabled) return;
+  if (button) button.disabled = true;
+  setStatus("Saving your feedback…");
+  try {
+    await submitFeedback({ data: {
+      fullName: formText(data, "full-name"),
+      contact: formText(data, "contact"),
+      feedbackType: formText(data, "feedback-type") as "Rate your coffee" | "General feedback" | "Report a problem",
+      rating: Number(formText(data, "feedback-rating")) || 0,
+      product: optionalFormText(data, "product"),
+      purchaseLocation: optionalFormText(data, "purchase-location"),
+      comment: formText(data, "comment"),
+    } });
+    form.reset();
+    setStatus("Thank you. Your feedback has been saved for the Tona team.");
+  } catch (error) {
+    setStatus(error instanceof Error ? error.message : "Could not save feedback. Please try again.");
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
 function ReferenceFeedbackSection() {
   const [feedbackType, setFeedbackType] = useState("Rate your coffee");
   const [rating, setRating] = useState(0);
@@ -2638,13 +2671,7 @@ function ReferenceFeedbackSection() {
 
         <form
           className="feedback-form reveal"
-          onSubmit={(event) =>
-            openWhatsAppFromForm(
-              event,
-              "Hi Tona, I would like to share feedback.",
-              setStatus,
-            )
-          }
+          onSubmit={(event) => void submitFeedbackForm(event, setStatus)}
         >
           <p className="form-kicker">Tell us more</p>
           <input type="hidden" name="feedback-type" value={feedbackType} />

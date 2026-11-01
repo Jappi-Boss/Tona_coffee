@@ -39,6 +39,21 @@ const contactInput = z.object({
   message: z.string().trim().min(3).max(3000),
 });
 
+const feedbackInput = z.object({
+  fullName: z.string().trim().min(2).max(120),
+  contact: z.string().trim().max(200).refine(
+    (value) => z.string().email().safeParse(value).success || /^[+\d][\d\s().-]{6,39}$/.test(value),
+    "Enter a valid phone number or email address.",
+  ),
+  feedbackType: z.enum(["Rate your coffee", "General feedback", "Report a problem"]),
+  rating: z.number().int().min(0).max(5),
+  product: optionalText,
+  purchaseLocation: optionalText,
+  comment: z.string().trim().min(3).max(2000),
+}).refine((value) => value.feedbackType !== "Rate your coffee" || value.rating > 0, {
+  message: "Choose a star rating for your coffee.", path: ["rating"],
+});
+
 const orderInput = z.object({
   productId: z.string().uuid(),
   customerName: z.string().trim().min(2).max(120),
@@ -95,6 +110,28 @@ export const submitContactRequest = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { createContactRequest } = await import("./public-db.server");
     return createContactRequest(data);
+  });
+
+export const submitFeedback = createServerFn({ method: "POST" })
+  .validator(feedbackInput)
+  .handler(async ({ data }) => {
+    const { createContactRequest } = await import("./public-db.server");
+    const isEmail = z.string().email().safeParse(data.contact).success;
+    return createContactRequest({
+      fullName: data.fullName,
+      organization: null,
+      phone: isEmail ? "" : data.contact,
+      email: isEmail ? data.contact : null,
+      requestType: data.feedbackType === "Report a problem" ? "feedback_problem" : data.feedbackType === "Rate your coffee" ? "feedback_rating" : "feedback_general",
+      coffeeInterest: data.product,
+      message: [
+        `Feedback: ${data.feedbackType}`,
+        data.feedbackType === "Rate your coffee" ? `Rating: ${data.rating}/5` : "",
+        data.product ? `Product: ${data.product}` : "",
+        data.purchaseLocation ? `Purchase location: ${data.purchaseLocation}` : "",
+        data.comment,
+      ].filter(Boolean).join("\n"),
+    });
   });
 
 export const submitOrder = createServerFn({ method: "POST" })

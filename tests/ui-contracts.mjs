@@ -26,6 +26,7 @@ const pub = schemas("src/lib/public-api.ts", "export const getPublicCatalog", [
   "contactInput",
   "quotationInput",
   "businessInput",
+  "feedbackInput",
 ]);
 const token = "x".repeat(24);
 const loc = {
@@ -136,3 +137,34 @@ assert.equal(minimalQuote.customerName, "");
 assert.equal(minimalQuote.phone, "");
 assert.equal(minimalQuote.message, "25kg per month");
 assert.equal(pub.quotationInput.safeParse({packageSize:"invalid",format:""}).success,false);
+
+const feedback = { fullName: "Customer", contact: "customer@example.com", feedbackType: "Rate your coffee", rating: 5, product: "House Blend", purchaseLocation: "Allmart", comment: "Excellent coffee" };
+assert.equal(pub.feedbackInput.parse(feedback).rating, 5);
+assert.equal(pub.feedbackInput.safeParse({ ...feedback, rating: 0 }).success, false);
+assert.equal(pub.feedbackInput.safeParse({ ...feedback, rating: 6 }).success, false);
+assert.equal(pub.feedbackInput.safeParse({ ...feedback, contact: "invalid" }).success, false);
+assert.equal(pub.feedbackInput.safeParse({ ...feedback, contact: "+251986212224" }).success, true);
+assert.equal(pub.feedbackInput.safeParse({ ...feedback, feedbackType: "Report a problem", rating: 0 }).success, true);
+const helpersJs = ts.transpileModule(readFileSync("src/lib/admin-requests.ts", "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
+const helpers = { exports: {} };
+new Function("exports", helpersJs)(helpers.exports);
+assert.equal(helpers.exports.isFeedbackRequest({ request_type: "Feedback" }), true);
+assert.equal(helpers.exports.isFeedbackRequest({ request_type: "feedback_problem" }), true);
+assert.equal(helpers.exports.isFeedbackRequest({ request_type: "Export enquiry" }), false);
+assert.equal(helpers.exports.requestLabel("feedback_rating"), "Coffee rating");
+// Exercise the real enquiry handler with a server stub: contact details must survive the form boundary.
+const siteSource = readFileSync("src/components/site/ReferenceSite.tsx", "utf8");
+const handlerSource = siteSource.slice(siteSource.indexOf("async function submitRequestForm("), siteSource.indexOf("\nasync function ", siteSource.indexOf("async function submitRequestForm(") + 10));
+const handlerJs = ts.transpileModule(handlerSource, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
+let captured;
+const submit = new Function("FormData", "formText", "optionalFormText", "submitContactRequest", "prepareWhatsAppWindow", "finishWhatsAppWindow", handlerJs + ";return submitRequestForm;")(
+  class { constructor() {} },
+  (_, key) => ({ "full-name": "Customer", phone: "0903767778", email: "customer@example.com", "request-type": "Export enquiry", "coffee-interest": "Export", message: "Please send details" }[key] || ""),
+  (_, key) => ({ email: "customer@example.com", organization: "Company" }[key] || null),
+  async ({ data }) => { captured = data; return { emailSent: false, whatsappSent: false }; },
+  () => null, () => {},
+);
+await submit({ preventDefault() {}, currentTarget: {}, nativeEvent: {} }, () => {});
+assert.equal(captured.phone, "0903767778");
+assert.equal(captured.email, "customer@example.com");
+assert.equal(pub.contactInput.safeParse(captured).success, true);
