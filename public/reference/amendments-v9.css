@@ -286,3 +286,9 @@ body.motion-ready main .section-art.is-visible {
   transition: transform 220ms ease;
 }
 .site-header.reference-header .primary-navigation a:is(.active,:hover,:focus-visible)::after { transform: scaleX(1); }
+
+/* Section markers also apply inside the static-content display:contents wrapper. */
+#main-content .section.section-cinema {
+  position: relative;
+  overflow: clip;
+}

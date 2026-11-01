@@ -11,6 +11,21 @@ export function PageMotion({ pathname }: { pathname: string }) {
     let observer: IntersectionObserver | undefined;
     let frame = 0;
     let started = false;
+    let sectionObserver: IntersectionObserver | undefined;
+    let pulseFrame = 0;
+    const sections = Array.from(main.querySelectorAll<HTMLElement>(".section:not(#home)"));
+    const updatePulse = () => {
+      pulseFrame = 0;
+      for (const section of sections) {
+        const rect = section.getBoundingClientRect();
+        if (rect.bottom < 0 || rect.top > window.innerHeight) continue;
+        const progress = Math.min(1, Math.max(0, (window.innerHeight - rect.top) / (window.innerHeight + rect.height)));
+        section.style.setProperty("--cinema-track", `${(progress * 110).toFixed(1)}px`);
+      }
+    };
+    const schedulePulse = () => {
+      if (!pulseFrame) pulseFrame = requestAnimationFrame(updatePulse);
+    };
     const reveal = (target: HTMLElement) => {
       target.classList.add("is-visible", "motion-in", "cinematic-copy-in");
     };
@@ -39,6 +54,21 @@ export function PageMotion({ pathname }: { pathname: string }) {
           }
         }, { threshold: 0.12, rootMargin: "0px 0px -7%" });
       }
+      sections.forEach((section) => section.classList.add("motion-section", "section-cinema"));
+      if (!reduced && "IntersectionObserver" in window) {
+        sectionObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            entry.target.classList.toggle("cinema-in", entry.isIntersecting);
+            if (entry.isIntersecting) entry.target.classList.add("motion-in");
+          });
+        }, { rootMargin: "-12% 0px -12%", threshold: 0.02 });
+        sections.forEach((section) => sectionObserver?.observe(section));
+        window.addEventListener("scroll", schedulePulse, { passive: true });
+        window.addEventListener("resize", schedulePulse);
+        updatePulse();
+      } else {
+        sections.forEach((section) => section.classList.add("cinema-in", "motion-in"));
+      }
       discover();
     };
     if (!reduced) {
@@ -54,6 +84,14 @@ export function PageMotion({ pathname }: { pathname: string }) {
       cancelAnimationFrame(frame);
       mutations.disconnect();
       observer?.disconnect();
+      sectionObserver?.disconnect();
+      cancelAnimationFrame(pulseFrame);
+      window.removeEventListener("scroll", schedulePulse);
+      window.removeEventListener("resize", schedulePulse);
+      sections.forEach((section) => {
+        section.classList.remove("motion-section", "section-cinema", "cinema-in", "motion-in");
+        section.style.removeProperty("--cinema-track");
+      });
       window.removeEventListener("tona:loader-hidden", start);
       document.body.classList.remove("motion-ready", "motion-loaded");
       seen.forEach((target) => target.classList.remove("is-visible", "motion-in", "cinematic-copy-in"));
