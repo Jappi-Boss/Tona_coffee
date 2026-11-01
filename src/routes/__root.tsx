@@ -185,7 +185,7 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function WhatsAppConcierge() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   return (
     <aside
@@ -232,35 +232,28 @@ function WhatsAppConcierge() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              Retail order <span aria-hidden="true">↗</span>
+              Retail order
             </a>
             <a
               href="https://wa.me/251986212224?text=Hi%20Tona%2C%20I%E2%80%99d%20like%20to%20discuss%20wholesale%20or%20business%20supply."
               target="_blank"
               rel="noopener noreferrer"
             >
-              Wholesale &amp; business <span aria-hidden="true">↗</span>
+              Wholesale &amp; business
             </a>
             <a
-              href="https://wa.me/251986212224?text=Hi%20Tona%2C%20I%E2%80%99d%20like%20to%20request%20a%20100g%20coffee%20sample."
+              href="https://wa.me/251986212224?text=Hi%20Tona%2C%20I%E2%80%99d%20like%20to%20discuss%20local%20distribution."
               target="_blank"
               rel="noopener noreferrer"
             >
-              Request a 100g sample <span aria-hidden="true">↗</span>
+              Local distribution
             </a>
             <a
               href="https://wa.me/251986212224?text=Hi%20Tona%2C%20I%E2%80%99d%20like%20to%20make%20an%20export%20request%20for%20your%20origin%20coffees%20(Yirgacheffe%2C%20Sidama%2C%20Guji%20or%20Jimma).%20Please%20send%20lot%20details%20and%20pricing."
               target="_blank"
               rel="noopener noreferrer"
             >
-              Export request <span aria-hidden="true">↗</span>
-            </a>
-            <a
-              href="https://wa.me/251986212224?text=Hi%20Tona%2C%20I%E2%80%99d%20like%20to%20ask%20about%20events%20or%20hosting%20a%20Tona%20experience."
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Events &amp; experiences <span aria-hidden="true">↗</span>
+              Export request
             </a>
           </nav>
           <p className="whatsapp-note">Continue securely in WhatsApp.</p>
