@@ -33,7 +33,7 @@ import {
   useState,
 } from "react";
 import { toast } from "sonner";
-import { isFeedbackRequest, requestLabel } from "@/lib/admin-requests";
+import { isFeedbackRequest, requestLabel, requestView } from "@/lib/admin-requests";
 import { PRODUCT_IMAGES } from "@/lib/product-images";
 
 import {
@@ -81,6 +81,7 @@ const navItems = [
   ["business", "Business inquiries", ClipboardList],
   ["contacts", "Website enquiries", MessageSquareText],
   ["feedback", "Feedback", Inbox],
+  ["locationRequests", "Location requests", MapPin],
   ["users", "Staff access", UserCog],
 ] as const;
 
@@ -427,11 +428,12 @@ function AdminDashboard() {
               }
             />
           )}
-          {(view === "contacts" || view === "feedback") && (
+          {(view === "contacts" || view === "feedback" || view === "locationRequests") && (
             <Contacts
               key={view}
               feedback={view === "feedback"}
-              rows={filtered.contactRequests.filter((row) => isFeedbackRequest(row) === (view === "feedback"))}
+              locationRequests={view === "locationRequests"}
+              rows={filtered.contactRequests.filter((row) => requestView(row) === view)}
               onStatus={changeStatus}
               onDelete={(row) =>
                 removeRecord(
@@ -1163,11 +1165,13 @@ function Business({
 function Contacts({
   rows,
   feedback,
+  locationRequests,
   onStatus,
   onDelete,
 }: {
   rows: Row[];
   feedback: boolean;
+  locationRequests: boolean;
   onStatus: StatusHandler;
   onDelete: (row: Row) => void;
 }) {
@@ -1177,8 +1181,8 @@ function Contacts({
   const displayed = rows.filter((row) => (!statusFilter || row.status === statusFilter) && (!typeFilter || row.request_type === typeFilter));
   return (
     <Section
-      title={feedback ? "Customer feedback" : "Website enquiries"}
-      description={feedback ? "Review coffee ratings, suggestions and reported problems from the website." : "Follow retail, export, wholesale and local-distribution requests."}
+      title={locationRequests ? "Location requests" : feedback ? "Customer feedback" : "Website enquiries"}
+      description={locationRequests ? "See where customers want Tona stocked, including suggested shops and cafés." : feedback ? "Review coffee ratings, suggestions and reported problems from the website." : "Follow retail, export, wholesale and local-distribution requests."}
     >
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <label className="text-sm">Status
@@ -1208,8 +1212,8 @@ function Contacts({
         {displayed.map((row) => (
           <tr key={String(row.id)} className="border-t">
             <Cell
-              title={String(row.full_name)}
-              subtitle={[row["phone"], row.email].filter(Boolean).join(" · ") || "No contact details"}
+              title={locationRequests ? String(row.coffee_interest || "Location request") : String(row.full_name)}
+              subtitle={locationRequests ? String(row.organization || "No shop suggested") : [row["phone"], row.email].filter(Boolean).join(" · ") || "No contact details"}
             />
             <Cell title={requestLabel(row.request_type)} subtitle={String(row.coffee_interest || row.organization || "")} />
             <td className="min-w-64 max-w-md whitespace-pre-wrap break-words p-4 text-sm text-teal">{String(row.message)}</td>
@@ -2417,7 +2421,8 @@ function countFor(view: View, data: DashboardData) {
   if (view === "orders") return data.orders.length;
   if (view === "quotations") return data.quotationRequests.length;
   if (view === "business") return data.businessInquiries.length;
-  if (view === "contacts") return data.contactRequests.filter((row) => !isFeedbackRequest(row)).length;
+  if (view === "contacts") return data.contactRequests.filter((row) => requestView(row) === "contacts").length;
+  if (view === "locationRequests") return data.contactRequests.filter((row) => requestView(row) === "locationRequests").length;
   if (view === "feedback") return data.contactRequests.filter(isFeedbackRequest).length;
   if (view === "locations") return data.locations.length;
   if (view === "users") return data.users.length;

@@ -18,6 +18,7 @@ import {
   submitBusinessInquiry,
   submitContactRequest,
   submitFeedback,
+  submitLocationRequest,
   submitEventRegistration,
   submitQuotation,
   type PublicEvent,
@@ -860,6 +861,34 @@ async function submitQuotationForm(
         ? error.message
         : "We could not save the quotation online. WhatsApp is ready—please send the message so Tona can help.",
     );
+  }
+}
+
+async function submitLocationRequestForm(event: FormEvent<HTMLFormElement>, setStatus: (message: string) => void) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+  if (button?.disabled) return;
+  const data = new FormData(form);
+  const area = formText(data, "area");
+  const venue = optionalFormText(data, "venue");
+  if (area.length < 2) {
+    setStatus("Enter your area or neighbourhood.");
+    return;
+  }
+  const popup = prepareWhatsAppWindow();
+  if (button) button.disabled = true;
+  setStatus("Saving your location request…");
+  try {
+    const result = await submitLocationRequest({ data: { area, venue } });
+    finishWhatsAppWindow(popup, ["Hi Tona, I would like to find your coffee near me.", `Area: ${area}`, venue ? `Shop or café: ${venue}` : ""].filter(Boolean).join("\n"), Boolean(result.whatsappSent));
+    form.reset();
+    setStatus("Your location request is saved. Continue in WhatsApp to speak with Tona.");
+  } catch (error) {
+    popup?.close();
+    setStatus(error instanceof Error ? error.message : "Could not save your location request. Please try again.");
+  } finally {
+    if (button) button.disabled = false;
   }
 }
 
@@ -2358,13 +2387,7 @@ function ReferenceFindUsSection() {
       <form
         className="area-request reveal"
         id="area-request"
-        onSubmit={(event) =>
-          openWhatsAppFromForm(
-            event,
-            "Hi Tona, I would like to find your coffee near me.",
-            setAreaStatus,
-          )
-        }
+        onSubmit={(event) => void submitLocationRequestForm(event, setAreaStatus)}
       >
         <div className="area-request-copy">
           <p className="mono-label">Not near you yet?</p>
@@ -2379,6 +2402,8 @@ function ReferenceFindUsSection() {
             <span>Your area or neighbourhood</span>
             <input
               name="area"
+              minLength={2}
+              maxLength={180}
               type="text"
               placeholder="e.g. Bole, Addis Ababa"
               required
@@ -2390,6 +2415,7 @@ function ReferenceFindUsSection() {
             </span>
             <input
               name="venue"
+              maxLength={180}
               type="text"
               placeholder="Somewhere you already shop"
             />

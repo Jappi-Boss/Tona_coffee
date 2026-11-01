@@ -27,6 +27,7 @@ const pub = schemas("src/lib/public-api.ts", "export const getPublicCatalog", [
   "quotationInput",
   "businessInput",
   "feedbackInput",
+  "locationRequestInput",
 ]);
 const token = "x".repeat(24);
 const loc = {
@@ -168,3 +169,23 @@ await submit({ preventDefault() {}, currentTarget: {}, nativeEvent: {} }, () => 
 assert.equal(captured.phone, "0903767778");
 assert.equal(captured.email, "customer@example.com");
 assert.equal(pub.contactInput.safeParse(captured).success, true);
+
+assert.equal(pub.locationRequestInput.safeParse({ area: "Bole" }).success, true);
+assert.equal(pub.locationRequestInput.parse({ area: " Bole ", venue: " " }).area, "Bole");
+assert.equal(pub.locationRequestInput.safeParse({ area: " " }).success, false);
+assert.equal(pub.locationRequestInput.safeParse({ area: "a".repeat(181) }).success, false);
+assert.equal(helpers.exports.requestView({ request_type: "location_request" }), "locationRequests");
+assert.equal(helpers.exports.requestView({ request_type: "feedback_general" }), "feedback");
+assert.equal(helpers.exports.requestView({ request_type: "Retail order" }), "contacts");
+const areaHandlerSource = siteSource.slice(siteSource.indexOf("async function submitLocationRequestForm("), siteSource.indexOf("async function submitRequestForm("));
+const areaHandlerJs = ts.transpileModule(areaHandlerSource, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
+let locationSaved, locationReset = false, whatsappFinished = false;
+const submitArea = new Function("FormData", "formText", "optionalFormText", "submitLocationRequest", "prepareWhatsAppWindow", "finishWhatsAppWindow", areaHandlerJs + ";return submitLocationRequestForm;")(
+  class {}, () => "Bole", () => "Local café",
+  async ({ data }) => { locationSaved = data; return { whatsappSent: false }; },
+  () => null, () => { whatsappFinished = true; },
+);
+await submitArea({ preventDefault() {}, currentTarget: { querySelector() { return { disabled: false }; }, reset() { locationReset = true; } } }, () => {});
+assert.deepEqual(locationSaved, { area: "Bole", venue: "Local café" });
+assert.equal(locationReset, true);
+assert.equal(whatsappFinished, true);

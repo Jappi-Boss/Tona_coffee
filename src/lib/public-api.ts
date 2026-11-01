@@ -39,6 +39,11 @@ const contactInput = z.object({
   message: z.string().trim().min(3).max(3000),
 });
 
+const locationRequestInput = z.object({
+  area: z.string().trim().min(2).max(180),
+  venue: z.string().trim().max(180).optional().nullable().default(null),
+});
+
 const feedbackInput = z.object({
   fullName: z.string().trim().min(2).max(120),
   contact: z.string().trim().max(200).refine(
@@ -110,6 +115,21 @@ export const submitContactRequest = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { createContactRequest } = await import("./public-db.server");
     return createContactRequest(data);
+  });
+
+export const submitLocationRequest = createServerFn({ method: "POST" })
+  .validator(locationRequestInput)
+  .handler(async ({ data }) => {
+    const { createContactRequest } = await import("./public-db.server");
+    return createContactRequest({
+      fullName: "Location request",
+      organization: data.venue,
+      phone: "",
+      email: null,
+      requestType: "location_request",
+      coffeeInterest: data.area,
+      message: [`Area: ${data.area}`, data.venue ? `Shop or café: ${data.venue}` : ""].filter(Boolean).join("\n"),
+    });
   });
 
 export const submitFeedback = createServerFn({ method: "POST" })
