@@ -247,3 +247,19 @@ main #story.section {
 
 .site-header.reference-header { border-bottom: 1px solid rgba(255,253,248,.28); }
 .site-header.reference-header .primary-navigation a { font-weight: 600; }
+
+/* Reference scroll reveals for React sections and asynchronously loaded cards. */
+body.motion-ready main :is(.moment-card,.step,.stockist-card,.section-art,.area-request) {
+  opacity: 0;
+  transform: translate3d(0,30px,0);
+}
+body.motion-ready main :is(.moment-card,.step,.stockist-card,.section-art,.area-request).is-visible {
+  opacity: 1;
+  transform: none;
+  transition: opacity 820ms var(--reveal-ease) var(--reveal-delay,0ms), transform 820ms var(--reveal-ease) var(--reveal-delay,0ms);
+}
+body.motion-ready main .section-art { clip-path: inset(0 0 22% 0); }
+body.motion-ready main .section-art.is-visible {
+  clip-path: inset(0);
+  transition: opacity 900ms var(--reveal-ease),clip-path 1050ms var(--reveal-ease),transform 1050ms var(--reveal-ease);
+}

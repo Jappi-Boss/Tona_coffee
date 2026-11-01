@@ -10,7 +10,7 @@ export function ReferenceIntro() {
       window.dispatchEvent(new Event("tona:loader-hidden"));
     };
     document.documentElement.classList.add("tona-intro-on");
-    const timer = window.setTimeout(done, 3200);
+    const timer = window.setTimeout(done, 1750);
     return () => {
       clearTimeout(timer);
       document.documentElement.classList.remove("tona-intro-on");
