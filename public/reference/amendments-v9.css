@@ -118,3 +118,132 @@
 
 /* "Tona" in Ritual Ember inside the Abol. Tona. Bereka. story (client, 25 Sep). */
 .tona-word { color: var(--ember, #ef4a28); }
+
+/* Keep the approved own-label treatment independent of inherited section colours. */
+#business { background-color: #000; color: #fffdf8; }
+#business .own-label { color: #fffdf8; }
+#business .own-label .host-requirements li { border-color: rgba(255,253,248,.28); }
+#business .own-label figcaption { color: rgba(255,253,248,.7); }
+
+/* React's presentation wrapper uses display:contents; retain the reference gutter. */
+main #business.section {
+  padding-inline: max(var(--edge), calc((100% - var(--measure)) / 2));
+}
+#business .business-steps .step {
+  background: #0d0d0d;
+  color: #fffdf8;
+  border: 1px solid rgba(255,253,248,.2);
+}
+#business .business-steps .step p,
+#business .business-steps .section-intro { color: rgba(255,253,248,.75); }
+
+#business .partner-row { background: #0d0d0d; border: 1px solid rgba(255,253,248,.2); color: #fffdf8; }
+#business .partner-reference-icon { display: block; color: #ef4a28; width: 40px; height: 40px; margin: 1.2rem 0; }
+#business .partner-row p { color: #fffdf8; }
+
+/* Business lead follows the reference's dark editorial treatment. */
+#business > .section-lead .section-intro {
+  color: rgba(255,253,248,.75);
+  font-weight: 500;
+}
+#business > .section-lead .section-index {
+  display: table;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid rgba(239,74,40,.55);
+}
+
+/* Preserve the reference principles palette and gutter through the React wrapper. */
+main #difference.section {
+  background: #000;
+  color: #fffdf8;
+  padding-inline: max(var(--edge), calc((100% - var(--measure)) / 2));
+}
+#difference .principle p {
+  color: rgba(255,253,248,.7);
+  font-weight: 500;
+}
+#difference .principle:nth-child(2) h3 { color: var(--ember, #ef4a28); }
+#difference .principle:nth-child(2) .principle-icon { color: var(--gold, #f7b527); }
+
+/* Difference lead: the approved reference keeps only the heading beside the art. */
+#difference > .section-lead .section-index {
+  display: table;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid rgba(239,74,40,.55);
+}
+
+/* Export lead typography matches the reference without changing its geometry. */
+#coffee .export-block > .section-lead .section-index {
+  display: table;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid rgba(239,74,40,.55);
+}
+#coffee .export-block > .section-lead .section-intro,
+#coffee .export-block > .section-lead .region-name,
+#coffee .section-art figcaption { font-weight: 600; }
+
+/* House Blend lead shares the approved export lead's type treatment. */
+#coffee > .section-lead .section-index {
+  display: table;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid rgba(239,74,40,.55);
+}
+#coffee > .section-lead .section-intro { font-weight: 600; }
+
+main #story.section {
+  padding-inline: max(var(--edge), calc((100% - var(--measure)) / 2));
+}
+#story .moment-card,
+#story .moment-card:first-child {
+  background: #fffdf8;
+  color: #000;
+}
+#story .moment-card .moment-no,
+#story .moment-card .moment-tag,
+#story .moment-card .amend-icon { color: var(--ember, #ef4a28); }
+#story .moment-card p { color: #444; }
+#story .vision-mission article > p:not(.mono-label),
+#story .moment-intro .section-intro { font-weight: 600; }
+
+/* Keep the five moment cards at the reference's shared baseline. */
+#story .moment-card { min-height: 17rem; }
+#story .moment-card p { color: #000; }
+#story .moment-card:hover {
+  background: var(--ember, #ef4a28);
+  color: #000;
+}
+#story .moment-card:hover .moment-no,
+#story .moment-card:hover .moment-tag,
+#story .moment-card:hover .amend-icon { color: #000; }
+
+/* Ceremony-name copy and caption use the reference's stronger reading weight. */
+#story .name-block .lead,
+#story .name-block .copy-columns p,
+#story .name-block figcaption { font-weight: 600; }
+
+/* About introduction uses the same reading weight as the ceremony-name copy. */
+#story > .about-layout > .about-copy .lead,
+#story > .about-layout > .about-copy .copy-columns p,
+#story > .about-layout > .about-art figcaption { font-weight: 600; }
+
+#story > .section-heading .section-index {
+  display: table;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid rgba(239,74,40,.55);
+}
+
+/* Desktop hero: keep the artwork and title high, with the reading rail below it. */
+@media (min-width: 1101px) {
+  .hero#home .display-hero,
+  .hero#home .hero-media,
+  .hero#home .definition,
+  .hero#home .original-hero-play {
+    translate: 0 -1.25rem;
+  }
+  .hero#home .hero-intro { translate: 0 2.25rem; }
+}
+.hero#home .definition,
+.hero#home .hero-intro > p { font-weight: 600; }
+
+.site-header.reference-header { border-bottom: 1px solid rgba(255,253,248,.28); }
+.site-header.reference-header .primary-navigation a { font-weight: 600; }

@@ -657,10 +657,9 @@ function ReferenceCoffeeSection() {
 
           <div className="export-rail reveal">
             <div>
-              <p className="mono-label">Sample first</p>
+              <p className="mono-label">Offer list</p>
               <p>
-                Any origin ships as a 100g sample before a single bag is
-                committed.
+                Current lots are matched to your quality profile, volume and shipping window.
               </p>
             </div>
             <div>
@@ -677,8 +676,14 @@ function ReferenceCoffeeSection() {
                 destination.
               </p>
             </div>
-            <a className="button button-primary" href="#orders">
-              Start an export request <span aria-hidden="true">↓</span>
+            <a
+              className="button button-primary"
+              href="https://wa.me/251986212224?text=Hi%20Tona%2C%20I%27d%20like%20to%20start%20an%20export%20enquiry%20for%20Ethiopian%20green%20coffee.%20Please%20send%20me%20your%20current%20offer%20list%2C%20lot%20documents%20and%20commercial%20requirements."
+              target="_blank"
+              rel="noopener noreferrer"
+              data-export-whatsapp
+            >
+              Start an export request on WhatsApp
             </a>
           </div>
         </div>
@@ -1594,31 +1599,40 @@ function ReferenceOrdersSection() {
       id="orders"
       aria-labelledby="orders-title"
     >
-      <div className="quotation-intro reveal">
-        <p className="section-index">05 / Order &amp; enquire</p>
-        <h2
-          id="orders-title"
-          className="display word-reveal motion-heading"
-          aria-label="Tell us whatyou’re pouring."
-        >
-          <RevealWords words={["Tell", "us", "what"]} />
-          <br />
-          <RevealWords words={["you’re", "pouring."]} startAt={3} />
-        </h2>
-        <p>
-          The House Blend is our local-market coffee: one consistent Ethiopian
-          blend, in the formats your bar, shelf or hospitality programme needs.
-          Pick a package below and build a quotation, or send any other
-          request—export, samples, events or feedback—on the right. Pricing is
-          by quotation.
-        </p>
+      <div className="section-lead section-lead--order">
+        <div className="quotation-intro reveal">
+          <p className="section-index">05 / Order &amp; enquire</p>
+          <h2 id="orders-title" className="display">
+            Tell us what
+            <br />
+            you’re pouring.
+          </h2>
+          <p>
+            Our House Blend is Tona’s local-market coffee: a consistent
+            Ethiopian variety blend, in the formats your bar, shelf or
+            hospitality programme needs. Pick a package below and build a
+            quotation, or send an export, local-distribution or feedback request
+            on the right. Pricing is by quotation.
+          </p>
+        </div>
+        <figure className="section-art reveal">
+          <img
+            src="https://tona-coffee-two.vercel.app/assets/art/serving-round.webp"
+            width="1200"
+            height="900"
+            alt="A bag of Tona House Blend handed across the counter to a customer while cups are served"
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption>From our counter to yours.</figcaption>
+        </figure>
       </div>
 
       <div className="package-menu">
         <p className="mono-label">Service packages — choose one</p>
         <div className="pack-grid">
           {PACKAGES.map(([size, description], index) => (
-            <article className="pack-card reveal motion-card" key={size}>
+            <article className="pack-card reveal" key={size}>
               <label className="pack-choice">
                 <input
                   type="radio"
@@ -1633,7 +1647,7 @@ function ReferenceOrdersSection() {
                     <span className="pack-no">0{index + 1}</span>
                     <span>Tona package</span>
                   </span>
-                  <CinematicHeading as="h3" text={size} />
+                  <h3>{size}</h3>
                   <p>{description}</p>
                   <ul aria-label={"Available " + size + " formats"}>
                     {FORMATS.map(([short, label]) => (
@@ -1646,7 +1660,7 @@ function ReferenceOrdersSection() {
               </label>
             </article>
           ))}
-          <article className="pack-card pack-card-custom reveal motion-card">
+          <article className="pack-card pack-card-custom reveal">
             <label className="pack-choice">
               <input
                 type="radio"
@@ -1661,7 +1675,7 @@ function ReferenceOrdersSection() {
                   <span className="pack-no">04</span>
                   <span>Custom package</span>
                 </span>
-                <CinematicHeading as="h3" text="250g" />
+                <h3>250g</h3>
                 <p>Tona coffee presented with your customer-facing logo.</p>
                 <ul aria-label="Available custom 250 gram formats">
                   {FORMATS.map(([short, label]) => (
@@ -1772,28 +1786,31 @@ function ReferenceOrdersSection() {
             </div>
           </fieldset>
           <label className="message-field">
-            <span>Anything else we should know?</span>
+            <span>Volume and anything else we should know</span>
             <textarea
               name="message"
               rows={4}
-              placeholder="Tell us about your café, hotel, office or retail programme."
+              placeholder="Roughly how much per month, and a line about your café, hotel, office or retail programme."
             />
           </label>
-          <button
-            className="button button-dark submit-button"
-            type="submit"
-            disabled={quoteBusy}
-          >
-            {quoteBusy ? "Saving quotation…" : "Send on WhatsApp"}{" "}
-          </button>
-          <button
-            className="button button-outline"
-            type="submit"
-            data-send="email"
-            disabled={quoteBusy || requestBusy}
-          >
-            Send by email
-          </button>
+          <div className="send-row">
+            <button
+              className="button button-dark submit-button"
+              type="submit"
+              data-send="whatsapp"
+              disabled={quoteBusy}
+            >
+              {quoteBusy ? "Saving quotation…" : "Send on WhatsApp"}{" "}
+            </button>
+            <button
+              className="button button-outline"
+              type="submit"
+              data-send="email"
+              disabled={quoteBusy || requestBusy}
+            >
+              Send by email
+            </button>
+          </div>
           <p className="send-note">
             WhatsApp reaches the team fastest. Email goes to info@tonacoffee.et.
           </p>
@@ -1803,7 +1820,7 @@ function ReferenceOrdersSection() {
         </form>
 
         <form
-          id="contact"
+          id="contact-request"
           className="request-form reveal motion-card"
           onSubmit={async (event) => {
             event.preventDefault();
@@ -1879,21 +1896,24 @@ function ReferenceOrdersSection() {
             <span>Message</span>
             <textarea name="message" rows={4} placeholder="How can we help?" />
           </label>
-          <button
-            className="button button-primary"
-            type="submit"
-            disabled={requestBusy}
-          >
-            {requestBusy ? "Saving request…" : "Send on WhatsApp"}{" "}
-          </button>
-          <button
-            className="button button-outline"
-            type="submit"
-            data-send="email"
-            disabled={quoteBusy || requestBusy}
-          >
-            Send by email
-          </button>
+          <div className="send-row">
+            <button
+              className="button button-primary"
+              type="submit"
+              data-send="whatsapp"
+              disabled={requestBusy}
+            >
+              {requestBusy ? "Saving request…" : "Send on WhatsApp"}{" "}
+            </button>
+            <button
+              className="button button-outline"
+              type="submit"
+              data-send="email"
+              disabled={quoteBusy || requestBusy}
+            >
+              Send by email
+            </button>
+          </div>
           <p className="send-note">
             WhatsApp reaches the team fastest. Email goes to info@tonacoffee.et.
           </p>
@@ -2227,6 +2247,7 @@ function ReferenceMap({ stockists }: { stockists: PublicStockist[] }) {
   );
 }
 function ReferenceFindUsSection() {
+  const [areaStatus, setAreaStatus] = useState("");
   const [stockists, setStockists] = useState<PublicStockist[]>(STOCKISTS);
 
   useEffect(() => {
@@ -2254,21 +2275,31 @@ function ReferenceFindUsSection() {
       id="stockists"
       aria-labelledby="findus-title"
     >
-      <SectionHeading
-        id="findus-title"
-        index="07 / Where to find us"
-        titleLabel="Tona is alreadyon the shelf."
-        title={
-          <>
-            <RevealWords words={["Tona", "is", "already"]} />
+      <div className="section-lead">
+        <div className="section-heading reveal">
+          <p className="section-index">06 / Where to find our coffee</p>
+          <h2 id="findus-title" className="display">
+            Our first
             <br />
-            <span className="ember">
-              <RevealWords words={["on", "the", "shelf."]} startAt={3} />
-            </span>
-          </>
-        }
-        intro="Retail stockists across Addis Ababa. More locations are added as they open—ask us on WhatsApp if you want Tona nearer to you."
-      />
+            <span className="ember">stockists.</span>
+          </h2>
+          <p className="section-intro">
+            Retail stockists across Addis Ababa. More locations are added as
+            they open—ask us on WhatsApp if you want Tona nearer to you.
+          </p>
+        </div>
+        <figure className="section-art reveal">
+          <img
+            src="https://tona-coffee-two.vercel.app/assets/art/retail-shelf.webp"
+            width="1200"
+            height="900"
+            alt="A shopper choosing Tona House Blend from a stocked retail shelf"
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption>On the shelf in Addis Ababa.</figcaption>
+        </figure>
+      </div>
 
       <div className="stockist-layout">
         <ul className="stockist-list stockist-cards">
@@ -2376,11 +2407,62 @@ function ReferenceFindUsSection() {
         </div>
       </div>
 
-      <div className="contact-details contact-details-expanded reveal">
-        <div className="motion-copy">
+      <form
+        className="area-request reveal"
+        id="area-request"
+        onSubmit={(event) =>
+          openWhatsAppFromForm(
+            event,
+            "Hi Tona, I would like to find your coffee near me.",
+            setAreaStatus,
+          )
+        }
+      >
+        <div className="area-request-copy">
+          <p className="mono-label">Not near you yet?</p>
+          <h3>Tell us where we should be.</h3>
+          <p>
+            Name your area and we will look into getting Tona onto a shelf near
+            you.
+          </p>
+        </div>
+        <div className="area-request-fields">
+          <label>
+            <span>Your area or neighbourhood</span>
+            <input
+              name="area"
+              type="text"
+              placeholder="e.g. Bole, Addis Ababa"
+              required
+            />
+          </label>
+          <label>
+            <span>
+              Shop or café <small>(optional)</small>
+            </span>
+            <input
+              name="venue"
+              type="text"
+              placeholder="Somewhere you already shop"
+            />
+          </label>
+          <button className="button button-primary" type="submit">
+            Send on WhatsApp
+          </button>
+        </div>
+        <p className="form-status" id="area-status" role="status">
+          {areaStatus}
+        </p>
+      </form>
+
+      <div
+        className="contact-details contact-details-expanded reveal"
+        id="contact"
+      >
+        <div>
           <p className="mono-label">WhatsApp</p>
           <a
-            href={waLink("Hi Tona, I have an enquiry.")}
+            href="https://wa.me/251986212224?text=Hi%20Tona%2C%20I%20have%20an%20enquiry."
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -2388,17 +2470,22 @@ function ReferenceFindUsSection() {
           </a>
           <small>Fastest way to order or ask a question.</small>
         </div>
-        <div className="motion-copy">
+        <div>
           <p className="mono-label">Email</p>
-          <a href="mailto:hello@tonacoffee.com">hello@tonacoffee.com</a>
+          <a href="mailto:info@tonacoffee.et">info@tonacoffee.et</a>
         </div>
-        <div className="motion-copy">
+        <div>
           <p className="mono-label">Roastery</p>
           <p>Addis Ababa, Ethiopia</p>
         </div>
-        <div className="motion-copy">
+        <div>
           <p className="mono-label">Hours</p>
-          <p>Mon – Sat, 8:00 AM – 6:00 PM (EAT)</p>
+          <p className="hours-list">
+            <span>Monday–Friday: 8:00 AM – 5:00 PM</span>
+            <span>Saturday: 8:00 AM – 12:00 PM</span>
+            <span>Sunday: Closed</span>
+          </p>
+          <small>All times are East Africa Time (EAT).</small>
         </div>
       </div>
 
@@ -2414,39 +2501,83 @@ function ReferenceFindUsSection() {
         >
           <span className="social-link-top">
             <span className="social-icon" aria-hidden="true">
-              ◎
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="5"></rect>
+                <circle cx="12" cy="12" r="4"></circle>
+                <circle
+                  cx="17.2"
+                  cy="6.8"
+                  r="1.1"
+                  fill="currentColor"
+                  stroke="none"
+                ></circle>
+              </svg>
             </span>
             <span className="social-name">Instagram</span>
           </span>
           <span className="social-handle">@tona.coffee</span>
         </a>
         <a
-          href="https://www.facebook.com/Tonacoffee"
+          href="https://www.linkedin.com/company/tona-coffee-et"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Facebook: Tona Coffee (opens in a new tab)"
+          aria-label="LinkedIn: Tona Coffee (opens in a new tab)"
         >
           <span className="social-link-top">
             <span className="social-icon" aria-hidden="true">
-              f
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="3"></rect>
+                <path d="M8 10.5V16.5"></path>
+                <circle
+                  cx="8"
+                  cy="7.6"
+                  r="0.9"
+                  fill="currentColor"
+                  stroke="none"
+                ></circle>
+                <path d="M11.5 16.5v-6M11.5 13.2c0-1.6 1-2.7 2.4-2.7s2.1 1 2.1 2.6v3.4"></path>
+              </svg>
             </span>
-            <span className="social-name">Facebook</span>
+            <span className="social-name">LinkedIn</span>
           </span>
           <span className="social-handle">Tona Coffee</span>
         </a>
         <a
-          href="https://www.tiktok.com/@tona.coffee4"
+          href="https://www.tiktok.com/@tonacoffee.et"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="TikTok: @tona.coffee4 (opens in a new tab)"
+          aria-label="TikTok: @tonacoffee.et (opens in a new tab)"
         >
           <span className="social-link-top">
             <span className="social-icon" aria-hidden="true">
-              ♪
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M15.2 3c.3 2.4 1.9 4 4.3 4.2v3.1a7.4 7.4 0 0 1-4.3-1.5v5.9a5.7 5.7 0 1 1-5.7-5.7c.3 0 .6 0 .9.1v3.2a2.6 2.6 0 1 0 1.8 2.4V3Z"></path>
+              </svg>
             </span>
             <span className="social-name">TikTok</span>
           </span>
-          <span className="social-handle">@tona.coffee4</span>
+          <span className="social-handle">@tonacoffee.et</span>
         </a>
       </nav>
     </section>
@@ -2464,19 +2595,31 @@ function ReferenceFeedbackSection() {
       id="feedback"
       aria-labelledby="feedback-title"
     >
-      <SectionHeading
-        id="feedback-title"
-        index="08 / Feedback"
-        titleLabel="Where the conversationcontinues."
-        title={
-          <>
-            <RevealWords words={["Where", "the", "conversation"]} />
+      <div className="section-lead">
+        <div className="section-heading reveal">
+          <p className="section-index">07 / Feedback</p>
+          <h2 id="feedback-title" className="display">
+            Where the conversation
             <br />
-            <RevealWords words={["continues."]} startAt={3} />
-          </>
-        }
-        intro="Rate your coffee, tell us what went wrong, or share an idea. A real person follows up."
-      />
+            continues.
+          </h2>
+          <p className="section-intro">
+            Rate your coffee, tell us what went wrong, or share an idea. A real
+            person follows up.
+          </p>
+        </div>
+        <figure className="section-art section-art--portrait reveal">
+          <img
+            src="https://tona-coffee-two.vercel.app/assets/art/ceremony-table.webp"
+            width="1200"
+            height="1600"
+            alt="Two friends sharing Ethiopian coffee from a jebena, with a bag of Tona House Blend on the table"
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption>Every cup starts a conversation.</figcaption>
+        </figure>
+      </div>
       <div className="feedback-layout">
         <div className="feedback-choices">
           {["Rate your coffee", "General feedback", "Report a problem"].map(

@@ -13,15 +13,33 @@ const NAV = [
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("home");
-  useEffect(() => {
-    const update = () => setActive(window.location.hash.slice(1) || "home");
-    update();
-    window.addEventListener("hashchange", update);
-    return () => window.removeEventListener("hashchange", update);
-  }, []);
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const marker = window.innerHeight * 0.3;
+      let current = "home";
+      for (const item of NAV) {
+        const section = document.getElementById(item.to);
+        if (section && section.getBoundingClientRect().top <= marker) current = item.to;
+      }
+      setActive(current);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    window.addEventListener("hashchange", schedule);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener("hashchange", schedule);
+    };
+  }, [pathname]);
 
   return (
     <header className="site-header reference-header" id="site-header">
