@@ -1568,6 +1568,19 @@ function ProductImageUpload({
     setMessage("Uploading image…");
     try {
       const token = await getAdminToken();
+      // Small images can retain their original format and transparency without
+      // depending on the browser's ImageBitmap decoder.
+      let contentType = file.type;
+      let base64: string;
+      if (file.size <= 2 * 1024 * 1024) {
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result));
+          reader.onerror = () => reject(new Error("Could not read the selected image."));
+          reader.readAsDataURL(file);
+        });
+        base64 = dataUrl.split(",")[1] || "";
+      } else {
       const image = await createImageBitmap(file);
       const scale = Math.min(1, 2000 / Math.max(image.width, image.height));
       const canvas = document.createElement("canvas");
@@ -1578,11 +1591,13 @@ function ProductImageUpload({
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
       image.close();
       const dataUrl = canvas.toDataURL("image/webp", 0.85);
-      const base64 = dataUrl.split(",")[1];
+      base64 = dataUrl.split(",")[1] || "";
+      contentType = "image/webp";
+      }
       if (!base64 || base64.length > 2_796_204)
         throw new Error("Image is too detailed. Choose a smaller image.");
       const result = await uploadAdminImage({
-        data: { token, contentType: "image/webp", base64 },
+        data: { token, contentType: contentType as "image/jpeg" | "image/png" | "image/webp", base64 },
       });
       onUploaded(result.url);
       setMessage(
