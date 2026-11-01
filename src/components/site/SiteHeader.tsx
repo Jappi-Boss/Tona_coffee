@@ -13,6 +13,7 @@ const NAV = [
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("home");
+  const [scrolled, setScrolled] = useState(false);
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
@@ -20,6 +21,7 @@ export function SiteHeader() {
     let frame = 0;
     const update = () => {
       frame = 0;
+      setScrolled(window.scrollY > 20);
       const marker = window.innerHeight * 0.3;
       let current = "home";
       for (const item of NAV) {
@@ -42,7 +44,7 @@ export function SiteHeader() {
   }, [pathname]);
 
   return (
-    <header className="site-header reference-header" id="site-header">
+    <header className={"site-header reference-header" + (scrolled ? " is-scrolled" : "")} id="site-header">
       <Link
         to="/"
         aria-label="Tona Coffee home"

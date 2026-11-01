@@ -245,7 +245,7 @@ main #story.section {
 .hero#home .definition,
 .hero#home .hero-intro > p { font-weight: 600; }
 
-.site-header.reference-header { border-bottom: 1px solid rgba(255,253,248,.28); }
+.site-header.reference-header { border-bottom: 1px solid transparent; }
 .site-header.reference-header .primary-navigation a { font-weight: 600; }
 
 /* Reference scroll reveals for React sections and asynchronously loaded cards. */
@@ -263,3 +263,26 @@ body.motion-ready main .section-art.is-visible {
   clip-path: inset(0);
   transition: opacity 900ms var(--reveal-ease),clip-path 1050ms var(--reveal-ease),transform 1050ms var(--reveal-ease);
 }
+
+.site-header.reference-header.is-scrolled {
+  border-bottom-color: rgba(255,253,248,.28);
+  background: rgba(0,0,0,.92);
+}
+.site-header.reference-header .primary-navigation a {
+  position: relative;
+  color: #fffdf8;
+  text-decoration: none;
+}
+.site-header.reference-header .primary-navigation a::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  bottom: 0;
+  height: 2px;
+  background: #ef4a28;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 220ms ease;
+}
+.site-header.reference-header .primary-navigation a:is(.active,:hover,:focus-visible)::after { transform: scaleX(1); }
