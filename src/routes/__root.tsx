@@ -146,7 +146,7 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
         {!isAdmin && (
           <>
-            <style>{`html.tona-intro-on { background:#000; } html.tona-intro-on .public-site-content { visibility:hidden; } html.tona-intro-on body { overflow:hidden; }`}</style>
+            <style>{`html.tona-intro-on { background:#000; } html.tona-intro-on .public-site-content { visibility:hidden; } html.tona-intro-on body { overflow:hidden; } html.tona-intro-on .public-site-content * { animation-play-state:paused !important; }`}</style>
             <noscript><style>{`.public-site-content { visibility:visible !important; } .tona-intro { display:none !important; } body { overflow:auto !important; }`}</style></noscript>
           </>
         )}

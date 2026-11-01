@@ -48,7 +48,7 @@ export function PageMotion({ pathname }: PageMotionProps) {
     };
 
     const startMotion = () => {
-      if (started) return;
+      if (started || document.documentElement.classList.contains("tona-intro-on")) return;
       started = true;
 
       if (fallbackTimer !== undefined) window.clearTimeout(fallbackTimer);
