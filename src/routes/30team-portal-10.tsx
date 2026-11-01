@@ -556,8 +556,18 @@ function Overview({
       FileSpreadsheet,
       "bg-orange-50 text-primary",
     ],
+    ["New website enquiries", data.contactRequests.filter((row) => requestView(row) === "contacts" && row.status === "new").length, "contacts", MessageSquareText, "bg-orange-50 text-primary"],
+    ["New feedback", data.contactRequests.filter((row) => requestView(row) === "feedback" && row.status === "new").length, "feedback", Inbox, "bg-orange-50 text-primary"],
+    ["New location requests", data.contactRequests.filter((row) => requestView(row) === "locationRequests" && row.status === "new").length, "locationRequests", MapPin, "bg-orange-50 text-primary"],
   ] as const;
   const activity = [
+    ...data.contactRequests.map((row) => ({
+      type: requestLabel(row.request_type),
+      title: String(requestView(row) === "locationRequests" ? row.coffee_interest || "Location request" : row.full_name || "Website request"),
+      detail: String(row.message || ""),
+      date: row.created_at,
+      view: requestView(row) as View,
+    })),
     ...data.orders.map((row) => ({
       type: "Order",
       title: String(row.customer_name),
@@ -597,7 +607,7 @@ function Overview({
           A live view of the work that needs attention today.
         </p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map(([label, value, target, Icon, color]) => (
           <button
             key={label}
