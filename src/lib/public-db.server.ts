@@ -20,7 +20,12 @@ export async function loadPublicLocations() {
   const sql = database();
   const rows =
     await sql`SELECT value FROM public.site_settings WHERE key = ${STOCKISTS_SETTING_KEY} LIMIT 1`;
-  return orderStockists(normalizeStockists(rows[0]?.value));
+  return orderStockists(normalizeStockists(rows[0]?.value)).map(
+    (stockist, index) => ({
+      ...stockist,
+      number: String(index + 1).padStart(2, "0"),
+    }),
+  );
 }
 
 export async function loadPublicCatalog() {
