@@ -24,10 +24,10 @@ function escapeHtml(value: string) {
     .replaceAll("'", "&#39;");
 }
 
-async function sendEmail(input: SubmissionNotificationInput) {
+async function sendEmail(input: SubmissionNotificationInput, recipientOverride?: string) {
   const apiKey = text(process.env.RESEND_API_KEY);
   const recipient = text(
-    process.env.TONA_NOTIFICATION_EMAIL ?? process.env.NOTIFICATION_EMAIL ?? "info@tonacoffee.et",
+    recipientOverride ?? process.env.TONA_NOTIFICATION_EMAIL ?? process.env.NOTIFICATION_EMAIL ?? "info@tonacoffee.et",
   );
   if (!apiKey || !recipient) return false;
 
@@ -91,4 +91,11 @@ export async function sendSubmissionNotifications(
     sendWhatsApp(input).catch(() => false),
   ]);
   return { emailSent, whatsappSent };
+}
+
+// Direct enquiries are emailed only; they do not create database records.
+export async function sendEnquiryEmail(input: SubmissionNotificationInput) {
+  const sent = await sendEmail(input, "info@tonacoffee.et");
+  if (!sent) throw new Error("Your email could not be sent. Please try WhatsApp or contact info@tonacoffee.et.");
+  return { ok: true };
 }

@@ -160,22 +160,22 @@ for (const channel of ["email", "whatsapp"]) {
   const browser = { location: { href: "" } };
   let whatsapp = "";
   let status = "";
-  const submit = new Function("FormData", "formText", "prepareWhatsAppWindow", "finishWhatsAppWindow", "window", "submitContactRequest", handlerJs + ";return submitRequestForm;")(
+  const submit = new Function("FormData", "formText", "prepareWhatsAppWindow", "finishWhatsAppWindow", "window", "emailContactRequest", "optionalFormText", handlerJs + ";return submitRequestForm;")(
     class {}, (_, key) => ({ "full-name": "Customer", phone: "0903767778", email: "customer@example.com", organization: "Company", "request-type": "Retail order", "coffee-interest": "House Blend", message: "Please send details" }[key] || ""),
     () => null, (_, message) => { whatsapp = message; }, browser,
-    () => { throw new Error("Enquiries must not save to admin"); },
+    async ({data}) => { browser.email = data; return {ok:true}; }, (_, key) => ({email:"customer@example.com", organization:"Company", "coffee-interest":"House Blend"}[key] || null),
   );
   await submit({ preventDefault() {}, currentTarget: {}, nativeEvent: { submitter: { getAttribute: () => channel } } }, value => { status = value; });
   if (channel === "email") {
-    assert.match(browser.location.href, /^mailto:info@tonacoffee.et/);
-    assert.match(decodeURIComponent(browser.location.href), /0903767778/);
+    assert.equal(browser.location.href, "");
+    assert.equal(browser.email.phone, "0903767778");
     assert.equal(whatsapp, "");
   } else {
     assert.equal(browser.location.href, "");
     assert.match(whatsapp, /customer@example.com/);
     assert.match(whatsapp, /Please send details/);
   }
-  assert.match(status, /ready/);
+  assert.match(status, channel === "email" ? /emailed/ : /ready/);
 }
 
 assert.equal(pub.locationRequestInput.safeParse({ area: "Bole" }).success, true);

@@ -117,6 +117,27 @@ export const submitContactRequest = createServerFn({ method: "POST" })
     return createContactRequest(data);
   });
 
+export const emailContactRequest = createServerFn({ method: "POST" })
+  .validator(contactInput)
+  .handler(async ({ data }) => {
+    const { sendEnquiryEmail } = await import("./notifications.server");
+    return sendEnquiryEmail({
+      title: "New Tona Coffee enquiry",
+      subject: "New Tona Coffee enquiry",
+      customerEmail: data.email,
+      fields: [
+        { label: "Name", value: data.fullName },
+        { label: "Phone", value: data.phone },
+        { label: "Email", value: data.email },
+        { label: "Organization", value: data.organization },
+        { label: "Request type", value: data.requestType },
+        { label: "Coffee interest", value: data.coffeeInterest },
+        { label: "Message", value: data.message },
+      ],
+      whatsappMessage: "",
+    });
+  });
+
 export const submitLocationRequest = createServerFn({ method: "POST" })
   .validator(locationRequestInput)
   .handler(async ({ data }) => {

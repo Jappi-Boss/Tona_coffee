@@ -16,7 +16,7 @@ import {
   getPublicCatalog,
   getPublicLocations,
   submitBusinessInquiry,
-  submitContactRequest,
+  emailContactRequest,
   submitFeedback,
   submitLocationRequest,
   submitEventRegistration,
@@ -912,11 +912,21 @@ async function submitRequestForm(
     (event.nativeEvent as SubmitEvent).submitter?.getAttribute("data-send") ||
     "whatsapp";
   if (channel === "email") {
-    window.location.href =
-      "mailto:info@tonacoffee.et?subject=" +
-      encodeURIComponent("Tona Coffee enquiry") +
-      "&body=" + encodeURIComponent(message);
-    setStatus("Your email draft is ready. Send it from your email app.");
+    setStatus("Sending your email…");
+    try {
+      await emailContactRequest({ data: {
+        fullName: formText(data, "full-name"),
+        phone: formText(data, "phone"),
+        email: optionalFormText(data, "email"),
+        organization: optionalFormText(data, "organization"),
+        requestType: formText(data, "request-type"),
+        coffeeInterest: optionalFormText(data, "coffee-interest"),
+        message: formText(data, "message") || "No additional message.",
+      } });
+      setStatus("Your enquiry has been emailed to info@tonacoffee.et. Thank you.");
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Could not send your email. Please try again.");
+    }
   } else {
     finishWhatsAppWindow(prepareWhatsAppWindow(), message);
     setStatus("Your WhatsApp message is ready. Continue in WhatsApp to send it.");
