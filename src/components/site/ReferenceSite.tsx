@@ -815,10 +815,24 @@ async function submitQuotationForm(
   event.preventDefault();
   const data = new FormData(event.currentTarget);
   const format = formText(data, "format-choice");
+  const fallbackMessage = [
+    "Hi Tona, I'd like a House Blend quotation.",
+    `Package: ${packageSize === "custom" ? "250g custom" : packageSize}`,
+    `Format: ${format}`,
+    `Customer brand: ${formText(data, "brand-name")}`,
+    `Message: ${formText(data, "message")}`,
+  ].join("\n");
   const channel =
     (event.nativeEvent as SubmitEvent).submitter?.getAttribute("data-send") ||
     "whatsapp";
   const popup = channel === "whatsapp" ? prepareWhatsAppWindow() : null;
+  const openEmail = (message: string) => {
+    window.location.href =
+      "mailto:info@tonacoffee.et?subject=" +
+      encodeURIComponent("Tona Coffee enquiry") +
+      "&body=" +
+      encodeURIComponent(message);
+  };
 
   try {
     const result = await submitQuotation({
@@ -826,32 +840,27 @@ async function submitQuotationForm(
         packageSize,
         format,
         brandName: optionalFormText(data, "brand-name"),
-        customerName: formText(data, "full-name"),
-        company: optionalFormText(data, "organization"),
-        phone: formText(data, "phone"),
-        email: optionalFormText(data, "email"),
-        monthlyVolume: optionalFormText(data, "monthly-volume"),
-        message: [
-          `Request type: ${formText(data, "request-type")}`,
-          `Coffee interest: ${formText(data, "coffee-interest")}`,
-          formText(data, "message"),
-        ].filter(Boolean).join("\n"),
+        message: optionalFormText(data, "message"),
       },
     });
-    if (channel === "whatsapp")
+    if (channel === "email") openEmail(result.whatsappMessage);
+    else
       finishWhatsAppWindow(
         popup,
         result.whatsappMessage,
         Boolean(result.whatsappSent),
       );
     setStatus(
-      `Order ${result.quoteNumber} saved to our team. ${channel === "email"
-        ? result.emailSent ? "Email copy sent to info@tonacoffee.et." : "Your order is saved, but the email copy could not be sent. Please contact info@tonacoffee.et with your reference."
-        : "Continue in WhatsApp to send your order details."}`,
+      `Quotation ${result.quoteNumber} saved. ${result.emailSent ? "Email sent. " : ""}${result.whatsappSent ? "WhatsApp notification sent." : "WhatsApp message is ready for you to send."}`,
     );
   } catch (error) {
-    popup?.close();
-    setStatus(error instanceof Error ? error.message : "Could not save your order. Please try again.");
+    if (channel === "email") openEmail(fallbackMessage);
+    else finishWhatsAppWindow(popup, fallbackMessage);
+    setStatus(
+      error instanceof Error && /required|valid/i.test(error.message)
+        ? error.message
+        : "We could not save the quotation online. WhatsApp is ready—please send the message so Tona can help.",
+    );
   }
 }
 
@@ -889,59 +898,28 @@ async function submitRequestForm(
 ) {
   event.preventDefault();
   const data = new FormData(event.currentTarget);
-  const requestType = formText(data, "request-type");
-  const coffeeInterest = formText(data, "coffee-interest");
-  const message = formText(data, "message");
-  const whatsappMessage = [
+  const message = [
     "Hi Tona, I have a request.",
     `Name: ${formText(data, "full-name")}`,
+    `Phone: ${formText(data, "phone")}`,
+    `Email: ${formText(data, "email")}`,
     `Organization: ${formText(data, "organization")}`,
-    `Request type: ${requestType}`,
-    `Coffee interest: ${coffeeInterest}`,
-    `Message: ${message}`,
+    `Request type: ${formText(data, "request-type")}`,
+    `Coffee interest: ${formText(data, "coffee-interest")}`,
+    `Message: ${formText(data, "message")}`,
   ].join("\n");
   const channel =
     (event.nativeEvent as SubmitEvent).submitter?.getAttribute("data-send") ||
     "whatsapp";
-  const popup = channel === "whatsapp" ? prepareWhatsAppWindow() : null;
-  const openEmail = (message: string) => {
+  if (channel === "email") {
     window.location.href =
       "mailto:info@tonacoffee.et?subject=" +
       encodeURIComponent("Tona Coffee enquiry") +
-      "&body=" +
-      encodeURIComponent(message);
-  };
-
-  try {
-    const result = await submitContactRequest({
-      data: {
-        fullName: formText(data, "full-name"),
-        organization: optionalFormText(data, "organization"),
-        phone: formText(data, "phone"),
-        email: optionalFormText(data, "email"),
-        requestType,
-        coffeeInterest,
-        message: message || "No additional message.",
-      },
-    });
-    if (channel === "email") openEmail(whatsappMessage);
-    else
-      finishWhatsAppWindow(
-        popup,
-        whatsappMessage,
-        Boolean(result.whatsappSent),
-      );
-    setStatus(
-      `Request saved. ${result.emailSent ? "Email sent. " : ""}${result.whatsappSent ? "WhatsApp notification sent." : "WhatsApp message is ready for you to send."}`,
-    );
-  } catch (error) {
-    if (channel === "email") openEmail(whatsappMessage);
-    else finishWhatsAppWindow(popup, whatsappMessage);
-    setStatus(
-      error instanceof Error && /required|valid/i.test(error.message)
-        ? error.message
-        : "We could not save the request online. WhatsApp is ready—please send the message so Tona can help.",
-    );
+      "&body=" + encodeURIComponent(message);
+    setStatus("Your email draft is ready. Send it from your email app.");
+  } else {
+    finishWhatsAppWindow(prepareWhatsAppWindow(), message);
+    setStatus("Your WhatsApp message is ready. Continue in WhatsApp to send it.");
   }
 }
 
@@ -1598,7 +1576,9 @@ function ReferenceOrdersSection() {
     "1kg" | "500g" | "250g" | "custom"
   >("1kg");
   const [quoteBusy, setQuoteBusy] = useState(false);
+  const [requestBusy, setRequestBusy] = useState(false);
   const [quoteStatus, setQuoteStatus] = useState("");
+  const [requestStatus, setRequestStatus] = useState("");
 
   return (
     <section
@@ -1700,8 +1680,9 @@ function ReferenceOrdersSection() {
         </div>
       </div>
 
-      <form
-          className="orders-layout"
+      <div className="orders-layout">
+        <form
+          className="quote-form reveal motion-card"
           id="quote-form"
           onSubmit={async (event) => {
             event.preventDefault();
@@ -1714,7 +1695,6 @@ function ReferenceOrdersSection() {
             }
           }}
         >
-        <div className="quote-form reveal motion-card">
           <p className="form-kicker">House Blend quotation</p>
           <fieldset>
             <legend>01 / Choose a format</legend>
@@ -1756,15 +1736,51 @@ function ReferenceOrdersSection() {
           <label className="message-field">
             <span>Volume and anything else we should know</span>
             <textarea
-              name="monthly-volume"
+              name="message"
               rows={4}
               placeholder="Roughly how much per month, and a line about your café, hotel, office or retail programme."
             />
           </label>
+          <div className="send-row">
+            <button
+              className="button button-dark submit-button"
+              type="submit"
+              data-send="whatsapp"
+              disabled={quoteBusy}
+            >
+              {quoteBusy ? "Saving quotation…" : "Send on WhatsApp"}{" "}
+            </button>
+            <button
+              className="button button-outline"
+              type="submit"
+              data-send="email"
+              disabled={quoteBusy || requestBusy}
+            >
+              Send by email
+            </button>
+          </div>
+          <p className="send-note">
+            WhatsApp reaches the team fastest. Email goes to info@tonacoffee.et.
+          </p>
+          <p className="form-status" role="status">
+            {quoteStatus}
+          </p>
+        </form>
 
-        </div>
-
-        <div id="contact-request" className="request-form reveal motion-card">
+        <form
+          id="contact-request"
+          className="request-form reveal motion-card"
+          onSubmit={async (event) => {
+            event.preventDefault();
+            if (requestBusy) return;
+            setRequestBusy(true);
+            try {
+              await submitRequestForm(event, setRequestStatus);
+            } finally {
+              setRequestBusy(false);
+            }
+          }}
+        >
           <p className="form-kicker">How can we help?</p>
           <div className="field-grid">
             <label>
@@ -1831,15 +1847,15 @@ function ReferenceOrdersSection() {
               className="button button-primary"
               type="submit"
               data-send="whatsapp"
-              disabled={quoteBusy}
+              disabled={requestBusy}
             >
-              {quoteBusy ? "Saving order…" : "Send on WhatsApp"}{" "}
+              {requestBusy ? "Saving request…" : "Send on WhatsApp"}{" "}
             </button>
             <button
               className="button button-outline"
               type="submit"
               data-send="email"
-              disabled={quoteBusy}
+              disabled={quoteBusy || requestBusy}
             >
               Send by email
             </button>
@@ -1848,10 +1864,10 @@ function ReferenceOrdersSection() {
             WhatsApp reaches the team fastest. Email goes to info@tonacoffee.et.
           </p>
           <p className="form-status" role="status">
-            {quoteStatus}
+            {requestStatus}
           </p>
-        </div>
-      </form>
+        </form>
+      </div>
     </section>
   );
 }

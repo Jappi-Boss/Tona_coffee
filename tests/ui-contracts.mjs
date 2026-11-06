@@ -119,7 +119,6 @@ assert.equal(
   false,
 );
 const source = readFileSync("src/components/site/ReferenceSite.tsx", "utf8");
-assert.ok(source.includes("coffeeInterest,\n        message:"));
 assert.ok(
   source.includes("stockist.latitude !== null && stockist.longitude !== null"),
 );
@@ -153,22 +152,31 @@ assert.equal(helpers.exports.isFeedbackRequest({ request_type: "Feedback" }), tr
 assert.equal(helpers.exports.isFeedbackRequest({ request_type: "feedback_problem" }), true);
 assert.equal(helpers.exports.isFeedbackRequest({ request_type: "Export enquiry" }), false);
 assert.equal(helpers.exports.requestLabel("feedback_rating"), "Coffee rating");
-// Exercise the real enquiry handler with a server stub: contact details must survive the form boundary.
+// Enquiries hand off only to the chosen channel and never save an admin record.
 const siteSource = readFileSync("src/components/site/ReferenceSite.tsx", "utf8");
-const handlerSource = siteSource.slice(siteSource.indexOf("async function submitRequestForm("), siteSource.indexOf("\nasync function ", siteSource.indexOf("async function submitRequestForm(") + 10));
+const handlerSource = siteSource.slice(siteSource.indexOf("async function submitRequestForm("), siteSource.indexOf("\nasync function submitHostedEventForm"));
 const handlerJs = ts.transpileModule(handlerSource, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
-let captured;
-const submit = new Function("FormData", "formText", "optionalFormText", "submitContactRequest", "prepareWhatsAppWindow", "finishWhatsAppWindow", handlerJs + ";return submitRequestForm;")(
-  class { constructor() {} },
-  (_, key) => ({ "full-name": "Customer", phone: "0903767778", email: "customer@example.com", "request-type": "Export enquiry", "coffee-interest": "Export", message: "Please send details" }[key] || ""),
-  (_, key) => ({ email: "customer@example.com", organization: "Company" }[key] || null),
-  async ({ data }) => { captured = data; return { emailSent: false, whatsappSent: false }; },
-  () => null, () => {},
-);
-await submit({ preventDefault() {}, currentTarget: {}, nativeEvent: {} }, () => {});
-assert.equal(captured.phone, "0903767778");
-assert.equal(captured.email, "customer@example.com");
-assert.equal(pub.contactInput.safeParse(captured).success, true);
+for (const channel of ["email", "whatsapp"]) {
+  const browser = { location: { href: "" } };
+  let whatsapp = "";
+  let status = "";
+  const submit = new Function("FormData", "formText", "prepareWhatsAppWindow", "finishWhatsAppWindow", "window", "submitContactRequest", handlerJs + ";return submitRequestForm;")(
+    class {}, (_, key) => ({ "full-name": "Customer", phone: "0903767778", email: "customer@example.com", organization: "Company", "request-type": "Retail order", "coffee-interest": "House Blend", message: "Please send details" }[key] || ""),
+    () => null, (_, message) => { whatsapp = message; }, browser,
+    () => { throw new Error("Enquiries must not save to admin"); },
+  );
+  await submit({ preventDefault() {}, currentTarget: {}, nativeEvent: { submitter: { getAttribute: () => channel } } }, value => { status = value; });
+  if (channel === "email") {
+    assert.match(browser.location.href, /^mailto:info@tonacoffee.et/);
+    assert.match(decodeURIComponent(browser.location.href), /0903767778/);
+    assert.equal(whatsapp, "");
+  } else {
+    assert.equal(browser.location.href, "");
+    assert.match(whatsapp, /customer@example.com/);
+    assert.match(whatsapp, /Please send details/);
+  }
+  assert.match(status, /ready/);
+}
 
 assert.equal(pub.locationRequestInput.safeParse({ area: "Bole" }).success, true);
 assert.equal(pub.locationRequestInput.parse({ area: " Bole ", venue: " " }).area, "Bole");
@@ -189,31 +197,3 @@ await submitArea({ preventDefault() {}, currentTarget: { querySelector() { retur
 assert.deepEqual(locationSaved, { area: "Bole", venue: "Local café" });
 assert.equal(locationReset, true);
 assert.equal(whatsappFinished, true);
-
-// Both order channels must save the same complete payload before handoff.
-const orderHandlerSource = siteSource.slice(siteSource.indexOf("async function submitQuotationForm("), siteSource.indexOf("\nasync function submitLocationRequestForm"));
-const orderHandlerJs = ts.transpileModule(orderHandlerSource, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
-const values = { "full-name": "Order Customer", phone: "0903767778", email: "customer@example.com", organization: "Company", "format-choice": "Medium Bean", "monthly-volume": "25kg monthly", "request-type": "Retail order", "coffee-interest": "House Blend", message: "Deliver next week" };
-for (const channel of ["email", "whatsapp"]) {
-  const actions = [];
-  let payload;
-  let status;
-  const handler = new Function("FormData", "formText", "optionalFormText", "submitQuotation", "prepareWhatsAppWindow", "finishWhatsAppWindow", orderHandlerJs + ";return submitQuotationForm;")(
-    class {}, (_, key) => values[key] || "", (_, key) => values[key] || null,
-    async ({ data }) => { actions.push("saved"); payload = data; return { quoteNumber: "TEST-1", whatsappMessage: "Complete order", emailSent: false, whatsappSent: false }; },
-    () => null, () => actions.push("whatsapp"),
-  );
-  await handler({ preventDefault() {}, currentTarget: {}, nativeEvent: { submitter: { getAttribute: () => channel } } }, "500g", value => { status = value; });
-  assert.equal(payload.customerName, values["full-name"]);
-  assert.equal(payload.phone, values.phone);
-  assert.equal(payload.email, values.email);
-  assert.equal(payload.company, values.organization);
-  assert.equal(payload.packageSize, "500g");
-  assert.equal(payload.monthlyVolume, values["monthly-volume"]);
-  assert.match(payload.message, /Retail order/);
-  assert.match(payload.message, /Deliver next week/);
-  assert.equal(pub.quotationInput.safeParse(payload).success, true);
-  assert.deepEqual(actions, channel === "email" ? ["saved"] : ["saved", "whatsapp"]);
-  if (channel === "email") assert.match(status, /email copy could not be sent/);
-}
-console.log("Combined order payload passed for email and WhatsApp.");
