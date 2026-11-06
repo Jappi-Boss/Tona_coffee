@@ -73,7 +73,7 @@ type DashboardData = {
 const navItems = [
   ["overview", "Overview", LayoutDashboard],
   ["products", "Products", Coffee],
-  ["events", "Events", CalendarDays],
+  // Events is intentionally hidden from the admin navigation.
   ["locations", "Locations", MapPin],
   ["registrations", "Registrations", Users],
   ["orders", "Orders", PackageCheck],
@@ -85,7 +85,7 @@ const navItems = [
   ["users", "Staff access", UserCog],
 ] as const;
 
-type View = (typeof navItems)[number][0];
+type View = (typeof navItems)[number][0] | "events";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -520,17 +520,6 @@ function Overview({
       data.orders.filter((row) => row.status === "new").length,
       "orders",
       PackageCheck,
-      "bg-orange-50 text-primary",
-    ],
-    [
-      "Upcoming events",
-      data.events.filter(
-        (row) =>
-          new Date(String(row.event_date)) >= new Date() &&
-          row.status === "published",
-      ).length,
-      "events",
-      CalendarDays,
       "bg-orange-50 text-primary",
     ],
     [
