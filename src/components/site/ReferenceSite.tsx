@@ -815,24 +815,10 @@ async function submitQuotationForm(
   event.preventDefault();
   const data = new FormData(event.currentTarget);
   const format = formText(data, "format-choice");
-  const fallbackMessage = [
-    "Hi Tona, I'd like a House Blend quotation.",
-    `Package: ${packageSize === "custom" ? "250g custom" : packageSize}`,
-    `Format: ${format}`,
-    `Customer brand: ${formText(data, "brand-name")}`,
-    `Message: ${formText(data, "message")}`,
-  ].join("\n");
   const channel =
     (event.nativeEvent as SubmitEvent).submitter?.getAttribute("data-send") ||
     "whatsapp";
   const popup = channel === "whatsapp" ? prepareWhatsAppWindow() : null;
-  const openEmail = (message: string) => {
-    window.location.href =
-      "mailto:info@tonacoffee.et?subject=" +
-      encodeURIComponent("Tona Coffee enquiry") +
-      "&body=" +
-      encodeURIComponent(message);
-  };
 
   try {
     const result = await submitQuotation({
@@ -840,27 +826,32 @@ async function submitQuotationForm(
         packageSize,
         format,
         brandName: optionalFormText(data, "brand-name"),
-        message: optionalFormText(data, "message"),
+        customerName: formText(data, "full-name"),
+        company: optionalFormText(data, "organization"),
+        phone: formText(data, "phone"),
+        email: optionalFormText(data, "email"),
+        monthlyVolume: optionalFormText(data, "monthly-volume"),
+        message: [
+          `Request type: ${formText(data, "request-type")}`,
+          `Coffee interest: ${formText(data, "coffee-interest")}`,
+          formText(data, "message"),
+        ].filter(Boolean).join("\n"),
       },
     });
-    if (channel === "email") openEmail(result.whatsappMessage);
-    else
+    if (channel === "whatsapp")
       finishWhatsAppWindow(
         popup,
         result.whatsappMessage,
         Boolean(result.whatsappSent),
       );
     setStatus(
-      `Quotation ${result.quoteNumber} saved. ${result.emailSent ? "Email sent. " : ""}${result.whatsappSent ? "WhatsApp notification sent." : "WhatsApp message is ready for you to send."}`,
+      `Order ${result.quoteNumber} saved to our team. ${channel === "email"
+        ? result.emailSent ? "Email copy sent to info@tonacoffee.et." : "Your order is saved, but the email copy could not be sent. Please contact info@tonacoffee.et with your reference."
+        : "Continue in WhatsApp to send your order details."}`,
     );
   } catch (error) {
-    if (channel === "email") openEmail(fallbackMessage);
-    else finishWhatsAppWindow(popup, fallbackMessage);
-    setStatus(
-      error instanceof Error && /required|valid/i.test(error.message)
-        ? error.message
-        : "We could not save the quotation online. WhatsApp is ready—please send the message so Tona can help.",
-    );
+    popup?.close();
+    setStatus(error instanceof Error ? error.message : "Could not save your order. Please try again.");
   }
 }
 
@@ -1607,9 +1598,7 @@ function ReferenceOrdersSection() {
     "1kg" | "500g" | "250g" | "custom"
   >("1kg");
   const [quoteBusy, setQuoteBusy] = useState(false);
-  const [requestBusy, setRequestBusy] = useState(false);
   const [quoteStatus, setQuoteStatus] = useState("");
-  const [requestStatus, setRequestStatus] = useState("");
 
   return (
     <section
@@ -1711,9 +1700,8 @@ function ReferenceOrdersSection() {
         </div>
       </div>
 
-      <div className="orders-layout">
-        <form
-          className="quote-form reveal motion-card"
+      <form
+          className="orders-layout"
           id="quote-form"
           onSubmit={async (event) => {
             event.preventDefault();
@@ -1726,6 +1714,7 @@ function ReferenceOrdersSection() {
             }
           }}
         >
+        <div className="quote-form reveal motion-card">
           <p className="form-kicker">House Blend quotation</p>
           <fieldset>
             <legend>01 / Choose a format</legend>
@@ -1767,51 +1756,15 @@ function ReferenceOrdersSection() {
           <label className="message-field">
             <span>Volume and anything else we should know</span>
             <textarea
-              name="message"
+              name="monthly-volume"
               rows={4}
               placeholder="Roughly how much per month, and a line about your café, hotel, office or retail programme."
             />
           </label>
-          <div className="send-row">
-            <button
-              className="button button-dark submit-button"
-              type="submit"
-              data-send="whatsapp"
-              disabled={quoteBusy}
-            >
-              {quoteBusy ? "Saving quotation…" : "Send on WhatsApp"}{" "}
-            </button>
-            <button
-              className="button button-outline"
-              type="submit"
-              data-send="email"
-              disabled={quoteBusy || requestBusy}
-            >
-              Send by email
-            </button>
-          </div>
-          <p className="send-note">
-            WhatsApp reaches the team fastest. Email goes to info@tonacoffee.et.
-          </p>
-          <p className="form-status" role="status">
-            {quoteStatus}
-          </p>
-        </form>
 
-        <form
-          id="contact-request"
-          className="request-form reveal motion-card"
-          onSubmit={async (event) => {
-            event.preventDefault();
-            if (requestBusy) return;
-            setRequestBusy(true);
-            try {
-              await submitRequestForm(event, setRequestStatus);
-            } finally {
-              setRequestBusy(false);
-            }
-          }}
-        >
+        </div>
+
+        <div id="contact-request" className="request-form reveal motion-card">
           <p className="form-kicker">How can we help?</p>
           <div className="field-grid">
             <label>
@@ -1878,15 +1831,15 @@ function ReferenceOrdersSection() {
               className="button button-primary"
               type="submit"
               data-send="whatsapp"
-              disabled={requestBusy}
+              disabled={quoteBusy}
             >
-              {requestBusy ? "Saving request…" : "Send on WhatsApp"}{" "}
+              {quoteBusy ? "Saving order…" : "Send on WhatsApp"}{" "}
             </button>
             <button
               className="button button-outline"
               type="submit"
               data-send="email"
-              disabled={quoteBusy || requestBusy}
+              disabled={quoteBusy}
             >
               Send by email
             </button>
@@ -1895,10 +1848,10 @@ function ReferenceOrdersSection() {
             WhatsApp reaches the team fastest. Email goes to info@tonacoffee.et.
           </p>
           <p className="form-status" role="status">
-            {requestStatus}
+            {quoteStatus}
           </p>
-        </form>
-      </div>
+        </div>
+      </form>
     </section>
   );
 }

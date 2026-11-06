@@ -27,7 +27,7 @@ function escapeHtml(value: string) {
 async function sendEmail(input: SubmissionNotificationInput) {
   const apiKey = text(process.env.RESEND_API_KEY);
   const recipient = text(
-    process.env.TONA_NOTIFICATION_EMAIL ?? process.env.NOTIFICATION_EMAIL,
+    process.env.TONA_NOTIFICATION_EMAIL ?? process.env.NOTIFICATION_EMAIL ?? "info@tonacoffee.et",
   );
   if (!apiKey || !recipient) return false;
 
