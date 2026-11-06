@@ -406,7 +406,7 @@ export async function createContactRequest(input: {
       `Coffee interest: ${input.coffeeInterest ?? ""}`,
       `Message: ${input.message}`,
     ].join("\n"),
-  });
+  }, input.requestType.startsWith("feedback_") ? "email" : undefined);
   return { ok: true, id, ...notifications };
 }
 

@@ -2535,7 +2535,7 @@ async function submitFeedbackForm(event: FormEvent<HTMLFormElement>, setStatus: 
   if (button) button.disabled = true;
   setStatus("Saving your feedback…");
   try {
-    await submitFeedback({ data: {
+    const result = await submitFeedback({ data: {
       fullName: formText(data, "full-name"),
       contact: formText(data, "contact"),
       feedbackType: formText(data, "feedback-type") as "Rate your coffee" | "General feedback" | "Report a problem",
@@ -2545,7 +2545,9 @@ async function submitFeedbackForm(event: FormEvent<HTMLFormElement>, setStatus: 
       comment: formText(data, "comment"),
     } });
     form.reset();
-    setStatus("Thank you. Your feedback has been saved for the Tona team.");
+    setStatus(result.emailSent
+      ? "Thank you. Your feedback has been emailed to info@tonacoffee.et."
+      : "Your feedback was saved for the Tona team, but the email could not be sent. Please contact info@tonacoffee.et if needed.");
   } catch (error) {
     setStatus(error instanceof Error ? error.message : "Could not save feedback. Please try again.");
   } finally {
