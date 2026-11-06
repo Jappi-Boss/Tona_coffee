@@ -75,7 +75,7 @@ const navItems = [
   ["products", "Products", Coffee],
   // Events is intentionally hidden from the admin navigation.
   ["locations", "Locations", MapPin],
-  ["registrations", "Registrations", Users],
+  // ["registrations", "Registrations", Users],
   ["orders", "Orders", PackageCheck],
   ["quotations", "Quotations", FileSpreadsheet],
   ["business", "Business inquiries", ClipboardList],
@@ -85,7 +85,7 @@ const navItems = [
   ["users", "Staff access", UserCog],
 ] as const;
 
-type View = (typeof navItems)[number][0] | "events";
+type View = (typeof navItems)[number][0] | "events" | "registrations";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -523,13 +523,6 @@ function Overview({
       "bg-orange-50 text-primary",
     ],
     [
-      "Registrations",
-      data.registrations.length,
-      "registrations",
-      Users,
-      "bg-orange-50 text-primary",
-    ],
-    [
       "Open inquiries",
       data.businessInquiries.filter(
         (row) => !["closed", "lost"].includes(String(row.status)),
@@ -563,13 +556,6 @@ function Overview({
       detail: String(row.order_number),
       date: row.created_at,
       view: "orders" as View,
-    })),
-    ...data.registrations.map((row) => ({
-      type: "Registration",
-      title: String(row.full_name),
-      detail: String(row.event_title),
-      date: row.created_at,
-      view: "registrations" as View,
     })),
     ...data.businessInquiries.map((row) => ({
       type: "Business",
