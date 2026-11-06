@@ -85,10 +85,11 @@ async function sendWhatsApp(input: SubmissionNotificationInput) {
 
 export async function sendSubmissionNotifications(
   input: SubmissionNotificationInput,
+  channel?: "email" | "whatsapp",
 ) {
   const [emailSent, whatsappSent] = await Promise.all([
-    sendEmail(input).catch(() => false),
-    sendWhatsApp(input).catch(() => false),
+    channel === "whatsapp" ? false : sendEmail(input, channel === "email" ? "info@tonacoffee.et" : undefined).catch(() => false),
+    channel === "email" ? false : sendWhatsApp(input).catch(() => false),
   ]);
   return { emailSent, whatsappSent };
 }

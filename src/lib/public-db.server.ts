@@ -496,6 +496,7 @@ export async function createOrder(input: {
 }
 
 export async function createQuotationRequest(input: {
+  channel: "email" | "whatsapp";
   packageSize: "1kg" | "500g" | "250g" | "custom";
   format: string;
   brandName: string | null;
@@ -549,7 +550,7 @@ export async function createQuotationRequest(input: {
       { label: "Message", value: input.message },
     ],
     whatsappMessage,
-  });
+  }, input.channel);
 
   return { ok: true, id, quoteNumber, whatsappMessage, ...notifications };
 }

@@ -815,54 +815,38 @@ async function submitQuotationForm(
   event.preventDefault();
   const data = new FormData(event.currentTarget);
   const format = formText(data, "format-choice");
-  const fallbackMessage = [
-    "Hi Tona, I'd like a House Blend quotation.",
-    `Package: ${packageSize === "custom" ? "250g custom" : packageSize}`,
-    `Format: ${format}`,
-    `Customer brand: ${formText(data, "brand-name")}`,
-    `Message: ${formText(data, "message")}`,
-  ].join("\n");
   const channel =
     (event.nativeEvent as SubmitEvent).submitter?.getAttribute("data-send") ||
     "whatsapp";
   const popup = channel === "whatsapp" ? prepareWhatsAppWindow() : null;
-  const openEmail = (message: string) => {
-    window.location.href =
-      "mailto:info@tonacoffee.et?subject=" +
-      encodeURIComponent("Tona Coffee enquiry") +
-      "&body=" +
-      encodeURIComponent(message);
-  };
 
   try {
     const result = await submitQuotation({
       data: {
+        channel: channel === "email" ? "email" : "whatsapp",
         packageSize,
         format,
         brandName: optionalFormText(data, "brand-name"),
         message: optionalFormText(data, "message"),
       },
     });
-    if (channel === "email") openEmail(result.whatsappMessage);
-    else
+    if (channel === "whatsapp")
       finishWhatsAppWindow(
         popup,
         result.whatsappMessage,
         Boolean(result.whatsappSent),
       );
     setStatus(
-      `Quotation ${result.quoteNumber} saved. ${result.emailSent ? "Email sent. " : ""}${result.whatsappSent ? "WhatsApp notification sent." : "WhatsApp message is ready for you to send."}`,
+      `Quotation ${result.quoteNumber} saved in our system. ${channel === "email"
+        ? result.emailSent ? "Email sent to info@tonacoffee.et." : "The email copy could not be sent. Please contact info@tonacoffee.et with your reference."
+        : result.whatsappSent ? "WhatsApp notification sent." : "Continue in WhatsApp to send your quotation."}`,
     );
   } catch (error) {
-    if (channel === "email") openEmail(fallbackMessage);
-    else finishWhatsAppWindow(popup, fallbackMessage);
-    setStatus(
-      error instanceof Error && /required|valid/i.test(error.message)
-        ? error.message
-        : "We could not save the quotation online. WhatsApp is ready—please send the message so Tona can help.",
-    );
+    popup?.close();
+    setStatus(error instanceof Error ? error.message : "Could not save your quotation. Please try again.");
   }
 }
+
 
 async function submitLocationRequestForm(event: FormEvent<HTMLFormElement>, setStatus: (message: string) => void) {
   event.preventDefault();
