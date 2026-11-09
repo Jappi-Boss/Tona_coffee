@@ -526,11 +526,6 @@ export async function createQuotationRequest(input: {
     `Package: ${input.packageSize === "custom" ? "250g custom" : input.packageSize}`,
     `Format: ${input.format}`,
     `Customer brand: ${input.brandName ?? ""}`,
-    `Name: ${input.customerName}`,
-    `Company: ${input.company ?? ""}`,
-    `Phone: ${input.phone}`,
-    `Email: ${input.email ?? ""}`,
-    `Monthly volume: ${input.monthlyVolume ?? ""}`,
     `Message: ${input.message ?? ""}`,
   ].filter((line) => !line.endsWith(": ")).join("\n");
   const notifications = await sendSubmissionNotifications({
@@ -542,11 +537,6 @@ export async function createQuotationRequest(input: {
       { label: "Package", value: input.packageSize },
       { label: "Format", value: input.format },
       { label: "Customer brand", value: input.brandName },
-      { label: "Name", value: input.customerName },
-      { label: "Company", value: input.company },
-      { label: "Phone", value: input.phone },
-      { label: "Email", value: input.email },
-      { label: "Monthly volume", value: input.monthlyVolume },
       { label: "Message", value: input.message },
     ],
     whatsappMessage,

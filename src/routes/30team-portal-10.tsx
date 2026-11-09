@@ -2343,14 +2343,14 @@ function RecordDetailsButton({ row }: { row: Row }) {
           <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {Object.entries(row)
               .filter(([key, value]) => {
-                // Quotation details mirror the public form, excluding generated metadata.
-                if (row.quote_number && !["package_size", "format", "brand_name", "message"].includes(key)) return false;
-                return !["id", "event_id", "quote_number", "created_at", "updated_at"].includes(key) && value != null && (typeof value !== "string" || value.trim() !== "");
+                // Keep the quotation reference and timestamps alongside actual form inputs.
+                if (row.quote_number && !["quote_number", "created_at", "updated_at", "package_size", "format", "brand_name", "message"].includes(key)) return false;
+                return !["id", "event_id"].includes(key) && value != null && (typeof value !== "string" || value.trim() !== "");
               })
               .map(([key, value]) => (
                 <div key={key} className={`min-w-0 rounded-lg border border-black/10 bg-white/60 p-4 ${["message", "notes", "comment", "description"].includes(key) || typeof value === "object" ? "sm:col-span-2" : ""}`}>
                   <dt className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
-                    {({ package_size: "Package", brand_name: "Customer brand", message: "Message" } as Record<string, string>)[key] ?? key.replaceAll("_", " ")}
+                    {({ quote_number: "Reference", created_at: "Submitted at", updated_at: "Updated at", package_size: "Package", brand_name: "Customer brand", message: "Message" } as Record<string, string>)[key] ?? key.replaceAll("_", " ")}
                   </dt>
                   <dd className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-teal">
                     {key.endsWith("_at")
