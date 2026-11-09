@@ -77,16 +77,14 @@ const navItems = [
   // Events is intentionally hidden from the admin navigation.
   ["locations", "Locations", MapPin],
   // ["registrations", "Registrations", Users],
-  ["orders", "Orders", PackageCheck],
   ["quotations", "Quotations", FileSpreadsheet],
   ["business", "Business inquiries", ClipboardList],
-  ["contacts", "Website enquiries", MessageSquareText],
   ["feedback", "Feedback", Inbox],
   ["locationRequests", "Location requests", MapPin],
   ["users", "Staff access", UserCog],
 ] as const;
 
-type View = (typeof navItems)[number][0] | "events" | "registrations";
+type View = (typeof navItems)[number][0] | "events" | "registrations" | "orders" | "contacts";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -530,13 +528,6 @@ function Overview({
 }) {
   const stats = [
     [
-      "New orders",
-      data.orders.filter((row) => row.status === "new").length,
-      "orders",
-      PackageCheck,
-      "bg-orange-50 text-primary",
-    ],
-    [
       "Open inquiries",
       data.businessInquiries.filter(
         (row) => !["closed", "lost"].includes(String(row.status)),
@@ -552,24 +543,16 @@ function Overview({
       FileSpreadsheet,
       "bg-orange-50 text-primary",
     ],
-    ["New website enquiries", data.contactRequests.filter((row) => requestView(row) === "contacts" && row.status === "new").length, "contacts", MessageSquareText, "bg-orange-50 text-primary"],
     ["New feedback", data.contactRequests.filter((row) => requestView(row) === "feedback" && row.status === "new").length, "feedback", Inbox, "bg-orange-50 text-primary"],
     ["New location requests", data.contactRequests.filter((row) => requestView(row) === "locationRequests" && row.status === "new").length, "locationRequests", MapPin, "bg-orange-50 text-primary"],
   ] as const;
   const activity = [
-    ...data.contactRequests.map((row) => ({
+    ...data.contactRequests.filter((row) => requestView(row) !== "contacts").map((row) => ({
       type: requestLabel(row.request_type),
       title: String(requestView(row) === "locationRequests" ? row.coffee_interest || "Location request" : row.full_name || "Website request"),
       detail: String(row.message || ""),
       date: row.created_at,
       view: requestView(row) as View,
-    })),
-    ...data.orders.map((row) => ({
-      type: "Order",
-      title: String(row.customer_name),
-      detail: String(row.order_number),
-      date: row.created_at,
-      view: "orders" as View,
     })),
     ...data.businessInquiries.map((row) => ({
       type: "Business",
