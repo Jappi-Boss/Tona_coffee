@@ -44,6 +44,7 @@ import {
   uploadAdminImage,
   recordAdminUserPasswordReset,
   resetAdminUserPassword,
+  deleteAdminUser,
   saveEvent,
   saveLocation,
   saveProduct,
@@ -178,6 +179,18 @@ function AdminDashboard() {
       toast.error(
         caught instanceof Error ? caught.message : "Could not update status.",
       );
+    }
+  }
+
+  async function removeUser(row: Row) {
+    if (!window.confirm(`Delete staff access for ${String(row.name)} (${String(row.email)})? They will no longer be able to access the dashboard.`)) return;
+    try {
+      const token = await getAdminToken();
+      await deleteAdminUser({ data: { token, email: String(row.email) } });
+      toast.success("Staff access deleted.");
+      await load();
+    } catch (caught) {
+      toast.error(caught instanceof Error ? caught.message : "Could not delete staff access.");
     }
   }
 
@@ -449,6 +462,7 @@ function AdminDashboard() {
               rows={filtered.users}
               onCreate={() => setEditingUser("new")}
               onReset={setResettingUser}
+              onDelete={removeUser}
             />
           )}
         </div>
@@ -1251,10 +1265,12 @@ function UserManagement({
   rows,
   onCreate,
   onReset,
+  onDelete,
 }: {
   rows: Row[];
   onCreate: () => void;
   onReset: (row: Row) => void;
+  onDelete: (row: Row) => Promise<void>;
 }) {
   return (
     <Section
@@ -1281,7 +1297,9 @@ function UserManagement({
             </td>
             <Cell title={formatDate(row.created_at)} />
             <td className="p-4">
-              {row.id && !row.is_permanent ? (
+              {!row.is_permanent && row.role !== "super_admin" ? (
+                <div className="flex flex-wrap items-center gap-2">
+                {row.id && (
                 <button
                   type="button"
                   onClick={() => onReset(row)}
@@ -1289,6 +1307,9 @@ function UserManagement({
                 >
                   <KeyRound className="h-3.5 w-3.5" /> Reset password
                 </button>
+                )}
+                <DeleteButton label={`Delete staff access for ${String(row.name)}`} action={() => { void onDelete(row); }} />
+                </div>
               ) : (
                 <span className="text-xs text-muted-foreground">
                   Protected account

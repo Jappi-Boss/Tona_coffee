@@ -230,3 +230,10 @@ export const uploadAdminImage = createServerFn({ method: "POST" })
     const { storeAdminImage } = await import("./admin-db.server");
     return storeAdminImage(data);
   });
+
+export const deleteAdminUser = createServerFn({ method: "POST" })
+  .validator(authInput.extend({ email: z.string().trim().email().max(320) }))
+  .handler(async ({ data }) => {
+    const { deleteManagedUser } = await import("./admin-db.server");
+    return deleteManagedUser(data);
+  });

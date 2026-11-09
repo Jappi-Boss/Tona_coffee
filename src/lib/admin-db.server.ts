@@ -168,6 +168,29 @@ type ResetManagedUserPasswordInput = {
   userId: string;
 };
 
+// Removing the allowlist entry revokes dashboard access, including existing sessions.
+export async function deleteManagedUser(input: { token: string; email: string }) {
+  const actor = await requireSuperAdmin(input.token);
+  const sql = database();
+  const removed = await sql`
+    WITH removed AS (
+      DELETE FROM public.admin_allowlist
+      WHERE lower(email) = lower(${input.email})
+        AND COALESCE(is_permanent, false) = false
+        AND role <> 'super_admin'
+        AND lower(email) <> lower(${actor.email})
+      RETURNING email
+    )
+    INSERT INTO audit_log (actor_email, action, entity_type, entity_id, details)
+    SELECT ${actor.email}, 'deleted', 'admin_user', email,
+      jsonb_build_object('email', email, 'access_revoked', true)
+    FROM removed
+    RETURNING entity_id
+  `;
+  if (!removed.length) throw new Error("User not found or this account is protected.");
+  return { ok: true };
+}
+
 export async function resetManagedUserPassword(
   input: ResetManagedUserPasswordInput,
 ) {
