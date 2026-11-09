@@ -161,10 +161,10 @@ for (const channel of ["email", "whatsapp", "email-failure"]) {
   let resetCount = 0;
   let whatsapp = "";
   let status = "";
-  const submit = new Function("FormData", "formText", "prepareWhatsAppWindow", "finishWhatsAppWindow", "window", "emailContactRequest", "optionalFormText", handlerJs + ";return submitRequestForm;")(
+  const submit = new Function("FormData", "formText", "prepareWhatsAppWindow", "finishWhatsAppWindow", "window", "submitContactRequest", "optionalFormText", handlerJs + ";return submitRequestForm;")(
     class {}, (_, key) => ({ "full-name": "Customer", phone: "0903767778", email: "customer@example.com", organization: "Company", "request-type": "Retail order", "coffee-interest": "House Blend", message: "Please send details" }[key] || ""),
     () => null, (_, message) => { whatsapp = message; }, browser,
-    async ({data}) => { if (channel === "email-failure") throw new Error("Delivery failed"); browser.email = data; return {ok:true}; }, (_, key) => ({email:"customer@example.com", organization:"Company", "coffee-interest":"House Blend"}[key] || null),
+    async ({data}) => { if (channel === "email-failure") throw new Error("Delivery failed"); browser.email = data; return {ok:true,emailSent:true}; }, (_, key) => ({email:"customer@example.com", organization:"Company", "coffee-interest":"House Blend"}[key] || null),
   );
   await submit({ preventDefault() {}, currentTarget: { reset() { resetCount++; } }, nativeEvent: { submitter: { getAttribute: () => channel === "email-failure" ? "email" : channel } } }, value => { status = value; });
   if (channel === "email-failure") {
@@ -182,7 +182,8 @@ for (const channel of ["email", "whatsapp", "email-failure"]) {
     assert.match(whatsapp, /customer@example.com/);
     assert.match(whatsapp, /Please send details/);
   }
-  assert.match(status, channel === "email" ? /emailed/ : /ready/);
+  assert.match(status, channel === "email" ? /emailed/ : /WhatsApp/);
+  assert.equal(browser.email.channel, channel);
 }
 
 assert.equal(pub.locationRequestInput.safeParse({ area: "Bole" }).success, true);

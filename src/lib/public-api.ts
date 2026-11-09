@@ -112,7 +112,7 @@ export const submitBusinessInquiry = createServerFn({ method: "POST" })
   });
 
 export const submitContactRequest = createServerFn({ method: "POST" })
-  .validator(contactInput)
+  .validator(contactInput.extend({ channel: z.enum(["email", "whatsapp"]).default("email") }))
   .handler(async ({ data }) => {
     const { createContactRequest } = await import("./public-db.server");
     return createContactRequest(data);

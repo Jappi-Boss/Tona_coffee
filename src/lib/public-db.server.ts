@@ -373,6 +373,7 @@ export async function createContactRequest(input: {
   requestType: string;
   coffeeInterest?: string | null;
   message: string;
+  channel?: "email" | "whatsapp";
 }) {
   const sql = database();
   const rows = await sql`
@@ -411,7 +412,7 @@ export async function createContactRequest(input: {
       `Coffee interest: ${input.coffeeInterest ?? ""}`,
       `Message: ${input.message}`,
     ].join("\n"),
-  }, input.requestType.startsWith("feedback_") ? "email" : undefined);
+  }, input.channel ?? (input.requestType.startsWith("feedback_") ? "email" : undefined));
   return { ok: true, id, ...notifications };
 }
 

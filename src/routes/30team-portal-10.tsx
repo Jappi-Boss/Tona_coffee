@@ -78,6 +78,7 @@ const navItems = [
   ["locations", "Locations", MapPin],
   // ["registrations", "Registrations", Users],
   ["quotations", "Quotations", FileSpreadsheet],
+  ["contacts", "Website enquiries", MessageSquareText],
   ["feedback", "Feedback", Inbox],
   ["locationRequests", "Location requests", MapPin],
   ["users", "Staff access", UserCog],
@@ -533,11 +534,12 @@ function Overview({
       FileSpreadsheet,
       "bg-orange-50 text-primary",
     ],
+    ["New website enquiries", data.contactRequests.filter((row) => requestView(row) === "contacts" && row.status === "new").length, "contacts", MessageSquareText, "bg-orange-50 text-primary"],
     ["New feedback", data.contactRequests.filter((row) => requestView(row) === "feedback" && row.status === "new").length, "feedback", Inbox, "bg-orange-50 text-primary"],
     ["New location requests", data.contactRequests.filter((row) => requestView(row) === "locationRequests" && row.status === "new").length, "locationRequests", MapPin, "bg-orange-50 text-primary"],
   ] as const;
   const activity = [
-    ...data.contactRequests.filter((row) => requestView(row) !== "contacts").map((row) => ({
+    ...data.contactRequests.map((row) => ({
       type: requestLabel(row.request_type),
       title: String(requestView(row) === "locationRequests" ? row.coffee_interest || "Location request" : row.full_name || "Website request"),
       detail: String(row.message || ""),

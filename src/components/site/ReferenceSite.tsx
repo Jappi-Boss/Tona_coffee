@@ -16,7 +16,7 @@ import {
   getPublicCatalog,
   getPublicLocations,
   submitBusinessInquiry,
-  emailContactRequest,
+  submitContactRequest,
   submitFeedback,
   submitLocationRequest,
   submitEventRegistration,
@@ -898,27 +898,27 @@ async function submitRequestForm(
   const channel =
     (event.nativeEvent as SubmitEvent).submitter?.getAttribute("data-send") ||
     "whatsapp";
-  if (channel === "email") {
-    setStatus("Sending your email…");
-    try {
-      await emailContactRequest({ data: {
-        fullName: formText(data, "full-name"),
-        phone: formText(data, "phone"),
-        email: optionalFormText(data, "email"),
-        organization: optionalFormText(data, "organization"),
-        requestType: formText(data, "request-type"),
-        coffeeInterest: optionalFormText(data, "coffee-interest"),
-        message: formText(data, "message") || "No additional message.",
-      } });
-      form.reset();
-      setStatus("Your enquiry has been emailed to info@tonacoffee.et. Thank you.");
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Could not send your email. Please try again.");
-    }
-  } else {
-    finishWhatsAppWindow(prepareWhatsAppWindow(), message);
+  const popup = channel === "whatsapp" ? prepareWhatsAppWindow() : null;
+  setStatus("Saving your enquiry…");
+  try {
+    const result = await submitContactRequest({ data: {
+      channel: channel === "email" ? "email" : "whatsapp",
+      fullName: formText(data, "full-name"),
+      phone: formText(data, "phone"),
+      email: optionalFormText(data, "email"),
+      organization: optionalFormText(data, "organization"),
+      requestType: formText(data, "request-type") === "Feedback" ? "Website enquiry: Feedback" : formText(data, "request-type"),
+      coffeeInterest: optionalFormText(data, "coffee-interest"),
+      message: formText(data, "message") || "No additional message.",
+    } });
+    if (channel === "whatsapp") finishWhatsAppWindow(popup, message, Boolean(result.whatsappSent));
     form.reset();
-    setStatus("Your WhatsApp message is ready. Continue in WhatsApp to send it.");
+    setStatus(channel === "email"
+      ? result.emailSent ? "Your enquiry is saved and emailed to info@tonacoffee.et. Thank you." : "Your enquiry is saved for the Tona team, but the email could not be sent."
+      : result.whatsappSent ? "Your enquiry is saved and sent on WhatsApp." : "Your enquiry is saved. Continue in WhatsApp to send your message.");
+  } catch (error) {
+    popup?.close();
+    setStatus(error instanceof Error ? error.message : "Could not save your enquiry. Please try again.");
   }
 }
 
