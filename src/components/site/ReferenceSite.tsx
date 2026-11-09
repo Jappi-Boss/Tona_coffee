@@ -2604,7 +2604,7 @@ function ReferenceFeedbackSection() {
       <div className="feedback-layout">
         <div className="feedback-choices">
           {["Rate your coffee", "General feedback", "Report a problem"].map((choice) => (
-            <div key={choice} className={"feedback-choice reveal" + (feedbackType === choice ? " is-selected" : "")} style={{ display: "grid", gap: "0.6rem" }}>
+            <div key={choice} className={"feedback-choice" + (feedbackType === choice ? " is-selected" : "")} style={{ display: "grid", gap: "0.6rem", opacity: 1, visibility: "visible", borderColor: feedbackType === choice ? "var(--ember)" : undefined, background: feedbackType === choice ? "var(--white)" : undefined }}>
               <button
                 type="button"
                 aria-pressed={feedbackType === choice}
@@ -2638,7 +2638,7 @@ function ReferenceFeedbackSection() {
           onReset={() => { setRating(0); setFeedbackType("Rate your coffee"); }}
           onSubmit={(event) => void submitFeedbackForm(event, setStatus)}
         >
-          <p className="form-kicker">Tell us more</p>
+          <p className="form-kicker">Tell us more — {feedbackType}</p>
           <input type="hidden" name="feedback-type" value={feedbackType} />
           <input type="hidden" name="feedback-rating" value={feedbackType === "Rate your coffee" ? rating || "" : ""} />
           <div className="field-grid">

@@ -54,6 +54,10 @@ async function sendEmail(input: SubmissionNotificationInput, recipientOverride?:
       html: `<div style="font-family:Arial,sans-serif;color:#1a1a1a"><h2>${escapeHtml(input.title)}</h2><table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;max-width:680px">${rows}</table></div>`,
     }),
   });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({})) as { name?: string; message?: string };
+    console.error("Email notification rejected", { status: response.status, name: error.name, message: error.message });
+  }
   return response.ok;
 }
 

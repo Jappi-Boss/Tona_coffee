@@ -160,6 +160,7 @@ export const submitFeedback = createServerFn({ method: "POST" })
     const { createContactRequest } = await import("./public-db.server");
     const isEmail = z.string().email().safeParse(data.contact).success;
     return createContactRequest({
+      channel: "email",
       fullName: data.fullName,
       organization: null,
       phone: isEmail ? "" : data.contact,
