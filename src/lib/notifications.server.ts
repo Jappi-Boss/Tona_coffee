@@ -29,7 +29,7 @@ async function sendEmail(input: SubmissionNotificationInput, recipientOverride?:
   const recipient = text(
     recipientOverride ?? process.env.TONA_NOTIFICATION_EMAIL ?? process.env.NOTIFICATION_EMAIL ?? "info@tonacoffee.et",
   );
-  if (!apiKey || !recipient) return false;
+  if (!apiKey || !recipient) throw new Error("Email service is not configured.");
 
   const from =
     text(process.env.RESEND_FROM_EMAIL) || "Tona Coffee <onboarding@resend.dev>";
@@ -57,6 +57,7 @@ async function sendEmail(input: SubmissionNotificationInput, recipientOverride?:
   if (!response.ok) {
     const error = await response.json().catch(() => ({})) as { name?: string; message?: string };
     console.error("Email notification rejected", { status: response.status, name: error.name, message: error.message });
+    throw new Error(`Email service rejected the notification (${response.status}${error.name ? ": " + error.name.replace(/[^a-zA-Z0-9_-]/g, "") : ""}).`);
   }
   return response.ok;
 }
@@ -91,11 +92,16 @@ export async function sendSubmissionNotifications(
   input: SubmissionNotificationInput,
   channel?: "email" | "whatsapp",
 ) {
+  let emailError: string | null = null;
   const [emailSent, whatsappSent] = await Promise.all([
-    channel === "whatsapp" ? false : sendEmail(input, channel === "email" ? "info@tonacoffee.et" : undefined).catch(() => false),
+    channel === "whatsapp" ? false : sendEmail(input, channel === "email" ? "info@tonacoffee.et" : undefined).catch((error: unknown) => {
+      console.error("Email notification failed", error instanceof Error ? error.message : "Unknown email error");
+      emailError = error instanceof Error && /^(Email service)/.test(error.message) ? error.message : "Email service could not be reached.";
+      return false;
+    }),
     channel === "email" ? false : sendWhatsApp(input).catch(() => false),
   ]);
-  return { emailSent, whatsappSent };
+  return { emailSent, whatsappSent, emailError };
 }
 
 // Direct enquiries are emailed only; they do not create database records.

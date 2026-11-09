@@ -205,3 +205,32 @@ await submitArea({ preventDefault() {}, currentTarget: { querySelector() { retur
 assert.deepEqual(locationSaved, { area: "Bole", venue: "Local café" });
 assert.equal(locationReset, true);
 assert.equal(whatsappFinished, true);
+
+// Exercise all feedback types through API mapping, dashboard persistence and email.
+const notificationJs = ts.transpileModule(readFileSync("src/lib/notifications.server.ts", "utf8").replaceAll("export ", ""), { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
+const dbSource = readFileSync("src/lib/public-db.server.ts", "utf8");
+const contactJs = ts.transpileModule(dbSource.slice(dbSource.indexOf("export async function createContactRequest"), dbSource.indexOf("export async function createOrder")).replace("export ", ""), { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
+const apiSource = readFileSync("src/lib/public-api.ts", "utf8");
+const feedbackHandlerJs = ts.transpileModule(apiSource.slice(apiSource.indexOf("export const submitFeedback"), apiSource.indexOf("export const submitOrder")).replace("export ", "").replace('    const { createContactRequest } = await import("./public-db.server");', ""), { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
+for (const [feedbackType, rating] of [["Rate your coffee", 4], ["General feedback", 0], ["Report a problem", 0]]) {
+  let mail, stored;
+  const notify = new Function("fetch", "process", "console", notificationJs + "; return sendSubmissionNotifications;")(
+    async (_, request) => { mail = JSON.parse(request.body); return { ok: true }; },
+    { env: { RESEND_API_KEY: "test-only", RESEND_FROM_EMAIL: "Tona Coffee <website@tonacoffee.et>" } }, console,
+  );
+  const createContact = new Function("database", "sendSubmissionNotifications", contactJs + ";return createContactRequest;")(
+    () => async (_, ...values) => { stored = values; return [{ id: "test-record" }]; }, notify,
+  );
+  const submit = new Function("createServerFn", "feedbackInput", "z", "createContactRequest", feedbackHandlerJs + ";return submitFeedback;")(
+    () => ({ validator: schema => ({ handler: fn => input => fn({ data: schema.parse(input.data) }) }) }), pub.feedbackInput, z, createContact,
+  );
+  const result = await submit({ data: { ...feedback, feedbackType, rating, comment: "Feedback delivery test" } });
+  assert.equal(result.emailSent, true);
+  assert.equal(mail.to, "info@tonacoffee.et");
+  assert.ok(mail.subject.includes(feedbackType));
+  assert.ok(mail.html.includes(feedbackType));
+  assert.ok(mail.html.includes("Feedback delivery test"));
+  assert.ok(stored.includes("Feedback delivery test") || stored.some(value => typeof value === "string" && value.includes("Feedback delivery test")));
+  assert.equal(mail.html.includes("Rating: 4/5"), feedbackType === "Rate your coffee");
+}
+console.log("All three feedback types save and send email; non-rating feedback needs no stars (mocked services).");

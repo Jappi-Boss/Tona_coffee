@@ -2557,7 +2557,7 @@ async function submitFeedbackForm(event: FormEvent<HTMLFormElement>, setStatus: 
     form.reset();
     setStatus(result.emailSent
       ? "Thank you. Your feedback has been emailed to info@tonacoffee.et."
-      : "Your feedback was saved for the Tona team, but the email could not be sent. Please contact info@tonacoffee.et if needed.");
+      : `Your feedback was saved for the Tona team. ${result.emailError || "The email copy could not be sent."} Please contact info@tonacoffee.et if needed.`);
   } catch (error) {
     setStatus(error instanceof Error ? error.message : "Could not save feedback. Please try again.");
   } finally {
