@@ -2603,71 +2603,34 @@ function ReferenceFeedbackSection() {
       </div>
       <div className="feedback-layout">
         <div className="feedback-choices">
-          {["Rate your coffee", "General feedback", "Report a problem"].map(
-            (choice) => (
+          {["Rate your coffee", "General feedback", "Report a problem"].map((choice) => (
+            <div key={choice} className={"feedback-choice reveal" + (feedbackType === choice ? " is-selected" : "")} style={{ display: "grid", gap: "0.6rem" }}>
               <button
-                className={
-                  "feedback-choice reveal" +
-                  (feedbackType === choice ? " is-selected" : "")
-                }
                 type="button"
-                key={choice}
                 aria-pressed={feedbackType === choice}
                 onClick={() => setFeedbackType(choice)}
+                style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", width: "100%", border: 0, padding: 0, background: "transparent", textAlign: "left", cursor: "pointer" }}
               >
-                <span className="feedback-choice-body">
-                  <span className="feedback-choice-title">
-                    {choice === "Rate your coffee"
-                      ? "Rate Your Coffee"
-                      : choice === "General feedback"
-                        ? "Give General Feedback"
-                        : "Report a Problem"}
-                  </span>
-                  {choice === "Rate your coffee" ? (
-                    <span
-                      className="feedback-stars"
-                      role="radiogroup"
-                      aria-label="Rating out of five"
-                    >
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <span
-                          className={
-                            "feedback-star" +
-                            (rating >= star ? " is-rated" : "")
-                          }
-                          data-star={star}
-                          role="radio"
-                          aria-label={star + (star === 1 ? " star" : " stars")}
-                          aria-checked={rating === star}
-                          tabIndex={
-                            rating === star || (rating === 0 && star === 1)
-                              ? 0
-                              : -1
-                          }
-                          key={star}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            setRating(star);
-                          }}
-                          onKeyDown={(event) => {
-                            if (event.key === "Enter" || event.key === " ") {
-                              event.preventDefault();
-                              setRating(star);
-                            }
-                          }}
-                        >
-                          ★
-                        </span>
-                      ))}
-                    </span>
-                  ) : null}
-                </span>
-                <span className="feedback-choice-mark" aria-hidden="true">
-                  →
-                </span>
+                <span className="feedback-choice-title">{choice === "General feedback" ? "Give General Feedback" : choice}</span>
+                <span className="feedback-choice-mark" aria-hidden="true">→</span>
               </button>
-            ),
-          )}
+              {choice === "Rate your coffee" && (
+                <div className="feedback-stars" role="group" aria-label="Rating out of five">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      type="button"
+                      key={star}
+                      className={"feedback-star" + (feedbackType === choice && rating >= star ? " is-active" : "")}
+                      aria-label={star + (star === 1 ? " star" : " stars")}
+                      aria-pressed={feedbackType === choice && rating === star}
+                      style={{ border: 0, padding: "0.15rem", background: "transparent" }}
+                      onClick={() => { setFeedbackType("Rate your coffee"); setRating(star); }}
+                    >★</button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
 
         <form
@@ -2677,7 +2640,7 @@ function ReferenceFeedbackSection() {
         >
           <p className="form-kicker">Tell us more</p>
           <input type="hidden" name="feedback-type" value={feedbackType} />
-          <input type="hidden" name="feedback-rating" value={rating || ""} />
+          <input type="hidden" name="feedback-rating" value={feedbackType === "Rate your coffee" ? rating || "" : ""} />
           <div className="field-grid">
             <label>
               <span className="sr-only">Product</span>

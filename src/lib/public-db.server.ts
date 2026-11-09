@@ -383,16 +383,21 @@ export async function createContactRequest(input: {
     RETURNING id
   `;
   const id = String(rows[0].id);
+  const feedbackLabel = ({
+    feedback_rating: "Rate your coffee",
+    feedback_general: "General feedback",
+    feedback_problem: "Report a problem",
+  } as Record<string, string>)[input.requestType];
   const notifications = await sendSubmissionNotifications({
-    title: "New contact request",
-    subject: `New Tona Coffee contact request: ${input.requestType}`,
+    title: feedbackLabel ? `New feedback: ${feedbackLabel}` : "New contact request",
+    subject: feedbackLabel ? `Tona Coffee feedback: ${feedbackLabel}` : `New Tona Coffee contact request: ${input.requestType}`,
     customerEmail: input.email,
     fields: [
       { label: "Full name", value: input.fullName },
       { label: "Organization", value: input.organization },
       { label: "Phone", value: input.phone },
       { label: "Email", value: input.email },
-      { label: "Request type", value: input.requestType },
+      { label: feedbackLabel ? "Feedback type" : "Request type", value: feedbackLabel ?? input.requestType },
       { label: "Coffee interest", value: input.coffeeInterest },
       { label: "Message", value: input.message },
     ],
