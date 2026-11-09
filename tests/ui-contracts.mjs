@@ -156,16 +156,23 @@ assert.equal(helpers.exports.requestLabel("feedback_rating"), "Coffee rating");
 const siteSource = readFileSync("src/components/site/ReferenceSite.tsx", "utf8");
 const handlerSource = siteSource.slice(siteSource.indexOf("async function submitRequestForm("), siteSource.indexOf("\nasync function submitHostedEventForm"));
 const handlerJs = ts.transpileModule(handlerSource, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
-for (const channel of ["email", "whatsapp"]) {
+for (const channel of ["email", "whatsapp", "email-failure"]) {
   const browser = { location: { href: "" } };
+  let resetCount = 0;
   let whatsapp = "";
   let status = "";
   const submit = new Function("FormData", "formText", "prepareWhatsAppWindow", "finishWhatsAppWindow", "window", "emailContactRequest", "optionalFormText", handlerJs + ";return submitRequestForm;")(
     class {}, (_, key) => ({ "full-name": "Customer", phone: "0903767778", email: "customer@example.com", organization: "Company", "request-type": "Retail order", "coffee-interest": "House Blend", message: "Please send details" }[key] || ""),
     () => null, (_, message) => { whatsapp = message; }, browser,
-    async ({data}) => { browser.email = data; return {ok:true}; }, (_, key) => ({email:"customer@example.com", organization:"Company", "coffee-interest":"House Blend"}[key] || null),
+    async ({data}) => { if (channel === "email-failure") throw new Error("Delivery failed"); browser.email = data; return {ok:true}; }, (_, key) => ({email:"customer@example.com", organization:"Company", "coffee-interest":"House Blend"}[key] || null),
   );
-  await submit({ preventDefault() {}, currentTarget: {}, nativeEvent: { submitter: { getAttribute: () => channel } } }, value => { status = value; });
+  await submit({ preventDefault() {}, currentTarget: { reset() { resetCount++; } }, nativeEvent: { submitter: { getAttribute: () => channel === "email-failure" ? "email" : channel } } }, value => { status = value; });
+  if (channel === "email-failure") {
+    assert.equal(resetCount, 0);
+    assert.equal(status, "Delivery failed");
+    continue;
+  }
+  assert.equal(resetCount, 1);
   if (channel === "email") {
     assert.equal(browser.location.href, "");
     assert.equal(browser.email.phone, "0903767778");

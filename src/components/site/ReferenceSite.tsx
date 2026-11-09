@@ -813,7 +813,8 @@ async function submitQuotationForm(
   setStatus: (message: string) => void,
 ) {
   event.preventDefault();
-  const data = new FormData(event.currentTarget);
+  const form = event.currentTarget;
+  const data = new FormData(form);
   const format = formText(data, "format-choice");
   const channel =
     (event.nativeEvent as SubmitEvent).submitter?.getAttribute("data-send") ||
@@ -836,6 +837,7 @@ async function submitQuotationForm(
         result.whatsappMessage,
         Boolean(result.whatsappSent),
       );
+    if (channel !== "email" || result.emailSent) form.reset();
     setStatus(
       `Quotation ${result.quoteNumber} saved in our system. ${channel === "email"
         ? result.emailSent ? "Email sent to info@tonacoffee.et." : "The email copy could not be sent. Please contact info@tonacoffee.et with your reference."
@@ -881,7 +883,8 @@ async function submitRequestForm(
   setStatus: (message: string) => void,
 ) {
   event.preventDefault();
-  const data = new FormData(event.currentTarget);
+  const form = event.currentTarget;
+  const data = new FormData(form);
   const message = [
     "Hi Tona, I have a request.",
     `Name: ${formText(data, "full-name")}`,
@@ -907,12 +910,14 @@ async function submitRequestForm(
         coffeeInterest: optionalFormText(data, "coffee-interest"),
         message: formText(data, "message") || "No additional message.",
       } });
+      form.reset();
       setStatus("Your enquiry has been emailed to info@tonacoffee.et. Thank you.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Could not send your email. Please try again.");
     }
   } else {
     finishWhatsAppWindow(prepareWhatsAppWindow(), message);
+    form.reset();
     setStatus("Your WhatsApp message is ready. Continue in WhatsApp to send it.");
   }
 }
@@ -922,7 +927,8 @@ async function submitHostedEventForm(
   setStatus: (message: string) => void,
 ) {
   event.preventDefault();
-  const data = new FormData(event.currentTarget);
+  const form = event.currentTarget;
+  const data = new FormData(form);
   const eventName = formText(data, "event-name");
   const eventType = formText(data, "event-type");
   const eventDate = formText(data, "event-date");
@@ -967,6 +973,7 @@ async function submitHostedEventForm(
       },
     });
     finishWhatsAppWindow(popup, whatsappMessage, Boolean(result.whatsappSent));
+    form.reset();
     setStatus(
       `Event request saved. ${result.emailSent ? "Email sent. " : ""}${result.whatsappSent ? "WhatsApp notification sent." : "WhatsApp message is ready for you to send."}`,
     );
@@ -1044,7 +1051,8 @@ function ReferenceEventDialog({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy || saved) return;
-    const data = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const data = new FormData(form);
     const eventId = formText(data, "event");
     const selectedEvent =
       events.find((item) => item.id === eventId) ?? selected;
@@ -1072,6 +1080,7 @@ function ReferenceEventDialog({
           notes: optionalFormText(data, "note"),
         },
       });
+      form.reset();
       setSaved(true);
       finishWhatsAppWindow(
         popup,
@@ -1678,6 +1687,7 @@ function ReferenceOrdersSection() {
         <form
           className="quote-form reveal motion-card"
           id="quote-form"
+          onReset={() => setSelectedPackage("1kg")}
           onSubmit={async (event) => {
             event.preventDefault();
             if (quoteBusy) return;
@@ -2662,6 +2672,7 @@ function ReferenceFeedbackSection() {
 
         <form
           className="feedback-form reveal"
+          onReset={() => { setRating(0); setFeedbackType("Rate your coffee"); }}
           onSubmit={(event) => void submitFeedbackForm(event, setStatus)}
         >
           <p className="form-kicker">Tell us more</p>
