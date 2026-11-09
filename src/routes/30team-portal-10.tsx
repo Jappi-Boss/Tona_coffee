@@ -2241,9 +2241,9 @@ function Modal({
       aria-modal="true"
       aria-label={title}
     >
-      <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto border bg-sand shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b-4 border-primary bg-teal-deep px-6 py-5 text-white">
-          <h2 className="text-3xl font-black uppercase text-white">{title}</h2>
+      <div className="flex max-h-[90dvh] w-full max-w-2xl flex-col overflow-hidden rounded-xl border bg-sand shadow-2xl">
+        <div className="flex shrink-0 items-center justify-between gap-4 border-b-4 border-primary bg-teal-deep px-5 py-4 text-white sm:px-6">
+          <h2 className="text-xl font-bold text-white sm:text-2xl">{title}</h2>
           <button
             onClick={close}
             className="rounded-md border border-white/20 bg-white/10 p-2 text-white"
@@ -2252,7 +2252,7 @@ function Modal({
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="p-6">{children}</div>
+        <div className="min-h-0 overflow-y-auto overscroll-contain p-5 sm:p-6">{children}</div>
       </div>
     </div>
   );
@@ -2339,16 +2339,20 @@ function RecordDetailsButton({ row }: { row: Row }) {
         View details
       </button>
       {open && (
-        <Modal title="Request details" close={() => setOpen(false)}>
-          <dl className="grid gap-4">
+        <Modal title={row.quote_number ? "Quotation details" : "Request details"} close={() => setOpen(false)}>
+          <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {Object.entries(row)
-              .filter(([key]) => !["id", "event_id"].includes(key))
+              .filter(([key, value]) => {
+                // Quotation details mirror the public form, excluding generated metadata.
+                if (row.quote_number && !["package_size", "format", "brand_name", "message"].includes(key)) return false;
+                return !["id", "event_id", "quote_number", "created_at", "updated_at"].includes(key) && value != null && (typeof value !== "string" || value.trim() !== "");
+              })
               .map(([key, value]) => (
-                <div key={key} className="border-b pb-3">
+                <div key={key} className={`min-w-0 rounded-lg border border-black/10 bg-white/60 p-4 ${["message", "notes", "comment", "description"].includes(key) || typeof value === "object" ? "sm:col-span-2" : ""}`}>
                   <dt className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
-                    {key.replaceAll("_", " ")}
+                    {({ package_size: "Package", brand_name: "Customer brand", message: "Message" } as Record<string, string>)[key] ?? key.replaceAll("_", " ")}
                   </dt>
-                  <dd className="mt-1 whitespace-pre-wrap break-words text-sm text-teal">
+                  <dd className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-teal">
                     {key.endsWith("_at")
                       ? formatDate(value)
                       : value == null || value === ""
@@ -2360,6 +2364,9 @@ function RecordDetailsButton({ row }: { row: Row }) {
                 </div>
               ))}
           </dl>
+          <div className="mt-5 flex justify-end border-t pt-4">
+            <button type="button" onClick={() => setOpen(false)} className="rounded-md bg-primary px-5 py-2.5 text-sm font-bold text-white">Close details</button>
+          </div>
         </Modal>
       )}
     </>
