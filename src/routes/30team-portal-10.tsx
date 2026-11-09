@@ -78,13 +78,12 @@ const navItems = [
   ["locations", "Locations", MapPin],
   // ["registrations", "Registrations", Users],
   ["quotations", "Quotations", FileSpreadsheet],
-  ["business", "Business inquiries", ClipboardList],
   ["feedback", "Feedback", Inbox],
   ["locationRequests", "Location requests", MapPin],
   ["users", "Staff access", UserCog],
 ] as const;
 
-type View = (typeof navItems)[number][0] | "events" | "registrations" | "orders" | "contacts";
+type View = (typeof navItems)[number][0] | "events" | "registrations" | "orders" | "contacts" | "business";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -528,15 +527,6 @@ function Overview({
 }) {
   const stats = [
     [
-      "Open inquiries",
-      data.businessInquiries.filter(
-        (row) => !["closed", "lost"].includes(String(row.status)),
-      ).length,
-      "business",
-      ClipboardList,
-      "bg-orange-50 text-primary",
-    ],
-    [
       "New quotations",
       data.quotationRequests.filter((row) => row.status === "new").length,
       "quotations",
@@ -553,13 +543,6 @@ function Overview({
       detail: String(row.message || ""),
       date: row.created_at,
       view: requestView(row) as View,
-    })),
-    ...data.businessInquiries.map((row) => ({
-      type: "Business",
-      title: String(row.organization),
-      detail: String(row.contact_person),
-      date: row.created_at,
-      view: "business" as View,
     })),
     ...data.quotationRequests.map((row) => ({
       type: "Quotation",
