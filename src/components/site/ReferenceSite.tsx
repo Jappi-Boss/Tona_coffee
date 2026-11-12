@@ -27,6 +27,7 @@ import {
 } from "@/lib/public-api";
 import { DEFAULT_STOCKISTS } from "@/lib/locations";
 import { waLink } from "@/lib/tona";
+import { enquiryCoffeeInterests, type EnquiryRequestType } from "@/lib/enquiry-fields";
 
 const REFERENCE_BASE = "https://tona-coffee-two.vercel.app";
 
@@ -898,7 +899,6 @@ async function submitRequestForm(
       email: optionalFormText(data, "email"),
       organization: optionalFormText(data, "organization"),
       requestType: formText(data, "request-type") === "Feedback" ? "Website enquiry: Feedback" : formText(data, "request-type"),
-      coffeeInterest: optionalFormText(data, "coffee-interest"),
       message: formText(data, "message") || "No additional message.",
     } });
     if (channel === "whatsapp") finishWhatsAppWindow(popup, result.whatsappMessage, Boolean(result.whatsappSent));
@@ -1567,6 +1567,7 @@ function ReferenceEventsSection() {
 function ReferenceOrdersSection() {
   const [quoteBusy, setQuoteBusy] = useState(false);
   const [requestBusy, setRequestBusy] = useState(false);
+  const [requestType, setRequestType] = useState<EnquiryRequestType>("Retail order");
   const [quoteStatus, setQuoteStatus] = useState("");
   const [requestStatus, setRequestStatus] = useState("");
 
@@ -1729,6 +1730,7 @@ function ReferenceOrdersSection() {
 
         <form
           id="contact-request"
+          onReset={() => setRequestType("Retail order")}
           className="request-form reveal motion-card"
           onSubmit={async (event) => {
             event.preventDefault();
@@ -1781,21 +1783,17 @@ function ReferenceOrdersSection() {
           <div className="field-grid">
             <label>
               <span>Request type</span>
-              <select name="request-type">
-                <option>Retail order</option>
-                <option>Export enquiry</option>
-                <option>Wholesale / business supply</option>
-                <option>Local Distribution</option>
-                <option>Feedback</option>
-                <option>Something else</option>
+              <select
+                name="request-type"
+                value={requestType}
+                onChange={(event) => setRequestType(event.target.value as EnquiryRequestType)}
+              >
+                {Object.keys(enquiryCoffeeInterests).map((type) => <option key={type}>{type}</option>)}
               </select>
             </label>
             <label>
               <span>Coffee interest</span>
-              <select name="coffee-interest">
-                <option>House Blend</option>
-                <option>Export</option>
-              </select>
+              <input name="coffee-interest" value={enquiryCoffeeInterests[requestType] ?? ""} readOnly />
             </label>
           </div>
           <label className="message-field">

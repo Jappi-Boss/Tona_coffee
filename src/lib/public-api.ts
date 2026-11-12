@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { enquiryCoffeeInterest } from "./enquiry-fields";
 
 const optionalText = z
   .string()
@@ -34,15 +35,20 @@ const businessInput = z.object({
   message: optionalText,
 });
 
-const contactInput = z.object({
+const contactFields = z.object({
   fullName: z.string().trim().min(2).max(120),
   organization: optionalText,
   phone: z.string().trim().min(7).max(40),
   email: z.string().trim().email().max(200).optional().nullable().default(null),
   requestType: z.string().trim().min(2).max(120),
-  coffeeInterest: optionalText,
   message: z.string().trim().min(3).max(3000),
 });
+
+function withCoffeeInterest<T extends { requestType: string }>(data: T) {
+  return { ...data, coffeeInterest: enquiryCoffeeInterest(data.requestType) };
+}
+
+const contactInput = contactFields.transform(withCoffeeInterest);
 
 const locationRequestInput = z.object({
   channel: z.enum(["email", "whatsapp"]).default("whatsapp"),
@@ -117,7 +123,7 @@ export const submitBusinessInquiry = createServerFn({ method: "POST" })
   });
 
 export const submitContactRequest = createServerFn({ method: "POST" })
-  .validator(contactInput.extend({ channel: z.enum(["email", "whatsapp"]).default("email") }))
+  .validator(contactFields.extend({ channel: z.enum(["email", "whatsapp"]).default("email") }).transform(withCoffeeInterest))
   .handler(async ({ data }) => {
     const { createContactRequest } = await import("./public-db.server");
     return createContactRequest(data);

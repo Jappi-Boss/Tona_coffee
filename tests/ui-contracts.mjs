@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { z } from "zod";
 import ts from "typescript";
+import { enquiryCoffeeInterest } from "../src/lib/enquiry-fields.ts";
 import { normalizeStockists, safeSocialUrl } from "../src/lib/locations.ts";
 function schemas(file, end, names) {
   const source = readFileSync(file, "utf8")
@@ -15,7 +16,7 @@ function schemas(file, end, names) {
       module: ts.ModuleKind.ESNext,
     },
   }).outputText;
-  return new Function("z", "safeSocialUrl", js + `return {${names.join(",")}};`)(z, safeSocialUrl);
+  return new Function("z", "safeSocialUrl", "enquiryCoffeeInterest", js + `return {${names.join(",")}};`)(z, safeSocialUrl, enquiryCoffeeInterest);
 }
 const admin = schemas(
   "src/lib/admin-api.ts",
@@ -113,6 +114,18 @@ const contact = pub.contactInput.parse({
 });
 assert.equal(contact.coffeeInterest, "Export");
 assert.equal(contact.email, null);
+for (const [requestType, expected] of [
+  ["Retail order", "House Blend"],
+  ["Export enquiry", "Export"],
+  ["Wholesale / business supply", "House Blend"],
+  ["Local Distribution", "House Blend"],
+  ["Feedback", null],
+  ["Website enquiry: Feedback", null],
+  ["Something else", null],
+]) {
+  assert.equal(pub.contactInput.parse({ ...contact, requestType, coffeeInterest: "Wrong value" }).coffeeInterest, expected);
+}
+
 assert.equal(
   pub.registrationInput.safeParse({
     eventId: crypto.randomUUID(),
