@@ -809,7 +809,6 @@ function finishWhatsAppWindow(
 
 async function submitQuotationForm(
   event: FormEvent<HTMLFormElement>,
-  packageSize: "1kg" | "500g" | "250g" | "custom",
   setStatus: (message: string) => void,
 ) {
   event.preventDefault();
@@ -824,9 +823,7 @@ async function submitQuotationForm(
     const result = await submitQuotation({
       data: {
         channel,
-        packageSize,
         format,
-        brandName: packageSize === "custom" ? optionalFormText(data, "brand-name") : null,
         message: optionalFormText(data, "message"),
       },
     });
@@ -1578,9 +1575,6 @@ function ReferenceEventsSection() {
 }
 
 function ReferenceOrdersSection() {
-  const [selectedPackage, setSelectedPackage] = useState<
-    "1kg" | "500g" | "250g" | "custom"
-  >("1kg");
   const [quoteBusy, setQuoteBusy] = useState(false);
   const [requestBusy, setRequestBusy] = useState(false);
   const [quoteStatus, setQuoteStatus] = useState("");
@@ -1622,20 +1616,12 @@ function ReferenceOrdersSection() {
       </div>
 
       <div className="package-menu">
-        <p className="mono-label">Service packages — choose one</p>
+        <p className="mono-label">Service packages</p>
         <div className="pack-grid">
           {PACKAGES.map(([size, description], index) => (
             <article className="pack-card reveal" key={size}>
-              <label className="pack-choice">
-                <input
-                  type="radio"
-                  name="package"
-                  form="quote-form"
-                  value={size + " Tona package"}
-                  checked={selectedPackage === size}
-                  onChange={() => setSelectedPackage(size)}
-                />
-                <span className="pack-choice-body">
+              <div className="h-full">
+                <div className="pack-choice-body">
                   <span className="pack-card-head">
                     <span className="pack-no">0{index + 1}</span>
                     <span>Tona package</span>
@@ -1649,21 +1635,13 @@ function ReferenceOrdersSection() {
                       </li>
                     ))}
                   </ul>
-                </span>
-              </label>
+                </div>
+              </div>
             </article>
           ))}
           <article className="pack-card pack-card-custom reveal">
-            <label className="pack-choice">
-              <input
-                type="radio"
-                name="package"
-                form="quote-form"
-                value="250g custom package"
-                checked={selectedPackage === "custom"}
-                onChange={() => setSelectedPackage("custom")}
-              />
-              <span className="pack-choice-body">
+            <div className="h-full">
+              <div className="pack-choice-body">
                 <span className="pack-card-head">
                   <span className="pack-no">04</span>
                   <span>Custom package</span>
@@ -1680,8 +1658,8 @@ function ReferenceOrdersSection() {
                 <span className="custom-badge">
                   Customer logo / Customisable
                 </span>
-              </span>
-            </label>
+              </div>
+            </div>
           </article>
         </div>
       </div>
@@ -1690,13 +1668,12 @@ function ReferenceOrdersSection() {
         <form
           className="quote-form reveal motion-card"
           id="quote-form"
-          onReset={() => setSelectedPackage("1kg")}
           onSubmit={async (event) => {
             event.preventDefault();
             if (quoteBusy) return;
             setQuoteBusy(true);
             try {
-              await submitQuotationForm(event, selectedPackage, setQuoteStatus);
+              await submitQuotationForm(event, setQuoteStatus);
             } finally {
               setQuoteBusy(false);
             }
@@ -1726,20 +1703,6 @@ function ReferenceOrdersSection() {
             </div>
             <input type="hidden" id="format-name" name="format" />
           </fieldset>
-          <div
-            className="logo-field"
-            id="logo-field"
-            hidden={selectedPackage !== "custom"}
-          >
-            <label htmlFor="brand-name">Customer brand or logo name</label>
-            <input
-              id="brand-name"
-              name="brand-name"
-              type="text"
-              autoComplete="organization"
-              placeholder="Your brand name"
-            />
-          </div>
           <label className="message-field">
             <span>Volume and anything else we should know</span>
             <textarea

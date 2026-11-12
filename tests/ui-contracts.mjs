@@ -124,8 +124,7 @@ assert.equal(
 );
 assert.equal(
   pub.quotationInput.safeParse({
-    packageSize: "invalid",
-    format: "Medium Bean",
+    format: "",
     customerName: "Customer",
     phone: "0903767778",
   }).success,
@@ -144,12 +143,13 @@ console.log(
   "UI/API contracts passed: optional fields, coordinate pairs, event validation, inquiry payload and full-detail controls.",
 );
 
-// Reference quotation form has package, roast format and message only.
-const minimalQuote = pub.quotationInput.parse({packageSize:"1kg",format:"Medium bean",message:"25kg per month"});
+// Package cards are informational and do not supply quotation fields.
+const minimalQuote = pub.quotationInput.parse({format:"Medium bean",message:"25kg per month"});
 assert.equal(minimalQuote.customerName, "");
 assert.equal(minimalQuote.phone, "");
 assert.equal(minimalQuote.message, "25kg per month");
-assert.equal(pub.quotationInput.safeParse({packageSize:"invalid",format:""}).success,false);
+assert.equal(pub.quotationInput.parse({ ...minimalQuote, packageSize: "1kg", brandName: "Example" }).packageSize, undefined);
+assert.ok(!source.includes('form="quote-form"'));
 
 const feedback = { fullName: "Customer", contact: "customer@example.com", feedbackType: "Rate your coffee", rating: 5, product: "House Blend", purchaseLocation: "Allmart", comment: "Excellent coffee" };
 assert.equal(pub.feedbackInput.parse(feedback).rating, 5);

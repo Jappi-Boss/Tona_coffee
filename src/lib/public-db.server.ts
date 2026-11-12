@@ -504,9 +504,7 @@ export async function createOrder(input: {
 
 export async function createQuotationRequest(input: {
   channel: "email" | "whatsapp";
-  packageSize: "1kg" | "500g" | "250g" | "custom";
   format: string;
-  brandName: string | null;
   customerName: string;
   company: string | null;
   phone: string;
@@ -518,9 +516,9 @@ export async function createQuotationRequest(input: {
   const sql = database();
   const rows = await sql`
     INSERT INTO public.quotation_requests
-      (package_size, format, brand_name, customer_name, company, phone, email, monthly_volume, message)
+      (format, customer_name, company, phone, email, monthly_volume, message)
     VALUES
-      (${input.packageSize}, ${input.format}, ${input.brandName}, ${input.customerName}, ${input.company}, ${input.phone}, ${input.email}, ${input.monthlyVolume}, ${input.message})
+      (${input.format}, ${input.customerName}, ${input.company}, ${input.phone}, ${input.email}, ${input.monthlyVolume}, ${input.message})
     RETURNING id, quote_number
   `;
   if (!rows[0]) throw new Error("The quotation request could not be saved.");
@@ -530,9 +528,7 @@ export async function createQuotationRequest(input: {
   const whatsappMessage = [
     "Hi Tona, I'd like a House Blend quotation.",
     `Reference: ${quoteNumber}`,
-    `Package: ${input.packageSize === "custom" ? "250g custom" : input.packageSize}`,
     `Format: ${input.format}`,
-    `Customer brand: ${input.brandName ?? ""}`,
     `Message: ${input.message ?? ""}`,
   ].filter((line) => !line.endsWith(": ")).join("\n");
   const notifications = await sendSubmissionNotifications({
@@ -541,9 +537,7 @@ export async function createQuotationRequest(input: {
     customerEmail: input.email,
     fields: [
       { label: "Reference", value: quoteNumber },
-      { label: "Package", value: input.packageSize },
       { label: "Format", value: input.format },
-      { label: "Customer brand", value: input.brandName },
       { label: "Message", value: input.message },
     ],
     whatsappMessage,

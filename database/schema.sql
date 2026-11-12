@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS public.quotation_requests (
     'TONA-Q-'::text || to_char(now(), 'YYYY'::text) || '-'::text ||
     lpad(nextval('public.tona_quote_number_seq'::regclass)::text, 6, '0'::text)
   ),
-  package_size text NOT NULL,
+  package_size text,
   format text NOT NULL,
   brand_name text,
   customer_name text NOT NULL,

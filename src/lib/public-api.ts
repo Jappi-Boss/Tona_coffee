@@ -74,9 +74,7 @@ const orderInput = z.object({
 
 const quotationInput = z.object({
   channel: z.enum(["email", "whatsapp"]).default("whatsapp"),
-  packageSize: z.enum(["1kg", "500g", "250g", "custom"]),
   format: z.string().trim().min(1).max(120),
-  brandName: optionalText,
   customerName: z.string().trim().max(120).optional().default(""),
   company: optionalText,
   phone: z.string().trim().max(40).optional().default(""),

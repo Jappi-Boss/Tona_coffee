@@ -33,7 +33,7 @@ export function ensureQuotationSchema() {
             'TONA-Q-'::text || to_char(now(), 'YYYY'::text) || '-'::text ||
             lpad(nextval('public.tona_quote_number_seq'::regclass)::text, 6, '0'::text)
           ),
-          package_size text NOT NULL,
+          package_size text,
           format text NOT NULL,
           brand_name text,
           customer_name text NOT NULL,
@@ -54,6 +54,19 @@ export function ensureQuotationSchema() {
           CONSTRAINT quotation_requests_status_check
             CHECK (status = ANY (ARRAY['new'::text, 'contacted'::text, 'quoted'::text, 'won'::text, 'lost'::text, 'cancelled'::text]))
         )
+      `;
+      await sql`
+        DO $$
+        BEGIN
+          IF EXISTS (
+            SELECT 1 FROM pg_attribute
+            WHERE attrelid = 'public.quotation_requests'::regclass
+              AND attname = 'package_size' AND attnotnull
+          ) THEN
+            ALTER TABLE public.quotation_requests ALTER COLUMN package_size DROP NOT NULL;
+          END IF;
+        END;
+        $$;
       `;
       await sql`
         CREATE INDEX IF NOT EXISTS quotation_requests_status_created_idx

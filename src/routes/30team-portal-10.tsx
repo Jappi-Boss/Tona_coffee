@@ -551,7 +551,7 @@ function Overview({
     ...data.quotationRequests.map((row) => ({
       type: "Quotation",
       title: String(row.quote_number),
-      detail: [row.package_size, row.format].filter(Boolean).join(" · "),
+      detail: String(row.format || ""),
       date: row.created_at,
       view: "quotations" as View,
     })),
@@ -1004,9 +1004,7 @@ function Quotations({
         <RecordTable
           headers={[
             "Reference",
-            "Package size",
             "Coffee format",
-            "Customer brand or logo name",
             "Volume and notes",
             "Submitted at",
             "Status",
@@ -1016,9 +1014,7 @@ function Quotations({
           {rows.map((row) => (
             <tr key={String(row.id)} className="border-t">
               <Cell title={String(row.quote_number)} />
-              <Cell title={String(row.package_size || "–")} />
               <Cell title={String(row.format || "–")} />
-              <Cell title={String(row.brand_name || "–")} />
               <Cell title={String(row.message || "–")} />
               <Cell title={formatDate(row.created_at)} />
               <td className="p-4">
@@ -2326,9 +2322,7 @@ function RecordDetailsButton({ row }: { row: Row }) {
     title = "Quotation details";
     details = {
       Reference: row.quote_number,
-      "Package size": row.package_size,
       "Coffee format": row.format,
-      "Customer brand or logo name": row.brand_name,
       "Volume and anything else we should know": row.message,
       ...metadata,
     };
@@ -2516,9 +2510,7 @@ function downloadQuotationWorkbook(rows: Row[]) {
     "Company",
     "Phone",
     "Email",
-    "Package size",
     "Format",
-    "Brand name",
     "Monthly volume",
     "Message",
     "Source",
@@ -2532,9 +2524,7 @@ function downloadQuotationWorkbook(rows: Row[]) {
     row.company,
     row["phone"],
     row.email,
-    row.package_size,
     row.format,
-    row.brand_name,
     row.monthly_volume,
     row.message,
     row.source,
