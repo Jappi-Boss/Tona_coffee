@@ -8,11 +8,20 @@ type SubmissionNotificationInput = {
   subject: string;
   customerEmail?: string | null;
   fields: NotificationField[];
-  whatsappMessage: string;
 };
 
 function text(value: unknown) {
   return String(value ?? "").trim();
+}
+
+function filledFields(fields: NotificationField[]) {
+  return fields.filter(({ value }) => text(value) !== "");
+}
+
+function notificationText(input: SubmissionNotificationInput) {
+  return [input.title, "", ...filledFields(input.fields).map(
+    ({ label, value }) => `${label}: ${text(value)}`,
+  )].join("\n");
 }
 
 function escapeHtml(value: string) {
@@ -33,10 +42,10 @@ async function sendEmail(input: SubmissionNotificationInput, recipientOverride?:
 
   const from =
     text(process.env.RESEND_FROM_EMAIL) || "Tona Coffee <onboarding@resend.dev>";
-  const rows = input.fields
+  const rows = filledFields(input.fields)
     .map(
       (field) =>
-        `<tr><th align="left" style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(field.label)}</th><td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(text(field.value))}</td></tr>`,
+        `<tr><th align="left" style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(field.label)}</th><td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(text(field.value)).replace(/\r?\n/g, "<br>")}</td></tr>`,
     )
     .join("");
   const replyTo = text(input.customerEmail);
@@ -51,6 +60,7 @@ async function sendEmail(input: SubmissionNotificationInput, recipientOverride?:
       to: recipient,
       ...(replyTo ? { reply_to: replyTo } : {}),
       subject: input.subject,
+      text: notificationText(input),
       html: `<div style="font-family:Arial,sans-serif;color:#1a1a1a"><h2>${escapeHtml(input.title)}</h2><table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;max-width:680px">${rows}</table></div>`,
     }),
   });
@@ -81,7 +91,7 @@ async function sendWhatsApp(input: SubmissionNotificationInput) {
         messaging_product: "whatsapp",
         to: recipient,
         type: "text",
-        text: { preview_url: false, body: input.whatsappMessage },
+        text: { preview_url: false, body: notificationText(input) },
       }),
     },
   );
@@ -101,7 +111,7 @@ export async function sendSubmissionNotifications(
     }),
     channel === "email" ? false : sendWhatsApp(input).catch(() => false),
   ]);
-  return { emailSent, whatsappSent, emailError };
+  return { emailSent, whatsappSent, emailError, whatsappMessage: notificationText(input) };
 }
 
 // Direct enquiries are emailed only; they do not create database records.

@@ -183,7 +183,7 @@ for (const channel of ["email", "whatsapp", "email-failure"]) {
   const submit = new Function("FormData", "formText", "prepareWhatsAppWindow", "finishWhatsAppWindow", "window", "submitContactRequest", "optionalFormText", handlerJs + ";return submitRequestForm;")(
     class {}, (_, key) => ({ "full-name": "Customer", phone: "0903767778", email: "customer@example.com", organization: "Company", "request-type": "Retail order", "coffee-interest": "House Blend", message: "Please send details" }[key] || ""),
     () => null, (_, message) => { whatsapp = message; }, browser,
-    async ({data}) => { if (channel === "email-failure") throw new Error("Delivery failed"); browser.email = data; return {ok:true,emailSent:true}; }, (_, key) => ({email:"customer@example.com", organization:"Company", "coffee-interest":"House Blend"}[key] || null),
+    async ({data}) => { if (channel === "email-failure") throw new Error("Delivery failed"); browser.email = data; return {ok:true,emailSent:true,whatsappMessage: `Email: ${data.email}\nMessage: ${data.message}`}; }, (_, key) => ({email:"customer@example.com", organization:"Company", "coffee-interest":"House Blend"}[key] || null),
   );
   await submit({ preventDefault() {}, currentTarget: { reset() { resetCount++; } }, nativeEvent: { submitter: { getAttribute: () => channel === "email-failure" ? "email" : channel } } }, value => { status = value; });
   if (channel === "email-failure") {
@@ -254,7 +254,7 @@ for (const [feedbackType, rating, channel = "email"] of [["Rate your coffee", 4]
   const submit = new Function("createServerFn", "feedbackInput", "z", "createContactRequest", feedbackHandlerJs + ";return submitFeedback;")(
     () => ({ validator: schema => ({ handler: fn => input => fn({ data: schema.parse(input.data) }) }) }), pub.feedbackInput, z, createContact,
   );
-  const result = await submit({ data: { ...feedback, feedbackType, rating, channel, comment: "Feedback delivery test" } });
+  const result = await submit({ data: { ...feedback, feedbackType, rating, channel, comment: "Feedback delivery test\nSecond line" } });
   if (channel === "whatsapp") {
     assert.equal(result.whatsappSent, true);
     assert.equal(mail, undefined);
@@ -269,6 +269,10 @@ for (const [feedbackType, rating, channel = "email"] of [["Rate your coffee", 4]
   assert.ok(mail.html.includes(feedbackType));
   assert.ok(mail.html.includes("Feedback delivery test"));
   assert.ok(stored.includes("Feedback delivery test") || stored.some(value => typeof value === "string" && value.includes("Feedback delivery test")));
-  assert.equal(mail.html.includes("Rating: 4/5"), feedbackType === "Rate your coffee");
+  assert.equal(mail.text.includes("Rating: 4/5"), feedbackType === "Rate your coffee");
+  assert.ok(mail.html.includes("Feedback delivery test<br>Second line"));
+  assert.ok(mail.text.includes("Comment or suggestion: Feedback delivery test\nSecond line"));
+  assert.ok(!mail.text.includes("Organization:"));
+  assert.equal(result.whatsappMessage, mail.text);
 }
 console.log("All three feedback types save and send email; non-rating feedback needs no stars (mocked services).");

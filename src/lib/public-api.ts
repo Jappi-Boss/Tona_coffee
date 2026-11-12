@@ -19,6 +19,11 @@ const registrationInput = z.object({
 });
 
 const businessInput = z.object({
+  eventDetails: z.object({
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    location: z.string().trim().min(1).max(2000),
+    notes: optionalText,
+  }).optional(),
   organization: z.string().trim().min(2).max(180),
   contactPerson: z.string().trim().min(2).max(120),
   phone: z.string().trim().min(7).max(40),
@@ -127,7 +132,7 @@ export const emailContactRequest = createServerFn({ method: "POST" })
       subject: "New Tona Coffee enquiry",
       customerEmail: data.email,
       fields: [
-        { label: "Name", value: data.fullName },
+        { label: "Full name", value: data.fullName },
         { label: "Phone", value: data.phone },
         { label: "Email", value: data.email },
         { label: "Organization", value: data.organization },
@@ -135,7 +140,6 @@ export const emailContactRequest = createServerFn({ method: "POST" })
         { label: "Coffee interest", value: data.coffeeInterest },
         { label: "Message", value: data.message },
       ],
-      whatsappMessage: "",
     });
   });
 
@@ -150,6 +154,13 @@ export const submitLocationRequest = createServerFn({ method: "POST" })
       phone: "",
       email: null,
       requestType: "location_request",
+      presentation: {
+        title: "New location request",
+        fields: [
+          { label: "Your area or neighbourhood", value: data.area },
+          { label: "Shop or café", value: data.venue },
+        ],
+      },
       coffeeInterest: data.area,
       message: [`Area: ${data.area}`, data.venue ? `Shop or café: ${data.venue}` : ""].filter(Boolean).join("\n"),
     });
@@ -167,6 +178,18 @@ export const submitFeedback = createServerFn({ method: "POST" })
       phone: isEmail ? "" : data.contact,
       email: isEmail ? data.contact : null,
       requestType: data.feedbackType === "Report a problem" ? "feedback_problem" : data.feedbackType === "Rate your coffee" ? "feedback_rating" : "feedback_general",
+      presentation: {
+        title: `New feedback — ${data.feedbackType}`,
+        fields: [
+          { label: "Feedback type", value: data.feedbackType },
+          { label: "Rating", value: data.feedbackType === "Rate your coffee" ? `${data.rating}/5` : null },
+          { label: "Product", value: data.product },
+          { label: "Purchase location", value: data.purchaseLocation },
+          { label: "Comment or suggestion", value: data.comment },
+          { label: "Full name", value: data.fullName },
+          { label: "Phone or email", value: data.contact },
+        ],
+      },
       coffeeInterest: data.product,
       message: [
         `Feedback: ${data.feedbackType}`,

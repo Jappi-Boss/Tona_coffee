@@ -264,8 +264,8 @@ export async function createEventRegistration(input: {
   notes: string | null;
 }) {
   const sql = database();
-  const [, rows] = await sql.transaction([
-    sql`SELECT id FROM events WHERE id = ${input.eventId}::uuid FOR UPDATE`,
+  const [events, rows] = await sql.transaction([
+    sql`SELECT title FROM events WHERE id = ${input.eventId}::uuid FOR UPDATE`,
     sql`
     INSERT INTO event_registrations
       (event_id, full_name, phone, email, guest_count, notes)
@@ -297,27 +297,19 @@ export async function createEventRegistration(input: {
     subject: "New Tona Coffee event registration",
     customerEmail: input.email,
     fields: [
-      { label: "Event ID", value: input.eventId },
+      { label: "Choose an event", value: events[0]?.title },
       { label: "Full name", value: input.fullName },
-      { label: "Phone", value: input.phone },
+      { label: "Phone / WhatsApp", value: input.phone },
       { label: "Email", value: input.email },
-      { label: "Guests", value: input.guestCount },
+      { label: "Number of guests", value: input.guestCount },
       { label: "Note", value: input.notes },
     ],
-    whatsappMessage: [
-      "Hi Tona, I would like to register for a Tona event.",
-      `Event ID: ${input.eventId}`,
-      `Name: ${input.fullName}`,
-      `Phone: ${input.phone}`,
-      `Email: ${input.email ?? ""}`,
-      `Guests: ${input.guestCount}`,
-      `Note: ${input.notes ?? ""}`,
-    ].join("\n"),
   });
   return { ok: true, id, ...notifications };
 }
 
 export async function createBusinessInquiry(input: {
+  eventDetails?: { date: string; location: string; notes: string | null };
   organization: string;
   contactPerson: string;
   phone: string;
@@ -337,10 +329,20 @@ export async function createBusinessInquiry(input: {
   `;
   const id = String(rows[0].id);
   const notifications = await sendSubmissionNotifications({
-    title: "New business inquiry",
-    subject: "New Tona Coffee business inquiry",
+    title: input.eventDetails ? "New event request" : "New business inquiry",
+    subject: input.eventDetails ? "New Tona Coffee event request" : "New Tona Coffee business inquiry",
     customerEmail: input.email,
-    fields: [
+    fields: input.eventDetails ? [
+      { label: "Event name", value: input.organization },
+      { label: "Event type", value: input.businessType },
+      { label: "Date", value: input.eventDetails.date },
+      { label: "Expected guests", value: input.estimatedQuantity },
+      { label: "Location", value: input.eventDetails.location },
+      { label: "Service format", value: input.coffeeInterest },
+      { label: "Your name", value: input.contactPerson },
+      { label: "Phone / WhatsApp", value: input.phone },
+      { label: "Anything else about the event?", value: input.eventDetails.notes },
+    ] : [
       { label: "Organization", value: input.organization },
       { label: "Contact person", value: input.contactPerson },
       { label: "Phone", value: input.phone },
@@ -350,17 +352,6 @@ export async function createBusinessInquiry(input: {
       { label: "Estimated quantity", value: input.estimatedQuantity },
       { label: "Message", value: input.message },
     ],
-    whatsappMessage: [
-      "Hi Tona, I would like to discuss business supply.",
-      `Organization: ${input.organization}`,
-      `Contact: ${input.contactPerson}`,
-      `Phone: ${input.phone}`,
-      `Email: ${input.email ?? ""}`,
-      `Business type: ${input.businessType ?? ""}`,
-      `Coffee interest: ${input.coffeeInterest ?? ""}`,
-      `Estimated quantity: ${input.estimatedQuantity ?? ""}`,
-      `Message: ${input.message ?? ""}`,
-    ].join("\n"),
   });
   return { ok: true, id, ...notifications };
 }
@@ -374,6 +365,7 @@ export async function createContactRequest(input: {
   coffeeInterest?: string | null;
   message: string;
   channel?: "email" | "whatsapp";
+  presentation?: { title: string; fields: { label: string; value: unknown }[] };
 }) {
   const sql = database();
   const rows = await sql`
@@ -384,37 +376,22 @@ export async function createContactRequest(input: {
     RETURNING id
   `;
   const id = String(rows[0].id);
-  const feedbackLabel = ({
-    feedback_rating: "Rate your coffee",
-    feedback_general: "General feedback",
-    feedback_problem: "Report a problem",
-  } as Record<string, string>)[input.requestType];
-  const whatsappMessage = [
-    "Hi Tona, I have a request.",
-    `Name: ${input.fullName}`,
-    `Organization: ${input.organization ?? ""}`,
-    `Phone: ${input.phone}`,
-    `Email: ${input.email ?? ""}`,
-    `Request type: ${input.requestType}`,
-    `Coffee interest: ${input.coffeeInterest ?? ""}`,
-    `Message: ${input.message}`,
-  ].join("\n");
+  const title = input.presentation?.title ?? "New website enquiry";
   const notifications = await sendSubmissionNotifications({
-    title: feedbackLabel ? `New feedback: ${feedbackLabel}` : "New contact request",
-    subject: feedbackLabel ? `Tona Coffee feedback: ${feedbackLabel}` : `New Tona Coffee contact request: ${input.requestType}`,
+    title,
+    subject: `Tona Coffee — ${title}`,
     customerEmail: input.email,
-    fields: [
+    fields: input.presentation?.fields ?? [
       { label: "Full name", value: input.fullName },
-      { label: "Organization", value: input.organization },
       { label: "Phone", value: input.phone },
       { label: "Email", value: input.email },
-      { label: feedbackLabel ? "Feedback type" : "Request type", value: feedbackLabel ?? input.requestType },
+      { label: "Organization", value: input.organization },
+      { label: "Request type", value: input.requestType === "Website enquiry: Feedback" ? "Feedback" : input.requestType },
       { label: "Coffee interest", value: input.coffeeInterest },
       { label: "Message", value: input.message },
     ],
-    whatsappMessage,
   }, input.channel ?? (input.requestType.startsWith("feedback_") ? "email" : undefined));
-  return { ok: true, id, whatsappMessage, ...notifications };
+  return { ok: true, id, ...notifications };
 }
 
 export async function createOrder(input: {
@@ -467,6 +444,7 @@ export async function createOrder(input: {
     FROM new_order, selected
     RETURNING
       order_id,
+      product_name,
       (SELECT order_number FROM new_order) AS order_number
   `;
   if (!rows[0]) throw new Error("This product is not currently available.");
@@ -477,27 +455,15 @@ export async function createOrder(input: {
     customerEmail: input.email,
     fields: [
       { label: "Order", value: orderNumber },
-      { label: "Product", value: input.productId },
-      { label: "Customer", value: input.customerName },
-      { label: "Phone", value: input.phone },
+      { label: "Product", value: rows[0].product_name },
+      { label: "Full name", value: input.customerName },
+      { label: "Phone / WhatsApp", value: input.phone },
       { label: "Email", value: input.email },
       { label: "Size", value: input.size },
       { label: "Grind", value: input.grind },
       { label: "Quantity", value: input.quantity },
-      { label: "Notes", value: input.notes },
+      { label: "Note", value: input.notes },
     ],
-    whatsappMessage: [
-      "Hi Tona, I would like to place a retail coffee order.",
-      `Order: ${orderNumber}`,
-      `Product ID: ${input.productId}`,
-      `Name: ${input.customerName}`,
-      `Phone: ${input.phone}`,
-      `Email: ${input.email ?? ""}`,
-      `Size: ${input.size}`,
-      `Grind: ${input.grind}`,
-      `Quantity: ${input.quantity}`,
-      `Notes: ${input.notes ?? ""}`,
-    ].join("\n"),
   });
   return { ok: true, orderNumber, ...notifications };
 }
@@ -525,23 +491,16 @@ export async function createQuotationRequest(input: {
 
   const id = String(rows[0].id);
   const quoteNumber = String(rows[0].quote_number);
-  const whatsappMessage = [
-    "Hi Tona, I'd like a House Blend quotation.",
-    `Reference: ${quoteNumber}`,
-    `Format: ${input.format}`,
-    `Message: ${input.message ?? ""}`,
-  ].filter((line) => !line.endsWith(": ")).join("\n");
   const notifications = await sendSubmissionNotifications({
     title: `New House Blend quotation ${quoteNumber}`,
     subject: `New Tona Coffee quotation ${quoteNumber}`,
     customerEmail: input.email,
     fields: [
       { label: "Reference", value: quoteNumber },
-      { label: "Format", value: input.format },
-      { label: "Message", value: input.message },
+      { label: "Choose a format", value: input.format },
+      { label: "Volume and anything else we should know", value: input.message },
     ],
-    whatsappMessage,
   }, input.channel);
 
-  return { ok: true, id, quoteNumber, whatsappMessage, ...notifications };
+  return { ok: true, id, quoteNumber, ...notifications };
 }

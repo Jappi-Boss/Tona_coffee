@@ -865,7 +865,7 @@ async function submitLocationRequestForm(event: FormEvent<HTMLFormElement>, setS
   setStatus("Saving your location request…");
   try {
     const result = await submitLocationRequest({ data: { area, venue, channel } });
-    if (channel === "whatsapp") finishWhatsAppWindow(popup, ["Hi Tona, I would like to find your coffee near me.", `Area: ${area}`, venue ? `Shop or café: ${venue}` : ""].filter(Boolean).join("\n"), Boolean(result.whatsappSent));
+    if (channel === "whatsapp") finishWhatsAppWindow(popup, result.whatsappMessage, Boolean(result.whatsappSent));
     form.reset();
     setStatus(channel === "email"
       ? result.emailSent ? "Your location request was saved and emailed to info@tonacoffee.et." : "Your location request was saved. The email copy could not be sent."
@@ -885,16 +885,6 @@ async function submitRequestForm(
   event.preventDefault();
   const form = event.currentTarget;
   const data = new FormData(form);
-  const message = [
-    "Hi Tona, I have a request.",
-    `Name: ${formText(data, "full-name")}`,
-    `Phone: ${formText(data, "phone")}`,
-    `Email: ${formText(data, "email")}`,
-    `Organization: ${formText(data, "organization")}`,
-    `Request type: ${formText(data, "request-type")}`,
-    `Coffee interest: ${formText(data, "coffee-interest")}`,
-    `Message: ${formText(data, "message")}`,
-  ].join("\n");
   const channel =
     (event.nativeEvent as SubmitEvent).submitter?.getAttribute("data-send") ||
     "whatsapp";
@@ -911,7 +901,7 @@ async function submitRequestForm(
       coffeeInterest: optionalFormText(data, "coffee-interest"),
       message: formText(data, "message") || "No additional message.",
     } });
-    if (channel === "whatsapp") finishWhatsAppWindow(popup, message, Boolean(result.whatsappSent));
+    if (channel === "whatsapp") finishWhatsAppWindow(popup, result.whatsappMessage, Boolean(result.whatsappSent));
     form.reset();
     setStatus(channel === "email"
       ? result.emailSent ? "Your enquiry is saved and emailed to info@tonacoffee.et. Thank you." : "Your enquiry is saved for the Tona team, but the email could not be sent."
@@ -940,7 +930,7 @@ async function submitHostedEventForm(
   const notes = formText(data, "event-notes");
   const message = [
     `Event date: ${eventDate}`,
-    `Expected guests: ${eventGuests}`,
+    eventGuests ? `Expected guests: ${eventGuests}` : "",
     `Location: ${eventLocation}`,
     `Service format: ${serviceFormat}`,
     `Additional details: ${notes}`,
@@ -950,18 +940,19 @@ async function submitHostedEventForm(
     `Event name: ${eventName}`,
     `Event type: ${eventType}`,
     `Date: ${eventDate}`,
-    `Expected guests: ${eventGuests}`,
+    eventGuests ? `Expected guests: ${eventGuests}` : "",
     `Location: ${eventLocation}`,
     `Service format: ${serviceFormat}`,
-    `Name: ${contactName}`,
-    `Phone: ${phone}`,
-    `Notes: ${notes}`,
-  ].join("\n");
+    `Your name: ${contactName}`,
+    `Phone / WhatsApp: ${phone}`,
+    notes ? `Anything else about the event?: ${notes}` : "",
+  ].filter(Boolean).join("\n");
   const popup = prepareWhatsAppWindow();
 
   try {
     const result = await submitBusinessInquiry({
       data: {
+        eventDetails: { date: eventDate, location: eventLocation, notes: notes || null },
         organization: eventName,
         contactPerson: contactName,
         phone,
@@ -972,7 +963,7 @@ async function submitHostedEventForm(
         message,
       },
     });
-    finishWhatsAppWindow(popup, whatsappMessage, Boolean(result.whatsappSent));
+    finishWhatsAppWindow(popup, result.whatsappMessage, Boolean(result.whatsappSent));
     form.reset();
     setStatus(
       `Event request saved. ${result.emailSent ? "Email sent. " : ""}${result.whatsappSent ? "WhatsApp notification sent." : "WhatsApp message is ready for you to send."}`,
@@ -1058,14 +1049,13 @@ function ReferenceEventDialog({
       events.find((item) => item.id === eventId) ?? selected;
     const whatsappMessage = [
       "Hi Tona, I'd like to register for a Tona event.",
-      `Event: ${selectedEvent.title}`,
-      `Date: ${formatEventDate(selectedEvent.eventDate)}`,
-      `Name: ${formText(data, "name")}`,
-      `Phone: ${formText(data, "phone")}`,
+      `Choose an event: ${selectedEvent.title}`,
+      `Full name: ${formText(data, "name")}`,
+      `Phone / WhatsApp: ${formText(data, "phone")}`,
       `Email: ${formText(data, "email")}`,
-      `Guests: ${formText(data, "guests")}`,
+      `Number of guests: ${formText(data, "guests")}`,
       `Note: ${formText(data, "note")}`,
-    ].join("\n");
+    ].filter((line) => !line.endsWith(": ")).join("\n");
     const popup = prepareWhatsAppWindow();
     setBusy(true);
 
@@ -1084,7 +1074,7 @@ function ReferenceEventDialog({
       setSaved(true);
       finishWhatsAppWindow(
         popup,
-        whatsappMessage,
+        result.whatsappMessage,
         Boolean(result.whatsappSent),
       );
       setStatus(
