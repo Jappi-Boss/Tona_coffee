@@ -2319,6 +2319,17 @@ function EditorActions({
 
 function RecordDetailsButton({ row }: { row: Row }) {
   const [open, setOpen] = useState(false);
+  const isLocationRequest = requestView(row) === "locationRequests";
+  const details = isLocationRequest
+    ? {
+        "Area or neighbourhood": row.coffee_interest,
+        "Shop or café": row.organization,
+        status: row.status,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+      }
+    : row;
+
   return (
     <>
       <button
@@ -2329,9 +2340,9 @@ function RecordDetailsButton({ row }: { row: Row }) {
         View details
       </button>
       {open && (
-        <Modal title={row.quote_number ? "Quotation details" : "Request details"} close={() => setOpen(false)}>
+        <Modal title={isLocationRequest ? "Location request details" : row.quote_number ? "Quotation details" : "Request details"} close={() => setOpen(false)}>
           <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {Object.entries(row)
+            {Object.entries(details)
               .filter(([key, value]) => {
                 // Keep the quotation reference and timestamps alongside actual form inputs.
                 if (row.quote_number && !["quote_number", "created_at", "updated_at", "package_size", "format", "brand_name", "message"].includes(key)) return false;
@@ -2345,7 +2356,11 @@ function RecordDetailsButton({ row }: { row: Row }) {
                   <dd className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-teal">
                     {key.endsWith("_at")
                       ? formatDate(value)
-                      : value == null || value === ""
+                      : key === "request_type"
+                        ? requestLabel(value)
+                        : key === "status"
+                          ? <Status value={String(value)} />
+                          : value == null || value === ""
                         ? "–"
                         : typeof value === "object"
                           ? JSON.stringify(value, null, 2)
