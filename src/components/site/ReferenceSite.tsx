@@ -852,8 +852,10 @@ async function submitQuotationForm(
 async function submitLocationRequestForm(event: FormEvent<HTMLFormElement>, setStatus: (message: string) => void) {
   event.preventDefault();
   const form = event.currentTarget;
-  const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
-  if (button?.disabled) return;
+  const buttons = Array.from(form.querySelectorAll<HTMLButtonElement>('button[type="submit"]'));
+  if (buttons.some((button) => button.disabled)) return;
+  const submitter = (event.nativeEvent as SubmitEvent).submitter;
+  const channel = submitter?.getAttribute("data-send") === "email" ? "email" : "whatsapp";
   const data = new FormData(form);
   const area = formText(data, "area");
   const venue = optionalFormText(data, "venue");
@@ -861,19 +863,21 @@ async function submitLocationRequestForm(event: FormEvent<HTMLFormElement>, setS
     setStatus("Enter your area or neighbourhood.");
     return;
   }
-  const popup = prepareWhatsAppWindow();
-  if (button) button.disabled = true;
+  const popup = channel === "whatsapp" ? prepareWhatsAppWindow() : null;
+  buttons.forEach((button) => { button.disabled = true; });
   setStatus("Saving your location request…");
   try {
-    const result = await submitLocationRequest({ data: { area, venue } });
-    finishWhatsAppWindow(popup, ["Hi Tona, I would like to find your coffee near me.", `Area: ${area}`, venue ? `Shop or café: ${venue}` : ""].filter(Boolean).join("\n"), Boolean(result.whatsappSent));
+    const result = await submitLocationRequest({ data: { area, venue, channel } });
+    if (channel === "whatsapp") finishWhatsAppWindow(popup, ["Hi Tona, I would like to find your coffee near me.", `Area: ${area}`, venue ? `Shop or café: ${venue}` : ""].filter(Boolean).join("\n"), Boolean(result.whatsappSent));
     form.reset();
-    setStatus("Your location request is saved. Continue in WhatsApp to speak with Tona.");
+    setStatus(channel === "email"
+      ? result.emailSent ? "Your location request was saved and emailed to info@tonacoffee.et." : "Your location request was saved. The email copy could not be sent."
+      : result.whatsappSent ? "Your location request was saved and sent on WhatsApp." : "Your location request was saved. Continue in WhatsApp to send your message.");
   } catch (error) {
     popup?.close();
     setStatus(error instanceof Error ? error.message : "Could not save your location request. Please try again.");
   } finally {
-    if (button) button.disabled = false;
+    buttons.forEach((button) => { button.disabled = false; });
   }
 }
 
@@ -2392,9 +2396,14 @@ function ReferenceFindUsSection() {
               placeholder="Somewhere you already shop"
             />
           </label>
-          <button className="button button-primary" type="submit">
-            Send on WhatsApp
-          </button>
+          <div className="send-row">
+            <button className="button button-primary" type="submit" data-send="whatsapp">
+              Send on WhatsApp
+            </button>
+            <button className="button button-outline" type="submit" data-send="email">
+              Send by email
+            </button>
+          </div>
         </div>
         <p className="form-status" id="area-status" role="status">
           {areaStatus}

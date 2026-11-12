@@ -40,6 +40,7 @@ const contactInput = z.object({
 });
 
 const locationRequestInput = z.object({
+  channel: z.enum(["email", "whatsapp"]).default("whatsapp"),
   area: z.string().trim().min(2).max(180),
   venue: z.string().trim().max(180).optional().nullable().default(null),
 });
@@ -144,6 +145,7 @@ export const submitLocationRequest = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { createContactRequest } = await import("./public-db.server");
     return createContactRequest({
+      channel: data.channel,
       fullName: "Location request",
       organization: data.venue,
       phone: "",

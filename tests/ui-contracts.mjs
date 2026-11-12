@@ -195,16 +195,22 @@ assert.equal(helpers.exports.requestView({ request_type: "feedback_general" }), 
 assert.equal(helpers.exports.requestView({ request_type: "Retail order" }), "contacts");
 const areaHandlerSource = siteSource.slice(siteSource.indexOf("async function submitLocationRequestForm("), siteSource.indexOf("async function submitRequestForm("));
 const areaHandlerJs = ts.transpileModule(areaHandlerSource, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
-let locationSaved, locationReset = false, whatsappFinished = false;
-const submitArea = new Function("FormData", "formText", "optionalFormText", "submitLocationRequest", "prepareWhatsAppWindow", "finishWhatsAppWindow", areaHandlerJs + ";return submitLocationRequestForm;")(
-  class {}, () => "Bole", () => "Local café",
-  async ({ data }) => { locationSaved = data; return { whatsappSent: false }; },
-  () => null, () => { whatsappFinished = true; },
-);
-await submitArea({ preventDefault() {}, currentTarget: { querySelector() { return { disabled: false }; }, reset() { locationReset = true; } } }, () => {});
-assert.deepEqual(locationSaved, { area: "Bole", venue: "Local café" });
-assert.equal(locationReset, true);
-assert.equal(whatsappFinished, true);
+for (const channel of ["whatsapp", "email"]) {
+  let locationSaved, locationReset = false, whatsappFinished = false;
+  const submitArea = new Function("FormData", "formText", "optionalFormText", "submitLocationRequest", "prepareWhatsAppWindow", "finishWhatsAppWindow", areaHandlerJs + ";return submitLocationRequestForm;")(
+    class {}, () => "Bole", () => "Local café",
+    async ({ data }) => { locationSaved = data; return { emailSent: true, whatsappSent: false }; },
+    () => null, () => { whatsappFinished = true; },
+  );
+  await submitArea({
+    preventDefault() {},
+    nativeEvent: { submitter: { getAttribute: () => channel } },
+    currentTarget: { querySelectorAll() { return []; }, reset() { locationReset = true; } },
+  }, () => {});
+  assert.deepEqual(locationSaved, { area: "Bole", venue: "Local café", channel });
+  assert.equal(locationReset, true);
+  assert.equal(whatsappFinished, channel === "whatsapp");
+}
 
 // Exercise all feedback types through API mapping, dashboard persistence and email.
 const notificationJs = ts.transpileModule(readFileSync("src/lib/notifications.server.ts", "utf8").replaceAll("export ", ""), { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
