@@ -380,7 +380,7 @@ export async function createContactRequest(input: {
   const notifications = await sendSubmissionNotifications({
     title,
     subject: `Tona Coffee — ${title}`,
-    customerEmail: input.email,
+    customerEmail: input.requestType === "feedback_rating" ? null : input.email,
     fields: input.presentation?.fields ?? [
       { label: "Full name", value: input.fullName },
       { label: "Phone", value: input.phone },

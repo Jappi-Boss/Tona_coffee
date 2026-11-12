@@ -278,6 +278,9 @@ for (const [feedbackType, rating, channel = "email"] of [["Rate your coffee", 4]
   assert.equal(whatsapp, undefined);
   assert.equal(result.emailSent, true);
   assert.equal(mail.to, "info@tonacoffee.et");
+  assert.equal(mail.reply_to, feedbackType === "Rate your coffee" ? undefined : feedback.contact);
+  assert.ok(mail.text.includes(`Phone or email: ${feedback.contact}`));
+  assert.ok(stored.includes(feedback.contact));
   assert.ok(mail.subject.includes(feedbackType));
   assert.ok(mail.html.includes(feedbackType));
   assert.ok(mail.html.includes("Feedback delivery test"));
