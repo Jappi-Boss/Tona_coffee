@@ -389,6 +389,16 @@ export async function createContactRequest(input: {
     feedback_general: "General feedback",
     feedback_problem: "Report a problem",
   } as Record<string, string>)[input.requestType];
+  const whatsappMessage = [
+    "Hi Tona, I have a request.",
+    `Name: ${input.fullName}`,
+    `Organization: ${input.organization ?? ""}`,
+    `Phone: ${input.phone}`,
+    `Email: ${input.email ?? ""}`,
+    `Request type: ${input.requestType}`,
+    `Coffee interest: ${input.coffeeInterest ?? ""}`,
+    `Message: ${input.message}`,
+  ].join("\n");
   const notifications = await sendSubmissionNotifications({
     title: feedbackLabel ? `New feedback: ${feedbackLabel}` : "New contact request",
     subject: feedbackLabel ? `Tona Coffee feedback: ${feedbackLabel}` : `New Tona Coffee contact request: ${input.requestType}`,
@@ -402,18 +412,9 @@ export async function createContactRequest(input: {
       { label: "Coffee interest", value: input.coffeeInterest },
       { label: "Message", value: input.message },
     ],
-    whatsappMessage: [
-      "Hi Tona, I have a request.",
-      `Name: ${input.fullName}`,
-      `Organization: ${input.organization ?? ""}`,
-      `Phone: ${input.phone}`,
-      `Email: ${input.email ?? ""}`,
-      `Request type: ${input.requestType}`,
-      `Coffee interest: ${input.coffeeInterest ?? ""}`,
-      `Message: ${input.message}`,
-    ].join("\n"),
+    whatsappMessage,
   }, input.channel ?? (input.requestType.startsWith("feedback_") ? "email" : undefined));
-  return { ok: true, id, ...notifications };
+  return { ok: true, id, whatsappMessage, ...notifications };
 }
 
 export async function createOrder(input: {

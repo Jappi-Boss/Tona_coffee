@@ -46,6 +46,7 @@ const locationRequestInput = z.object({
 });
 
 const feedbackInput = z.object({
+  channel: z.enum(["email", "whatsapp"]).default("email"),
   fullName: z.string().trim().min(2).max(120),
   contact: z.string().trim().max(200).refine(
     (value) => z.string().email().safeParse(value).success || /^[+\d][\d\s().-]{6,39}$/.test(value),
@@ -162,7 +163,7 @@ export const submitFeedback = createServerFn({ method: "POST" })
     const { createContactRequest } = await import("./public-db.server");
     const isEmail = z.string().email().safeParse(data.contact).success;
     return createContactRequest({
-      channel: "email",
+      channel: data.channel,
       fullName: data.fullName,
       organization: null,
       phone: isEmail ? "" : data.contact,

@@ -218,11 +218,16 @@ const dbSource = readFileSync("src/lib/public-db.server.ts", "utf8");
 const contactJs = ts.transpileModule(dbSource.slice(dbSource.indexOf("export async function createContactRequest"), dbSource.indexOf("export async function createOrder")).replace("export ", ""), { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
 const apiSource = readFileSync("src/lib/public-api.ts", "utf8");
 const feedbackHandlerJs = ts.transpileModule(apiSource.slice(apiSource.indexOf("export const submitFeedback"), apiSource.indexOf("export const submitOrder")).replace("export ", "").replace('    const { createContactRequest } = await import("./public-db.server");', ""), { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText;
-for (const [feedbackType, rating] of [["Rate your coffee", 4], ["General feedback", 0], ["Report a problem", 0]]) {
-  let mail, stored;
+for (const [feedbackType, rating, channel = "email"] of [["Rate your coffee", 4], ["General feedback", 0], ["Report a problem", 0], ["Rate your coffee", 4, "whatsapp"]]) {
+  let mail, whatsapp, stored;
   const notify = new Function("fetch", "process", "console", notificationJs + "; return sendSubmissionNotifications;")(
-    async (_, request) => { mail = JSON.parse(request.body); return { ok: true }; },
-    { env: { RESEND_API_KEY: "test-only", RESEND_FROM_EMAIL: "Tona Coffee <website@tonacoffee.et>" } }, console,
+    async (url, request) => {
+      assert.ok(stored, "Save feedback before sending");
+      if (url.includes("resend.com")) mail = JSON.parse(request.body);
+      else whatsapp = JSON.parse(request.body);
+      return { ok: true };
+    },
+    { env: { RESEND_API_KEY: "test-only", WHATSAPP_ACCESS_TOKEN: "test-only", WHATSAPP_PHONE_NUMBER_ID: "test", WHATSAPP_NOTIFICATION_TO: "test", RESEND_FROM_EMAIL: "Tona Coffee <website@tonacoffee.et>" } }, console,
   );
   const createContact = new Function("database", "sendSubmissionNotifications", contactJs + ";return createContactRequest;")(
     () => async (_, ...values) => { stored = values; return [{ id: "test-record" }]; }, notify,
@@ -230,7 +235,15 @@ for (const [feedbackType, rating] of [["Rate your coffee", 4], ["General feedbac
   const submit = new Function("createServerFn", "feedbackInput", "z", "createContactRequest", feedbackHandlerJs + ";return submitFeedback;")(
     () => ({ validator: schema => ({ handler: fn => input => fn({ data: schema.parse(input.data) }) }) }), pub.feedbackInput, z, createContact,
   );
-  const result = await submit({ data: { ...feedback, feedbackType, rating, comment: "Feedback delivery test" } });
+  const result = await submit({ data: { ...feedback, feedbackType, rating, channel, comment: "Feedback delivery test" } });
+  if (channel === "whatsapp") {
+    assert.equal(result.whatsappSent, true);
+    assert.equal(mail, undefined);
+    assert.match(whatsapp.text.body, /Rating: 4\/5/);
+    assert.equal(result.whatsappMessage, whatsapp.text.body);
+    continue;
+  }
+  assert.equal(whatsapp, undefined);
   assert.equal(result.emailSent, true);
   assert.equal(mail.to, "info@tonacoffee.et");
   assert.ok(mail.subject.includes(feedbackType));

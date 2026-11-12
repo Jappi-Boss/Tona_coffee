@@ -2548,12 +2548,16 @@ async function submitFeedbackForm(event: FormEvent<HTMLFormElement>, setStatus: 
     setStatus("Choose a star rating for your coffee.");
     return;
   }
-  const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
-  if (button?.disabled) return;
-  if (button) button.disabled = true;
+  const buttons = Array.from(form.querySelectorAll<HTMLButtonElement>('button[type="submit"]'));
+  if (buttons.some((button) => button.disabled)) return;
+  const submitter = (event.nativeEvent as SubmitEvent).submitter;
+  const channel = submitter?.getAttribute("data-send") === "whatsapp" ? "whatsapp" : "email";
+  const popup = channel === "whatsapp" ? prepareWhatsAppWindow() : null;
+  buttons.forEach((button) => { button.disabled = true; });
   setStatus("Saving your feedback…");
   try {
     const result = await submitFeedback({ data: {
+      channel,
       fullName: formText(data, "full-name"),
       contact: formText(data, "contact"),
       feedbackType: formText(data, "feedback-type") as "Rate your coffee" | "General feedback" | "Report a problem",
@@ -2563,13 +2567,21 @@ async function submitFeedbackForm(event: FormEvent<HTMLFormElement>, setStatus: 
       comment: formText(data, "comment"),
     } });
     form.reset();
+    if (channel === "whatsapp") {
+      finishWhatsAppWindow(popup, result.whatsappMessage, Boolean(result.whatsappSent));
+      setStatus(result.whatsappSent
+        ? "Your feedback was saved and sent on WhatsApp."
+        : "Your feedback was saved. Continue in WhatsApp to send your message.");
+      return;
+    }
     setStatus(result.emailSent
       ? "Thank you. Your feedback has been emailed to info@tonacoffee.et."
       : `Your feedback was saved for the Tona team. ${result.emailError || "The email copy could not be sent."} Please contact info@tonacoffee.et if needed.`);
   } catch (error) {
+    popup?.close();
     setStatus(error instanceof Error ? error.message : "Could not save feedback. Please try again.");
   } finally {
-    if (button) button.disabled = false;
+    buttons.forEach((button) => { button.disabled = false; });
   }
 }
 
@@ -2696,12 +2708,14 @@ function ReferenceFeedbackSection() {
               />
             </label>
           </div>
-          <button
-            className="button button-primary feedback-submit"
-            type="submit"
-          >
-            Send feedback
-          </button>
+          <div className="send-row">
+            <button className="button button-primary feedback-submit" type="submit" data-send="whatsapp">
+              Send on WhatsApp
+            </button>
+            <button className="button button-outline feedback-submit" type="submit" data-send="email" style={{ color: "var(--black)", borderColor: "var(--black)" }}>
+              Send by email
+            </button>
+          </div>
           <p className="form-status" role="status">
             {status}
           </p>
