@@ -164,7 +164,13 @@ new Function("exports", helpersJs)(helpers.exports);
 assert.equal(helpers.exports.isFeedbackRequest({ request_type: "Feedback" }), true);
 assert.equal(helpers.exports.isFeedbackRequest({ request_type: "feedback_problem" }), true);
 assert.equal(helpers.exports.isFeedbackRequest({ request_type: "Export enquiry" }), false);
-assert.equal(helpers.exports.requestLabel("feedback_rating"), "Coffee rating");
+assert.equal(helpers.exports.requestLabel("feedback_rating"), "Rate your coffee");
+assert.deepEqual(helpers.exports.feedbackFields({
+  coffee_interest: "House Blend",
+  message: "Feedback: Rate your coffee\nRating: 4/5\nProduct: House Blend\nPurchase location: Bole\nGreat coffee\nWill buy again",
+}), { comment: "Great coffee\nWill buy again", rating: "4/5", purchaseLocation: "Bole" });
+assert.equal(helpers.exports.feedbackFields({ message: "A legacy comment\nPurchase location: Bole" }).comment, "A legacy comment\nPurchase location: Bole");
+
 // Enquiries hand off only to the chosen channel and never save an admin record.
 const siteSource = readFileSync("src/components/site/ReferenceSite.tsx", "utf8");
 const handlerSource = siteSource.slice(siteSource.indexOf("async function submitRequestForm("), siteSource.indexOf("\nasync function submitHostedEventForm"));

@@ -33,7 +33,7 @@ import {
   useState,
 } from "react";
 import { toast } from "sonner";
-import { isFeedbackRequest, requestLabel, requestView } from "@/lib/admin-requests";
+import { feedbackFields, isFeedbackRequest, requestLabel, requestView } from "@/lib/admin-requests";
 import { PRODUCT_IMAGES } from "@/lib/product-images";
 
 import {
@@ -542,14 +542,16 @@ function Overview({
     ...data.contactRequests.map((row) => ({
       type: requestLabel(row.request_type),
       title: String(requestView(row) === "locationRequests" ? row.coffee_interest || "Location request" : row.full_name || "Website request"),
-      detail: String(row.message || ""),
+      detail: requestView(row) === "locationRequests"
+        ? String(row.organization || "")
+        : isFeedbackRequest(row) ? feedbackFields(row).comment : String(row.message || ""),
       date: row.created_at,
       view: requestView(row) as View,
     })),
     ...data.quotationRequests.map((row) => ({
       type: "Quotation",
-      title: String(row.customer_name || "Website quotation"),
-      detail: String(row.quote_number),
+      title: String(row.quote_number),
+      detail: [row.package_size, row.format].filter(Boolean).join(" · "),
       date: row.created_at,
       view: "quotations" as View,
     })),
@@ -1001,38 +1003,23 @@ function Quotations({
       {rows.length ? (
         <RecordTable
           headers={[
-            "Quote",
-            "Customer",
-            "Package",
-            "Request",
-            "Details",
-            "Received",
+            "Reference",
+            "Package size",
+            "Coffee format",
+            "Customer brand or logo name",
+            "Volume and notes",
+            "Submitted at",
             "Status",
             "Actions",
           ]}
         >
           {rows.map((row) => (
             <tr key={String(row.id)} className="border-t">
-              <Cell
-                title={String(row.quote_number)}
-                subtitle={formatDate(row.created_at)}
-              />
-              <Cell
-                title={String(row.customer_name || "Not provided")}
-                subtitle={[row["phone"], row.email].filter(Boolean).join(" · ") || "Contact details not provided"}
-              />
-              <Cell
-                title={String(row.package_size)}
-                subtitle={String(row.format)}
-              />
-              <Cell
-                title={String(row.message ?? "No additional message")}
-                subtitle={String(row.source ?? "website")}
-              />
-              <Cell
-                title={String(row.company || "Website quotation")}
-                subtitle={`${row.brand_name ? `Brand: ${row.brand_name}` : ""}${row.monthly_volume ? ` · ${row.monthly_volume}` : ""}`}
-              />
+              <Cell title={String(row.quote_number)} />
+              <Cell title={String(row.package_size || "–")} />
+              <Cell title={String(row.format || "–")} />
+              <Cell title={String(row.brand_name || "–")} />
+              <Cell title={String(row.message || "–")} />
               <Cell title={formatDate(row.created_at)} />
               <td className="p-4">
                 <StatusSelect
@@ -1158,32 +1145,43 @@ function Contacts({
             {["new", "in_progress", "resolved", "spam"].map((status) => <option key={status} value={status}>{status.replaceAll("_", " ")}</option>)}
           </select>
         </label>
-        <label className="text-sm">Request type
+        {!locationRequests && <label className="text-sm">{feedback ? "Feedback type" : "Request type"}
           <select aria-label="Filter by request type" value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} className="ml-2 rounded-md border bg-white p-2">
             <option value="">All types</option>
             {types.map((type) => <option key={type} value={type}>{requestLabel(type)}</option>)}
           </select>
-        </label>
+        </label>}
         <span className="text-sm text-muted-foreground">{displayed.length} requests</span>
       </div>
       <RecordTable
         headers={[
-          "Customer",
-          "Request",
-          "Message",
-          "Received",
+          ...(locationRequests
+            ? ["Area or neighbourhood", "Shop or café"]
+            : feedback
+              ? ["Full name", "Phone or email", "Feedback type", "Comment or suggestion"]
+              : ["Full name", "Phone / Email", "Request type", "Message"]),
+          "Submitted at",
           "Status",
           "Actions",
         ]}
       >
         {displayed.map((row) => (
           <tr key={String(row.id)} className="border-t">
-            <Cell
-              title={locationRequests ? String(row.coffee_interest || "Location request") : String(row.full_name)}
-              subtitle={locationRequests ? String(row.organization || "No shop suggested") : [row["phone"], row.email].filter(Boolean).join(" · ") || "No contact details"}
-            />
-            <Cell title={requestLabel(row.request_type)} subtitle={String(row.coffee_interest || row.organization || "")} />
-            <td className="min-w-64 max-w-md whitespace-pre-wrap break-words p-4 text-sm text-teal">{String(row.message)}</td>
+            {locationRequests ? (
+              <>
+                <Cell title={String(row.coffee_interest || "–")} />
+                <Cell title={String(row.organization || "–")} />
+              </>
+            ) : (
+              <>
+                <Cell title={String(row.full_name || "–")} />
+                <Cell title={[row.phone, row.email].filter(Boolean).join(" · ") || "–"} />
+                <Cell title={requestLabel(row.request_type)} />
+                <td className="min-w-64 max-w-md whitespace-pre-wrap break-words p-4 text-sm text-teal">
+                  {feedback ? feedbackFields(row).comment : String(row.message || "–")}
+                </td>
+              </>
+            )}
             <Cell title={formatDate(row.created_at)} />
             <td className="p-4">
               <StatusSelect
@@ -1197,7 +1195,7 @@ function Contacts({
             <td className="p-4">
               <RecordDetailsButton row={row} />
               <DeleteButton
-                label={`Delete request from ${String(row.full_name)}`}
+                label={locationRequests ? `Delete location request for ${String(row.coffee_interest)}` : `Delete request from ${String(row.full_name)}`}
                 action={() => onDelete(row)}
               />
             </td>
@@ -2320,15 +2318,53 @@ function EditorActions({
 function RecordDetailsButton({ row }: { row: Row }) {
   const [open, setOpen] = useState(false);
   const isLocationRequest = requestView(row) === "locationRequests";
-  const details = isLocationRequest
-    ? {
-        "Area or neighbourhood": row.coffee_interest,
-        "Shop or café": row.organization,
-        status: row.status,
-        created_at: row.created_at,
-        updated_at: row.updated_at,
-      }
-    : row;
+  const isFeedback = isFeedbackRequest(row);
+  const metadata = { status: row.status, created_at: row.created_at, updated_at: row.updated_at };
+  let title = "Request details";
+  let details = row;
+  if (row.quote_number) {
+    title = "Quotation details";
+    details = {
+      Reference: row.quote_number,
+      "Package size": row.package_size,
+      "Coffee format": row.format,
+      "Customer brand or logo name": row.brand_name,
+      "Volume and anything else we should know": row.message,
+      ...metadata,
+    };
+  } else if (isLocationRequest) {
+    title = "Location request details";
+    details = {
+      "Area or neighbourhood": row.coffee_interest,
+      "Shop or café": row.organization,
+      ...metadata,
+    };
+  } else if (isFeedback) {
+    title = "Feedback details";
+    const { rating, purchaseLocation, comment } = feedbackFields(row);
+    details = {
+      "Feedback type": requestLabel(row.request_type),
+      Rating: rating,
+      Product: row.coffee_interest,
+      "Purchase location": purchaseLocation,
+      "Comment or suggestion": comment,
+      "Full name": row.full_name,
+      "Phone or email": row.phone || row.email,
+      ...metadata,
+    };
+  } else if (row.request_type) {
+    title = "Website enquiry details";
+    details = {
+      "Full name": row.full_name,
+      Phone: row.phone,
+      Email: row.email,
+      Organization: row.organization,
+      "Request type": requestLabel(row.request_type),
+      "Coffee interest": row.coffee_interest,
+      Message: row.message,
+      ...metadata,
+    };
+  }
 
   return (
     <>
@@ -2340,16 +2376,14 @@ function RecordDetailsButton({ row }: { row: Row }) {
         View details
       </button>
       {open && (
-        <Modal title={isLocationRequest ? "Location request details" : row.quote_number ? "Quotation details" : "Request details"} close={() => setOpen(false)}>
+        <Modal title={title} close={() => setOpen(false)}>
           <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {Object.entries(details)
               .filter(([key, value]) => {
-                // Keep the quotation reference and timestamps alongside actual form inputs.
-                if (row.quote_number && !["quote_number", "created_at", "updated_at", "package_size", "format", "brand_name", "message"].includes(key)) return false;
                 return !["id", "event_id"].includes(key) && value != null && (typeof value !== "string" || value.trim() !== "");
               })
               .map(([key, value]) => (
-                <div key={key} className={`min-w-0 rounded-lg border border-black/10 bg-white/60 p-4 ${["message", "notes", "comment", "description"].includes(key) || typeof value === "object" ? "sm:col-span-2" : ""}`}>
+                <div key={key} className={`min-w-0 rounded-lg border border-black/10 bg-white/60 p-4 ${["message", "notes", "comment", "description", "comment or suggestion", "volume and anything else we should know"].includes(key.toLowerCase()) || typeof value === "object" ? "sm:col-span-2" : ""}`}>
                   <dt className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
                     {({ quote_number: "Reference", created_at: "Submitted at", updated_at: "Updated at", package_size: "Package", brand_name: "Customer brand", message: "Message" } as Record<string, string>)[key] ?? key.replaceAll("_", " ")}
                   </dt>
