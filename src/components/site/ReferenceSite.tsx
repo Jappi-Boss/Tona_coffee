@@ -816,18 +816,17 @@ async function submitQuotationForm(
   const form = event.currentTarget;
   const data = new FormData(form);
   const format = formText(data, "format-choice");
-  const channel =
-    (event.nativeEvent as SubmitEvent).submitter?.getAttribute("data-send") ||
-    "whatsapp";
+  const submitter = (event.nativeEvent as SubmitEvent).submitter;
+  const channel = submitter?.getAttribute("data-send") === "email" ? "email" : "whatsapp";
   const popup = channel === "whatsapp" ? prepareWhatsAppWindow() : null;
 
   try {
     const result = await submitQuotation({
       data: {
-        channel: channel === "email" ? "email" : "whatsapp",
+        channel,
         packageSize,
         format,
-        brandName: optionalFormText(data, "brand-name"),
+        brandName: packageSize === "custom" ? optionalFormText(data, "brand-name") : null,
         message: optionalFormText(data, "message"),
       },
     });
@@ -839,7 +838,7 @@ async function submitQuotationForm(
       );
     if (channel !== "email" || result.emailSent) form.reset();
     setStatus(
-      `Quotation ${result.quoteNumber} saved in our system. ${channel === "email"
+      `Quotation ${result.quoteNumber} saved in the dashboard. ${channel === "email"
         ? result.emailSent ? "Email sent to info@tonacoffee.et." : "The email copy could not be sent. Please contact info@tonacoffee.et with your reference."
         : result.whatsappSent ? "WhatsApp notification sent." : "Continue in WhatsApp to send your quotation."}`,
     );
@@ -1758,7 +1757,7 @@ function ReferenceOrdersSection() {
               className="button button-outline"
               type="submit"
               data-send="email"
-              disabled={quoteBusy || requestBusy}
+              disabled={quoteBusy}
             >
               Send by email
             </button>
