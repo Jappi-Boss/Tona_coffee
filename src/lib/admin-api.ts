@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { safeSocialUrl } from "./locations";
 
 const authInput = z.object({ token: z.string().min(20) });
 
@@ -69,6 +70,12 @@ const eventInput = authInput.extend({
   registrationOpen: z.boolean(),
 });
 
+function socialLink(platform: Parameters<typeof safeSocialUrl>[1], label: string) {
+  return z.string().trim().max(2000)
+    .refine((value) => !value || Boolean(safeSocialUrl(value, platform)), `Enter an HTTPS ${label} URL.`)
+    .default("");
+}
+
 const locationInput = authInput
   .extend({
     id: z.string().trim().min(1).max(120).optional(),
@@ -101,23 +108,9 @@ const locationInput = authInput
         "Enter a valid phone number.",
       )
       .default(""),
-    instagram: z
-      .string()
-      .trim()
-      .max(2000)
-      .refine((value) => {
-        if (!value) return true;
-        try {
-          const url = new URL(value);
-          return (
-            url.protocol === "https:" &&
-            ["instagram.com", "www.instagram.com"].includes(url.hostname)
-          );
-        } catch {
-          return false;
-        }
-      }, "Enter an HTTPS Instagram profile URL.")
-      .default(""),
+    instagram: socialLink("instagram", "Instagram"),
+    facebook: socialLink("facebook", "Facebook"),
+    tiktok: socialLink("tiktok", "TikTok"),
     note: z.string().trim().max(240),
     directions: z
       .string()

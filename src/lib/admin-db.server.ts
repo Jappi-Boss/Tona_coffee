@@ -430,6 +430,8 @@ type LocationUpdate = {
   logoUrl: string;
   phone: string;
   instagram: string;
+  facebook: string;
+  tiktok: string;
   latitude: number | null;
   longitude: number | null;
 };
@@ -448,6 +450,8 @@ export async function upsertLocation(input: LocationUpdate) {
     logoUrl: input.logoUrl.trim(),
     phone: input.phone.trim(),
     instagram: input.instagram.trim(),
+    facebook: input.facebook.trim(),
+    tiktok: input.tiktok.trim(),
     latitude: input.latitude,
     longitude: input.longitude,
   };

@@ -1963,7 +1963,9 @@ function LocationEditor({
               ? null
               : Number(form.get("longitude")),
           phone: String(form.get("phone")),
-          instagram: String(form.get("instagram")),
+          instagram: String(form.get("instagram") ?? ""),
+          facebook: String(form.get("facebook") ?? ""),
+          tiktok: String(form.get("tiktok") ?? ""),
         },
       });
       toast.success("Location saved.");
@@ -2046,13 +2048,12 @@ function LocationEditor({
           value={location["phone"]}
           maxLength={40}
         />
-        <EditorField
-          name="instagram"
-          label="Instagram profile URL (optional)"
-          type="url"
-          value={location["instagram"]}
-          placeholder="https://www.instagram.com/yourstore/"
-        />
+        <fieldset className="grid gap-3 sm:col-span-2 sm:grid-cols-3">
+          <legend className="mb-2 text-sm font-semibold text-teal">Social links (optional)</legend>
+          <EditorField name="facebook" label="Facebook" type="url" value={location["facebook"]} placeholder="https://www.facebook.com/…" />
+          <EditorField name="instagram" label="Instagram" type="url" value={location["instagram"]} placeholder="https://www.instagram.com/…" />
+          <EditorField name="tiktok" label="TikTok" type="url" value={location["tiktok"]} placeholder="https://www.tiktok.com/@…" />
+        </fieldset>
         <div className="sm:col-span-2">
           <label className="text-sm font-semibold text-teal">
             Store logo (optional)

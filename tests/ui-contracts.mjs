@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { z } from "zod";
 import ts from "typescript";
+import { normalizeStockists, safeSocialUrl } from "../src/lib/locations.ts";
 function schemas(file, end, names) {
   const source = readFileSync(file, "utf8")
     .split("\n")
@@ -14,7 +15,7 @@ function schemas(file, end, names) {
       module: ts.ModuleKind.ESNext,
     },
   }).outputText;
-  return new Function("z", js + `return {${names.join(",")}};`)(z);
+  return new Function("z", "safeSocialUrl", js + `return {${names.join(",")}};`)(z, safeSocialUrl);
 }
 const admin = schemas(
   "src/lib/admin-api.ts",
@@ -41,6 +42,18 @@ const loc = {
   phone: "",
   instagram: "",
 };
+const socials = {
+  facebook: "https://www.facebook.com/tona",
+  instagram: "https://www.instagram.com/tona/",
+  tiktok: "https://www.tiktok.com/@tona",
+};
+const locationWithSocials = admin.locationInput.parse({ ...loc, ...socials });
+const [publicLocation] = normalizeStockists([locationWithSocials]);
+for (const [platform, url] of Object.entries(socials)) {
+  assert.equal(publicLocation[platform], url);
+  assert.equal(admin.locationInput.parse(loc)[platform], "");
+  assert.equal(admin.locationInput.safeParse({ ...loc, [platform]: "https://example.com/tona" }).success, false);
+}
 assert.equal(admin.locationInput.parse(loc).latitude, null);
 assert.equal(
   admin.locationInput.safeParse({ ...loc, latitude: 9, longitude: null })

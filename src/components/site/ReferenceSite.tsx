@@ -1,6 +1,6 @@
 import { referenceSections } from "./reference-sections";
 import genericCoffeeImage from "@/assets/beans.jpg";
-import { MapPin, Phone, Instagram } from "lucide-react";
+import { MapPin, Phone, Instagram, Facebook, Music2 } from "lucide-react";
 import {
   Fragment,
   useEffect,
@@ -2310,31 +2310,24 @@ function ReferenceFindUsSection() {
                       )}
                     </dd>
                   </div>
-                  <div>
-                    <dt>
-                      <Instagram aria-hidden="true" />
-                      Instagram
-                    </dt>
-                    <dd>
-                      {stockist.instagram ? (
-                        <a
-                          href={stockist.instagram}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          @
-                          {
-                            new URL(stockist.instagram).pathname
-                              .split("/")
-                              .filter(Boolean)[0]
-                          }
-                        </a>
-                      ) : (
-                        "–"
-                      )}
-                    </dd>
-                  </div>
                 </dl>
+                {(stockist.facebook || stockist.instagram || stockist.tiktok) && (
+                  <div className="mt-3 flex flex-wrap gap-2" aria-label={`${stockist.name} social links`}>
+                    {([
+                      ["Facebook", stockist.facebook, Facebook],
+                      ["Instagram", stockist.instagram, Instagram],
+                      ["TikTok", stockist.tiktok, Music2],
+                    ] as const).map(([label, url, Icon]) => url && (
+                      <a key={label} href={url} target="_blank" rel="noopener noreferrer"
+                        aria-label={`${stockist.name} on ${label}`}
+                        className="inline-flex items-center gap-1.5 rounded-sm border border-white/25 px-2 py-1.5 text-xs text-white hover:border-orange-500 hover:text-orange-400"
+                      >
+                        <Icon size={14} aria-hidden="true" />
+                        {label}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
               <a
                 className="stockist-card-directions"

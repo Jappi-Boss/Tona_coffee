@@ -8,6 +8,8 @@ export type Stockist = {
   logoUrl: string;
   phone: string;
   instagram: string;
+  facebook: string;
+  tiktok: string;
   latitude: number | null;
   longitude: number | null;
 };
@@ -23,6 +25,8 @@ export const DEFAULT_STOCKISTS: Stockist[] = [
     longitude: 38.7428241,
     logoUrl: "/stockists/emawa-mart.png",
     phone: "",
+    facebook: "",
+    tiktok: "",
     instagram: "",
     address: "Mexico, Lideta · Addis Ababa",
     note: "Tona House Blend, retail packs.",
@@ -37,6 +41,8 @@ export const DEFAULT_STOCKISTS: Stockist[] = [
     longitude: 38.7213186,
     logoUrl: "/stockists/allmart.png",
     phone: "",
+    facebook: "",
+    tiktok: "",
     instagram: "",
     address: "Bisrate Gabriel, Nefas Silk · Addis Ababa",
     note: "Tona House Blend, retail packs.",
@@ -54,6 +60,8 @@ export const DEFAULT_STOCKISTS: Stockist[] = [
     directions: "https://maps.app.goo.gl/cfMsVfKDRppetFwi6?g_st=it",
     logoUrl: "/stockists/mt-super-valu.jpg",
     phone: "090 376 7778",
+    facebook: "",
+    tiktok: "",
     instagram: "https://www.instagram.com/mt_super_valu/",
   },
 ];
@@ -118,7 +126,9 @@ export function normalizeStockists(value: unknown): Stockist[] {
         note: text(record["note"]),
         logoUrl: safeLogoUrl(record["logoUrl"]),
         phone: text(record["phone"]),
-        instagram: safeInstagramUrl(record["instagram"]),
+        instagram: safeSocialUrl(record["instagram"], "instagram"),
+        facebook: safeSocialUrl(record["facebook"], "facebook"),
+        tiktok: safeSocialUrl(record["tiktok"], "tiktok"),
         directions:
           text(record["directions"]) || fallbackDirections(name, address),
       },
@@ -149,12 +159,18 @@ export function safeLogoUrl(value: unknown) {
     : "";
 }
 
-export function safeInstagramUrl(value: unknown) {
+const socialHosts = {
+  instagram: ["instagram.com", "www.instagram.com"],
+  facebook: ["facebook.com", "www.facebook.com", "m.facebook.com", "web.facebook.com", "fb.com"],
+  tiktok: ["tiktok.com", "www.tiktok.com", "m.tiktok.com", "vm.tiktok.com", "vt.tiktok.com"],
+};
+
+export function safeSocialUrl(value: unknown, platform: keyof typeof socialHosts) {
   const url = text(value);
   try {
     const parsed = new URL(url);
     return parsed.protocol === "https:" &&
-      ["instagram.com", "www.instagram.com"].includes(parsed.hostname)
+      socialHosts[platform].includes(parsed.hostname)
       ? url
       : "";
   } catch {
