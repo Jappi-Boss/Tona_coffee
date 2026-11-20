@@ -309,3 +309,55 @@ body.motion-ready main .section-art.is-visible {
 @media (prefers-reduced-motion: reduce) {
   #main-content .section.motion-section::before { transform: none; transition: none; }
 }
+
+/* Small dimensional objects sit inside the opening illustration of each section. */
+:is(.origins, .quotation, .findus) > .section-lead > .section-art {
+  position: relative;
+}
+
+:is(.origins, .quotation, .findus) > .section-lead > .section-art::after {
+  content: "";
+  position: absolute;
+  top: clamp(.8rem, 3vw, 2rem);
+  right: clamp(.8rem, 3vw, 2rem);
+  font-size: clamp(12px, 1.3vw, 20px);
+  pointer-events: none;
+  filter: drop-shadow(.2em .5em .25em rgb(33 16 8 / 38%));
+}
+
+.origins > .section-lead > .section-art::after {
+  width: 2.2em;
+  height: 3.25em;
+  border-radius: 50% 46% 51% 45%;
+  transform: rotate(32deg);
+  background:
+    radial-gradient(ellipse at -65% 45%, transparent 63%, #30190f 64%, #aa7450 67%, transparent 69%),
+    radial-gradient(ellipse at 30% 25%, #ad7854, #70422a 48%, #331c15 86%);
+}
+
+.quotation > .section-lead > .section-art::after {
+  width: 3em;
+  height: 3.5em;
+  clip-path: polygon(50% 0, 100% 23%, 100% 78%, 50% 100%, 0 78%, 0 23%);
+  background: conic-gradient(from 64deg at 50% 45%, #8b5739 0 116deg, #c49568 116deg 231deg, #e8c49c 231deg);
+}
+
+.findus > .section-lead > .section-art::after {
+  width: 2.6em;
+  height: 2.6em;
+  border-radius: 50% 50% 50% 8%;
+  transform: rotate(-45deg);
+  background: radial-gradient(circle at center, #54291b 18%, #e5ac80 20%, transparent 26%),
+    linear-gradient(140deg, #ffd2a0, #c67b4a 52%, #834829);
+  box-shadow: inset -.12em -.15em .1em #79452e;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :is(.origins, .quotation, .findus) > .section-lead > .section-art.is-visible::after {
+    animation: tona-object-settle 1.1s cubic-bezier(.2,.75,.25,1) both;
+  }
+  @keyframes tona-object-settle {
+    from { translate: 0 -.8em; rotate: y -40deg; opacity: 0; }
+    to { translate: 0 0; rotate: y 0deg; opacity: 1; }
+  }
+}
