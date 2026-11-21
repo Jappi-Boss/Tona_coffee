@@ -361,3 +361,32 @@ body.motion-ready main .section-art.is-visible {
     to { translate: 0 0; rotate: y 0deg; opacity: 1; }
   }
 }
+
+/* Give each public section a short depth reveal using the existing visibility observer. */
+@media (prefers-reduced-motion: no-preference) {
+  body.motion-ready main .section:not(.hero) :is(.section-heading, .quotation-intro, .section-art, .about-art, .events-image, .origin-card, .moment-card, .principle, .partner-row, .pack-card, .stockist-card).is-visible {
+    transform-origin: center 65%;
+    animation: tona-section-depth 850ms cubic-bezier(.18,.72,.25,1) var(--reveal-delay, 0ms) backwards;
+  }
+
+  body.motion-ready main .section:not(.hero) :is(.section-art, .about-art, .events-image).is-visible {
+    --tona-turn: -12deg;
+    --tona-lift: 1.2rem;
+  }
+
+  @keyframes tona-section-depth {
+    from { transform: perspective(850px) translateY(var(--tona-lift, .65rem)) rotateX(7deg) rotateY(var(--tona-turn, 5deg)); }
+    to { transform: perspective(850px) translateY(0) rotateX(0deg) rotateY(0deg); }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .reference-footer .footer-nav a {
+      display: inline-block;
+      transition: transform 220ms ease-out;
+    }
+
+    .reference-footer .footer-nav a:is(:hover, :focus-visible) {
+      transform: perspective(300px) rotateY(-12deg) translateY(-2px);
+    }
+  }
+}
